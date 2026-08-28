@@ -1146,7 +1146,7 @@ Dois eixos independentes: produção é explícito, pagamento é derivado dos re
   - `transicionar(de: EstadoProducao, para: EstadoProducao): EstadoProducao` — lança se inválida
   - `calcularEstadoPagamento(precoFinal: number, recebimentos: number[]): EstadoPagamento`
 
-- [ ] **Step 1: Escrever o teste dos estados**
+- [x] **Step 1: Escrever o teste dos estados**
 
 `src/domain/ordem/estados.test.ts`:
 ```ts
@@ -1216,12 +1216,12 @@ describe('estado de pagamento derivado', () => {
 })
 ```
 
-- [ ] **Step 2: Rodar e ver falhar**
+- [x] **Step 2: Rodar e ver falhar**
 
 Run: `npm test -- estados`
 Expected: FAIL — não consegue resolver `./estados`
 
-- [ ] **Step 3: Criar `src/domain/ordem/estados.ts`**
+- [x] **Step 3: Criar `src/domain/ordem/estados.ts`**
 
 ```ts
 import { dinheiro } from '../precificacao/dinheiro'
@@ -1265,12 +1265,14 @@ export function calcularEstadoPagamento(
 }
 ```
 
-- [ ] **Step 4: Rodar e ver passar**
+- [x] **Step 4: Rodar e ver passar**
 
 Run: `npm test -- estados`
 Expected: PASS — 17 passed
 
-- [ ] **Step 5: Escrever a trava de pureza do domínio**
+> Nota de execução (2026-08-28): o arquivo tem 19 casos (5 + 5 + 3 + 6); o "17" era erro de contagem no plano. Resultado real: 19 passed. O primeiro `it.each` tem tuplas de 3 elementos e o callback recebia 2 — passa em runtime, mas o TypeScript 7 rejeita (TS2345); o callback passou a receber `esperado` e usar `toBe(esperado)`.
+
+- [x] **Step 5: Escrever a trava de pureza do domínio**
 
 `src/domain/pureza.test.ts`:
 ```ts
@@ -1304,17 +1306,19 @@ describe('pureza do dominio', () => {
 })
 ```
 
-- [ ] **Step 6: Rodar a suíte inteira**
+- [x] **Step 6: Rodar a suíte inteira**
 
 Run: `npm test`
 Expected: PASS — todos verdes, incluindo a trava de pureza
 
-- [ ] **Step 7: Rodar o typecheck**
+- [x] **Step 7: Rodar o typecheck**
 
 Run: `npm run typecheck`
 Expected: sem erros
 
-- [ ] **Step 8: Commit**
+> Nota de execução (2026-08-28): no TypeScript 7 os pacotes `@types/*` não entram mais automaticamente; `process` em `pureza.test.ts` deu TS2591. Adicionado `"types": ["node"]` ao `tsconfig.json`.
+
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/domain/ordem/ src/domain/pureza.test.ts
@@ -1325,9 +1329,9 @@ git commit -m "feat: maquina de estados da ordem e trava de pureza do dominio"
 
 ## Critério de conclusão da Fase 1A
 
-- [ ] `npm test` passa inteiro
-- [ ] `npm run typecheck` sem erros
-- [ ] As três fórmulas reproduzem o gabarito do legado dentro das tolerâncias declaradas
-- [ ] Nenhum arquivo em `src/domain/` importa framework — verificado por teste, não por disciplina
+- [x] `npm test` passa inteiro
+- [x] `npm run typecheck` sem erros
+- [x] As três fórmulas reproduzem o gabarito do legado dentro das tolerâncias declaradas
+- [x] Nenhum arquivo em `src/domain/` importa framework — verificado por teste, não por disciplina
 
 Feito isso, a Fase 1B (Prisma, autenticação e layout com Tabler) ganha seu próprio plano.
