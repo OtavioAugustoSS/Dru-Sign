@@ -1405,13 +1405,13 @@ Junta tudo: a página `/entrar` com Server Action, o `proxy.ts` que barra quem n
   - Server Actions `entrar(estado, formData)` e `sair()`
   - rotas `/entrar` (pública) e `/` (protegida)
 
-- [ ] **Step 1: Instalar `server-only`**
+- [x] **Step 1: Instalar `server-only`**
 
 ```bash
 npm i --save-exact server-only@0.0.1
 ```
 
-- [ ] **Step 2: Constante compartilhada, cola do cookie e usuário atual**
+- [x] **Step 2: Constante compartilhada, cola do cookie e usuário atual**
 
 `src/infra/auth/constantes.ts` (sem imports: o `proxy.ts` também lê daqui e não pode puxar Prisma):
 ```ts
@@ -1470,7 +1470,7 @@ export async function exigirUsuario(): Promise<UsuarioSessao> {
 }
 ```
 
-- [ ] **Step 3: O proxy (Next 16 renomeou `middleware.ts` para `proxy.ts`)**
+- [x] **Step 3: O proxy (Next 16 renomeou `middleware.ts` para `proxy.ts`)**
 
 `src/proxy.ts` — verificação **otimista**: só olha se o cookie existe, sem tocar no banco. Quem valida de verdade é `exigirUsuario()` no layout. Por isso o proxy **não** redireciona `/entrar` para `/` quando há cookie: um cookie velho faria um loop (`/` → `/entrar` → `/` …). A página `/entrar` faz esse redirecionamento depois de validar no banco.
 
@@ -1500,7 +1500,7 @@ export const config = {
 }
 ```
 
-- [ ] **Step 4: Server Actions de entrar e sair**
+- [x] **Step 4: Server Actions de entrar e sair**
 
 `src/app/(auth)/entrar/actions.ts`:
 ```ts
@@ -1553,7 +1553,7 @@ export async function sair(): Promise<void> {
 }
 ```
 
-- [ ] **Step 5: Página e formulário de entrar**
+- [x] **Step 5: Página e formulário de entrar**
 
 `src/app/(auth)/entrar/form-entrar.tsx` — Client Component mínimo (`useActionState` do React 19). A diretiva vai na **linha 1**.
 ```tsx
@@ -1653,7 +1653,7 @@ export default async function PaginaEntrar({
 }
 ```
 
-- [ ] **Step 6: Escrever a trava do `'use client'` e criar o menu do usuário SEM a diretiva**
+- [x] **Step 6: Escrever a trava do `'use client'` e criar o menu do usuário SEM a diretiva**
 
 `src/componentes/use-client.test.ts` — o `react-bootstrap` 2.10.10 não marca todos os módulos com `'use client'` (Form, Collapse, Tabs…); importá-los de um Server Component quebra. Regra do projeto: todo arquivo que importa `react-bootstrap` começa com `'use client'` na linha 1.
 ```ts
@@ -1713,12 +1713,12 @@ export function MenuUsuario({ nome, papel, iniciais, sairAction }: Props) {
 }
 ```
 
-- [ ] **Step 7: Rodar e ver a trava falhar**
+- [x] **Step 7: Rodar e ver a trava falhar**
 
 Run: `npm test -- use-client`
 Expected: FAIL — `expected [ 'src\componentes\menu-usuario.tsx' ] to deeply equal []`
 
-- [ ] **Step 8: Acrescentar `'use client'` na linha 1 de `menu-usuario.tsx` e ver passar**
+- [x] **Step 8: Acrescentar `'use client'` na linha 1 de `menu-usuario.tsx` e ver passar**
 
 O arquivo passa a começar com:
 ```tsx
@@ -1730,7 +1730,7 @@ import Dropdown from 'react-bootstrap/Dropdown'
 Run: `npm test -- use-client`
 Expected: PASS — 1 passed
 
-- [ ] **Step 9: Layout da área logada com a sidebar vertical, e a fila de trabalho**
+- [x] **Step 9: Layout da área logada com a sidebar vertical, e a fila de trabalho**
 
 `src/app/(app)/layout.tsx` — sidebar à esquerda como nos artboards de `design/`; usuário embaixo. Server Component: só o `MenuUsuario` roda no navegador. Sem classes `collapse` (não há JS do Bootstrap): abaixo de `lg` a sidebar vira barra no topo, com os itens visíveis.
 ```tsx
@@ -1840,14 +1840,14 @@ Apagar a página provisória, que conflita com a rota `/`:
 git rm src/app/page.tsx
 ```
 
-- [ ] **Step 10: Typecheck, suíte e build**
+- [x] **Step 10: Typecheck, suíte e build**
 
 Run: `npm run typecheck` → sem erros.
 Run: `npm test` → PASS.
 Run: `npm run build`
 Expected: verde, com `ƒ /` e `ƒ /entrar` (dinâmicas) e a linha `ƒ Proxy (Middleware)`.
 
-- [ ] **Step 11: Fumaça sem navegador**
+- [x] **Step 11: Fumaça sem navegador**
 
 Run: `npx next dev -p 3000` em segundo plano (ele lê `.env.local`). Aguardar `Ready`.
 
@@ -1859,7 +1859,7 @@ Expected: `<title>Entrar · DruSign</title>`, `for="login"`, `for="senha"`
 
 Parar o `next dev` (matar o processo em segundo plano) **antes** de qualquer `prisma generate`/`next build` posterior.
 
-- [ ] **Step 12: Commit**
+- [x] **Step 12: Commit**
 
 ```bash
 git add package.json package-lock.json src/proxy.ts src/infra/auth/ src/app/ src/componentes/
