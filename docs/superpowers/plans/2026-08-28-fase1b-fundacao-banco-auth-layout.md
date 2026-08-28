@@ -1061,7 +1061,7 @@ A lógica de sessão fica separada do Next: `sessao.ts` só conhece o banco, e �
   - `criarSessao(usuarioId, agora?): Promise<{ id; expiraEm }>`, `validarSessao(id, agora?): Promise<UsuarioSessao | null>`, `encerrarSessao(id): Promise<void>`, `DURACAO_SESSAO_SEGUNDOS = 43200`
   - `destinoSeguro(proximo: unknown, padrao = '/'): string`
 
-- [ ] **Step 1: Tipo de papel no domínio**
+- [x] **Step 1: Tipo de papel no domínio**
 
 `src/domain/usuarios/tipos.ts`:
 ```ts
@@ -1069,7 +1069,7 @@ A lógica de sessão fica separada do Next: `sessao.ts` só conhece o banco, e �
 export type PapelUsuario = 'administracao' | 'operacao'
 ```
 
-- [ ] **Step 2: Escrever o teste do destino seguro**
+- [x] **Step 2: Escrever o teste do destino seguro**
 
 `src/infra/auth/destino.test.ts`:
 ```ts
@@ -1104,12 +1104,12 @@ describe('destinoSeguro', () => {
 })
 ```
 
-- [ ] **Step 3: Rodar e ver falhar**
+- [x] **Step 3: Rodar e ver falhar**
 
 Run: `npm test -- destino`
 Expected: FAIL — `Cannot find module './destino'`
 
-- [ ] **Step 4: Criar `src/infra/auth/destino.ts`**
+- [x] **Step 4: Criar `src/infra/auth/destino.ts`**
 
 ```ts
 /**
@@ -1129,12 +1129,12 @@ export function destinoSeguro(proximo: unknown, padrao = '/'): string {
 }
 ```
 
-- [ ] **Step 5: Rodar e ver passar**
+- [x] **Step 5: Rodar e ver passar**
 
 Run: `npm test -- destino`
 Expected: PASS — 12 passed
 
-- [ ] **Step 6: Escrever o teste de integração da sessão**
+- [x] **Step 6: Escrever o teste de integração da sessão**
 
 `src/infra/auth/sessao.int.test.ts`:
 ```ts
@@ -1200,12 +1200,12 @@ describe('sessao no banco', () => {
 })
 ```
 
-- [ ] **Step 7: Rodar e ver falhar**
+- [x] **Step 7: Rodar e ver falhar**
 
 Run: `npm run test:int -- sessao`
 Expected: FAIL — `Cannot find module './sessao'`
 
-- [ ] **Step 8: Criar `src/infra/auth/sessao.ts`**
+- [x] **Step 8: Criar `src/infra/auth/sessao.ts`**
 
 ```ts
 import { randomBytes } from 'node:crypto'
@@ -1261,12 +1261,12 @@ export async function encerrarSessao(id: string | undefined): Promise<void> {
 }
 ```
 
-- [ ] **Step 9: Rodar e ver passar**
+- [x] **Step 9: Rodar e ver passar**
 
 Run: `npm run test:int`
 Expected: PASS — 8 passed (3 de `usuario` + 5 de `sessao`)
 
-- [ ] **Step 10: Verificação e commit**
+- [x] **Step 10: Verificação e commit**
 
 Run: `npm run typecheck` → sem erros.
 Run: `npm test` → PASS (`destino` incluso; `pureza` continua verde com `src/domain/usuarios/tipos.ts`).
