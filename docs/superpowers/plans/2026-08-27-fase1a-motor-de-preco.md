@@ -402,7 +402,7 @@ git commit -m "feat: tipos do dominio de precificacao e helper de dinheiro em De
 - Consumes: `ItemCobranca`, `ResultadoItem`, `dinheiro`, `arredondarCentavos` da Task 3
 - Produces: `calcularArea(item: ItemCobranca): ResultadoItem`
 
-- [ ] **Step 1: Escrever o teste com os casos reais do legado**
+- [x] **Step 1: Escrever o teste com os casos reais do legado**
 
 `src/domain/precificacao/formulas.area.test.ts`:
 ```ts
@@ -455,12 +455,12 @@ describe('calcularArea', () => {
 })
 ```
 
-- [ ] **Step 2: Rodar e ver falhar**
+- [x] **Step 2: Rodar e ver falhar**
 
 Run: `npm test -- formulas.area`
 Expected: FAIL — não consegue resolver `./formulas`
 
-- [ ] **Step 3: Criar `src/domain/precificacao/formulas.ts`**
+- [x] **Step 3: Criar `src/domain/precificacao/formulas.ts`**
 
 ```ts
 import { dinheiro, arredondarCentavos } from './dinheiro'
@@ -481,12 +481,12 @@ export function calcularArea(item: ItemCobranca): ResultadoItem {
 }
 ```
 
-- [ ] **Step 4: Rodar e ver passar**
+- [x] **Step 4: Rodar e ver passar**
 
 Run: `npm test -- formulas.area`
 Expected: PASS — 8 passed
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/domain/precificacao/formulas.ts src/domain/precificacao/formulas.area.test.ts
