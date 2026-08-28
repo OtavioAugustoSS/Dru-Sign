@@ -988,7 +988,7 @@ Soma itens e acréscimos, produz o preço calculado, e aplica o ajuste manual qu
   - `interface ComposicaoOrdem { subtotalItens: Decimal; subtotalAcrescimos: Decimal; precoCalculado: Decimal; precoFinal: Decimal; ajuste: Decimal; temAjuste: boolean }`
   - `comporOrdem(itens: ItemCobranca[], acrescimos: Acrescimo[], precoFinalManual?: number): ComposicaoOrdem`
 
-- [ ] **Step 1: Escrever o teste com a ordem real 18449**
+- [x] **Step 1: Escrever o teste com a ordem real 18449**
 
 `src/domain/precificacao/ordem.test.ts`:
 ```ts
@@ -1053,12 +1053,12 @@ describe('comporOrdem', () => {
 })
 ```
 
-- [ ] **Step 2: Rodar e ver falhar**
+- [x] **Step 2: Rodar e ver falhar**
 
 Run: `npm test -- ordem`
 Expected: FAIL — não consegue resolver `./ordem`
 
-- [ ] **Step 3: Criar `src/domain/precificacao/ordem.ts`**
+- [x] **Step 3: Criar `src/domain/precificacao/ordem.ts`**
 
 ```ts
 import { calcularItem } from './formulas'
@@ -1114,12 +1114,12 @@ export function comporOrdem(
 }
 ```
 
-- [ ] **Step 4: Rodar e ver passar**
+- [x] **Step 4: Rodar e ver passar**
 
 Run: `npm test -- ordem`
 Expected: PASS — 6 passed
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/domain/precificacao/ordem.ts src/domain/precificacao/ordem.test.ts
