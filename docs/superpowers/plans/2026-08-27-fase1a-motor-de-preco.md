@@ -155,7 +155,7 @@ Extrai as 772 linhas da tabela `ORDEM2` do sistema antigo para um JSON que serve
 - Produces: `ordem2-gabarito.json`, um array de objetos com a forma
   `{ os: number, descricao: string, unidadeLegado: string, altura: number, largura: number, totmt: number, valor: number, quantidade: number, total: number }`
 
-- [ ] **Step 1: Escrever o script de extração**
+- [x] **Step 1: Escrever o script de extração**
 
 `scripts/extrair-gabarito.py` — lê o DBF direto, sem dependência externa:
 
@@ -224,14 +224,14 @@ if __name__ == "__main__":
     main()
 ```
 
-- [ ] **Step 2: Rodar o script**
+- [x] **Step 2: Rodar o script**
 
 Run: `python scripts/extrair-gabarito.py`
 Expected: `772 linhas escritas em src\domain\precificacao\__fixtures__\ordem2-gabarito.json`
 
 Se a origem não existir, os dados do legado precisam ser reextraídos antes de continuar — sem o gabarito, as fórmulas não têm como ser validadas contra a realidade.
 
-- [ ] **Step 3: Escrever o teste que valida a forma do gabarito**
+- [x] **Step 3: Escrever o teste que valida a forma do gabarito**
 
 `src/domain/precificacao/__fixtures__/gabarito.test.ts`:
 ```ts
@@ -264,16 +264,16 @@ describe('gabarito do ORDEM2', () => {
 })
 ```
 
-- [ ] **Step 4: Habilitar import de JSON no tsconfig**
+- [x] **Step 4: Habilitar import de JSON no tsconfig**
 
 Adicionar em `compilerOptions`: `"resolveJsonModule": true`
 
-- [ ] **Step 5: Rodar os testes**
+- [x] **Step 5: Rodar os testes**
 
 Run: `npm test`
 Expected: PASS — 4 passed
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add scripts/extrair-gabarito.py src/domain/precificacao/__fixtures__/ tsconfig.json
