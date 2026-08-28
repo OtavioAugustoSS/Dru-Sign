@@ -25,7 +25,8 @@
     "postinstall": "prisma generate",
     "e2e": "playwright test",
     "check": "npm run typecheck && npm run test && npm run test:int",
-    "db:migrar": "node scripts/migrar.mjs"
+    "db:migrar": "node scripts/migrar.mjs",
+    "importar:clientes": "tsx scripts/importar-clientes.ts"
   },
   "repository": {
     "type": "git",

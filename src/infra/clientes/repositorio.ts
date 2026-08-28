@@ -117,20 +117,28 @@ function telefonesParaCriar(empresaId: string, telefones: string[]) {
     })
 }
 
-export async function criarCliente(
-  empresaId: string,
-  dados: DadosCliente,
-  extras: ExtrasImportacao = {},
-): Promise<ClienteCompleto> {
-  return prisma.cliente.create({
-    data: {
+/** As linhas prontas para gravar, sem gravar: a importacao em lote usa isto com createMany. */
+export function prepararLinhas(empresaId: string, dados: DadosCliente, extras: ExtrasImportacao = {}) {
+  return {
+    cliente: {
       empresaId,
       ...colunas(dados),
       codigoLegado: extras.codigoLegado ?? null,
       arquivadoEm: extras.arquivadoEm ?? null,
       ...(extras.criadoEm ? { criadoEm: extras.criadoEm } : {}),
-      telefones: { create: telefonesParaCriar(empresaId, dados.telefones) },
     },
+    telefones: telefonesParaCriar(empresaId, dados.telefones),
+  }
+}
+
+export async function criarCliente(
+  empresaId: string,
+  dados: DadosCliente,
+  extras: ExtrasImportacao = {},
+): Promise<ClienteCompleto> {
+  const linhas = prepararLinhas(empresaId, dados, extras)
+  return prisma.cliente.create({
+    data: { ...linhas.cliente, telefones: { create: linhas.telefones } },
     select: SELECAO_COMPLETA,
   })
 }

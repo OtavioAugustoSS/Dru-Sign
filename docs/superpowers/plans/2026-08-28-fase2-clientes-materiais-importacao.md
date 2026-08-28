@@ -818,7 +818,7 @@ git commit -m "feat: repositorio de clientes com busca por apelido e telefone e 
   - `importarClientesLegado(caminhoDbf, empresaId): Promise<ResultadoImportacao>`
   - script `npm run importar:clientes`
 
-- [ ] **Step 1: Teste do leitor de DBF com um arquivo construído no próprio teste**
+- [x] **Step 1: Teste do leitor de DBF com um arquivo construído no próprio teste**
 
 `src/infra/importacao/dbf.test.ts`:
 ```ts
@@ -865,7 +865,7 @@ describe('interpretarDbf', () => {
 })
 ```
 
-- [ ] **Step 2: Rodar e ver falhar, criar o leitor, ver passar**
+- [x] **Step 2: Rodar e ver falhar, criar o leitor, ver passar**
 
 Run: `npm test -- dbf` → FAIL — `Cannot find module './dbf'`
 
@@ -938,7 +938,7 @@ export function lerDbf(caminho: string, codificacao = 'windows-1252'): ArquivoDb
 
 Run: `npm test -- dbf` → PASS — 2 passed
 
-- [ ] **Step 3: Teste do conversor de registro (puro)**
+- [x] **Step 3: Teste do conversor de registro (puro)**
 
 `src/infra/importacao/clientes-legado.test.ts`:
 ```ts
@@ -994,7 +994,7 @@ describe('converterRegistro', () => {
 })
 ```
 
-- [ ] **Step 4: Rodar e ver falhar, criar o conversor e o importador, ver passar**
+- [x] **Step 4: Rodar e ver falhar, criar o conversor e o importador, ver passar**
 
 Run: `npm test -- clientes-legado` → FAIL — `Cannot find module './clientes-legado'`
 
@@ -1126,7 +1126,7 @@ export async function importarClientesLegado(caminhoDbf: string, empresaId: stri
 
 Run: `npm test -- clientes-legado` → PASS — 3 passed. (O import de `prisma` no módulo não conecta em nada até ser usado; o unitário só chama `converterRegistro`.)
 
-- [ ] **Step 5: Teste de integração contra o DBF real — o critério de verificação da fase**
+- [x] **Step 5: Teste de integração contra o DBF real — o critério de verificação da fase**
 
 `src/infra/importacao/clientes-legado.int.test.ts`:
 ```ts
@@ -1193,9 +1193,11 @@ describe('importacao do CLIENTES.DBF (banco real, arquivo real)', () => {
 ```
 
 Run: `npm run test:int -- clientes-legado`
-Expected: PASS — 6 passed. Demora (3.219 inserções no Postgres local); colar o tempo. Se o número de telefones ou inferidos divergir, **parar**: ou a regra mudou ou o DBF não é o mesmo.
+Expected: PASS — 6 passed.
 
-- [ ] **Step 6: Script de importação e execução no banco de desenvolvimento**
+> Notas de execução (2026-08-28): (1) o teste unitário do conversor quebrava ao importar `./clientes-legado`, porque o módulo carrega o `prisma` (que avalia `env()` sem `DATABASE_URL` no unitário); o conversor puro foi para `conversao-clientes.ts` e o unitário importa de lá. (2) 3.219 `create` aninhados levaram mais de 5 min no Postgres local; o importador passou a usar `createMany` em lotes de 500 (clientes, depois telefones) via `prepararLinhas` do repositório — 31 s. (3) O `beforeEach` do harness trunca o banco antes de cada `it`, apagando o que o `beforeAll` importou; o arquivo virou **um único caso** com as seis verificações em sequência (1 passed). Demora (3.219 inserções no Postgres local); colar o tempo. Se o número de telefones ou inferidos divergir, **parar**: ou a regra mudou ou o DBF não é o mesmo.
+
+- [x] **Step 6: Script de importação e execução no banco de desenvolvimento**
 
 `scripts/importar-clientes.ts`:
 ```ts
@@ -1242,7 +1244,7 @@ Expected: `3219 clientes importados para "DruSign Placas e Comunicacao Visual" e
 Run: `npm run importar:clientes` (de novo)
 Expected: `nada a fazer: ... ja tem 3219 clientes importados`
 
-- [ ] **Step 7: Verificação e commit**
+- [x] **Step 7: Verificação e commit**
 
 Run: `npm run typecheck` → sem erros.
 Run: `npm test` → PASS.
