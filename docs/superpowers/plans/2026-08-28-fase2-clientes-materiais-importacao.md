@@ -450,6 +450,8 @@ Expected: migração criada e aplicada no banco `drusign`; no SQL: `CREATE TYPE 
 
 Run: `npm run db:generate` → client regenerado.
 
+> Nota de execução (2026-08-28): `prisma migrate dev` **não funciona mais** no Postgres local do `prisma dev`: o PGlite não isola bancos (`drusign`, `template1` e qualquer shadow mostram as mesmas tabelas), então o replay das migrações no shadow falha com `type "papel" already exists` a partir da segunda migração. A primeira só passou porque estava tudo vazio. Caminho adotado, documentado pelo Prisma para ambientes sem shadow: `prisma migrate diff --from-config-datasource --to-schema` gera o SQL, o arquivo entra em `prisma/migrations/`, `migrate deploy` aplica — automatizado em `npm run db:migrar -- <nome>` (`scripts/migrar.mjs`). Os bancos passaram a se chamar `drusign` (dev) e `drusign_test` (teste), criados com `TEMPLATE template0`, e o `template1` foi esvaziado. Na Neon, onde há shadow de verdade, `db:migrate` volta a valer.
+
 - [x] **Step 3: `exigirPapel`**
 
 Acrescentar ao fim de `src/infra/auth/usuario-atual.ts`:
