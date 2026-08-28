@@ -24,3 +24,17 @@ export function calcularUnidade(item: ItemCobranca): ResultadoItem {
   )
   return { unidade: 'unidade', medida: dinheiro(1), total }
 }
+
+export function calcularMetroLinear(item: ItemCobranca): ResultadoItem {
+  if (item.altura === undefined || item.largura === undefined) {
+    throw new Error('altura e largura sao obrigatorias para cobranca por metro linear')
+  }
+  if (item.altura <= 0 || item.largura <= 0) {
+    throw new Error('altura e largura precisam ser maiores que zero')
+  }
+  const medida = dinheiro(item.altura).plus(dinheiro(item.largura)).times(2)
+  const total = arredondarCentavos(
+    medida.times(dinheiro(item.valorUnitario)).times(dinheiro(item.quantidade)),
+  )
+  return { unidade: 'metro_linear', medida, total }
+}

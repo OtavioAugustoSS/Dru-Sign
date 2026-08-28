@@ -597,7 +597,7 @@ Metro linear no legado é o **perímetro** da peça, não um comprimento avulso.
 - Consumes: o mesmo da Task 4
 - Produces: `calcularMetroLinear(item: ItemCobranca): ResultadoItem`
 
-- [ ] **Step 1: Escrever o teste com os cinco casos confirmados**
+- [x] **Step 1: Escrever o teste com os cinco casos confirmados**
 
 `src/domain/precificacao/formulas.metrolinear.test.ts`:
 ```ts
@@ -640,12 +640,12 @@ describe('calcularMetroLinear', () => {
 })
 ```
 
-- [ ] **Step 2: Rodar e ver falhar**
+- [x] **Step 2: Rodar e ver falhar**
 
 Run: `npm test -- formulas.metrolinear`
 Expected: FAIL — `calcularMetroLinear is not a function`
 
-- [ ] **Step 3: Acrescentar a função em `formulas.ts`**
+- [x] **Step 3: Acrescentar a função em `formulas.ts`**
 
 ```ts
 export function calcularMetroLinear(item: ItemCobranca): ResultadoItem {
@@ -663,12 +663,12 @@ export function calcularMetroLinear(item: ItemCobranca): ResultadoItem {
 }
 ```
 
-- [ ] **Step 4: Rodar e ver passar**
+- [x] **Step 4: Rodar e ver passar**
 
 Run: `npm test -- formulas.metrolinear`
 Expected: PASS — 7 passed
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/domain/precificacao/formulas.ts src/domain/precificacao/formulas.metrolinear.test.ts
