@@ -2280,7 +2280,7 @@ git commit -m "feat: catalogo de materiais e precos para administracao"
 **Files:**
 - Create: `e2e/apoio.ts`, `e2e/clientes.spec.ts`, `e2e/materiais.spec.ts`
 
-- [ ] **Step 1: Helper de login e os dois specs**
+- [x] **Step 1: Helper de login e os dois specs**
 
 `e2e/apoio.ts`:
 ```ts
@@ -2382,14 +2382,16 @@ test.describe('Materiais e preços', () => {
 })
 ```
 
-- [ ] **Step 2: Rodar**
+- [x] **Step 2: Rodar**
 
 Antes: `npm run db:local:ls` com `drusign` de pé e `npm run importar:clientes` já executado (Task 4).
 
 Run: `npm run e2e`
 Expected: `8 passed` (3 da 1B + 4 de clientes + 1 de materiais).
 
-- [ ] **Step 3: Verificação final e commit**
+> Nota de execução (2026-08-28): na primeira rodada completa o caso "telefone repetido" estourou os 10 s do `expect` com o botão ainda em "Salvando…" — o `next dev` compila a action na primeira chamada sob carga. Isolado, passou em 6,6 s. Os dois `toHaveURL` pós-submit ganharam `timeout: 30_000`.
+
+- [x] **Step 3: Verificação final e commit**
 
 Run: `npm run check` → typecheck, unitários e integração verdes.
 Run: `npm run build` → verde.
@@ -2405,9 +2407,9 @@ git commit -m "test: clientes e materiais ponta a ponta"
 
 Verificação da spec (seção 13): *"busca por apelido acha o Bretas e a FACTU; nenhum telefone com 10 dígitos sobrou; os 1.978 apagados entraram como arquivados."*
 
-- [ ] `clientes-legado.int.test.ts` verde: 3.219 importados, 1.978 arquivados, 3.077 telefones, 1.975 inferidos, **0 celulares com 10 dígitos**, Bretas e FACTU achados por apelido, reimportar não duplica
-- [ ] `npm run check` e `npm run build` verdes
-- [ ] `npm run e2e` verde: busca por apelido e telefone, aviso de duplicidade, ficha com original e normalizado, catálogo de materiais
-- [ ] O banco de desenvolvimento tem os 3.219 clientes (`npm run importar:clientes`)
+- [x] `clientes-legado.int.test.ts` verde: 3.219 importados, 1.978 arquivados, 3.077 telefones, 1.975 inferidos, **0 celulares com 10 dígitos**, Bretas e FACTU achados por apelido, reimportar não duplica
+- [x] `npm run check` e `npm run build` verdes
+- [x] `npm run e2e` verde: busca por apelido e telefone, aviso de duplicidade, ficha com original e normalizado, catálogo de materiais
+- [x] O banco de desenvolvimento tem os 3.219 clientes (`npm run importar:clientes`)
 
 Feito isso, a Fase 3 (ordem de serviço, entrada assistida, itens, acréscimos, ajuste de preço e impresso) ganha seu próprio plano.
