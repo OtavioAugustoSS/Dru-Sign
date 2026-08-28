@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 
-const PROIBIDOS = ['next', 'react', '@prisma/client', 'node:fs', 'node:http']
+const PROIBIDOS = ['next', 'react', '@prisma/client', '@/generated', '@/infra', 'node:fs', 'node:http']
 
 function arquivosDe(dir: string): string[] {
   return readdirSync(dir).flatMap((n) => {
@@ -18,7 +18,7 @@ describe('pureza do dominio', () => {
     for (const arq of arquivosDe(join(process.cwd(), 'src', 'domain'))) {
       const src = readFileSync(arq, 'utf-8')
       for (const p of PROIBIDOS) {
-        if (new RegExp(`from\s+['"]${p.replace('/', '\/')}`).test(src)) {
+        if (new RegExp(`from\\s+['"]${p.replace('/', '\\/')}`).test(src)) {
           violacoes.push(`${arq} importa ${p}`)
         }
       }

@@ -8,11 +8,21 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:int": "vitest run -c vitest.config.integration.ts",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:seed": "prisma db seed",
+    "db:studio": "prisma studio",
+    "db:local": "prisma dev -n drusign --detach",
+    "db:local:test": "prisma dev -n drusign-test --detach",
+    "db:local:ls": "prisma dev ls",
+    "postinstall": "prisma generate"
   },
   "repository": {
     "type": "git",
@@ -26,15 +36,22 @@
   },
   "homepage": "https://github.com/OtavioAugustoSS/Dru-Sign#readme",
   "dependencies": {
+    "@next/env": "16.3.3",
+    "@prisma/adapter-pg": "7.10.0",
+    "@prisma/client": "7.10.0",
     "decimal.js": "^10.6.0",
     "next": "16.3.3",
+    "pg": "8.23.0",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   },
   "devDependencies": {
     "@types/node": "^26.4.0",
+    "@types/pg": "8.23.1",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.5",
+    "prisma": "7.10.0",
+    "tsx": "4.23.12",
     "typescript": "^7.0.2",
     "vitest": "^4.1.11"
   },

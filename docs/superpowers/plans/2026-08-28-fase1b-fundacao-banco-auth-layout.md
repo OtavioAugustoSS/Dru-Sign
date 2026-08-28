@@ -413,7 +413,7 @@ Cria o schema (`Empresa`, `Usuario`, `Sessao`, enum `Papel`), sobe o Postgres lo
   - modelos `Empresa { id, razaoSocial, criadoEm, atualizadoEm, arquivadoEm }`, `Usuario { id, empresaId, nome, login, senhaHash, papel, ativo, criadoEm, atualizadoEm }`, `Sessao { id, usuarioId, criadoEm, expiraEm }`
   - scripts `db:*`, `test:int`, `postinstall`
 
-- [ ] **Step 1: Instalar o Prisma com versões exatas**
+- [x] **Step 1: Instalar o Prisma com versões exatas**
 
 ```bash
 npm i --save-exact @prisma/client@7.10.0 @prisma/adapter-pg@7.10.0 pg@8.23.0 @next/env@16.3.3
@@ -422,7 +422,7 @@ npm i -D --save-exact prisma@7.10.0 tsx@4.23.12 @types/pg
 
 Expected: `npm ls prisma @prisma/client` mostra `7.10.0` nos dois. Se aparecer `8.0.0-rc`, a versão não foi pinada — refazer.
 
-- [ ] **Step 2: Criar `prisma/schema.prisma`**
+- [x] **Step 2: Criar `prisma/schema.prisma`**
 
 ```prisma
 generator client {
@@ -490,7 +490,7 @@ model Sessao {
 }
 ```
 
-- [ ] **Step 3: Criar `prisma.config.ts`**
+- [x] **Step 3: Criar `prisma.config.ts`**
 
 ```ts
 import { loadEnvConfig } from '@next/env'
@@ -515,7 +515,7 @@ export default defineConfig({
 
 Adicionar `"prisma.config.ts"` ao `include` do `tsconfig.json`, logo depois de `"next.config.ts"`.
 
-- [ ] **Step 4: Scripts do banco e `.env.test`**
+- [x] **Step 4: Scripts do banco e `.env.test`**
 
 Acrescentar ao bloco `scripts` do `package.json` (mantendo os existentes):
 
@@ -545,7 +545,7 @@ DATABASE_URL=postgresql://drusign:drusign@localhost:5432/drusign_test
 DIRECT_URL=postgresql://drusign:drusign@localhost:5432/drusign_test
 ```
 
-- [ ] **Step 5: Subir os dois Postgres locais e apontar os `.env`**
+- [x] **Step 5: Subir os dois Postgres locais e apontar os `.env`**
 
 Run: `npm run db:local`
 Expected: na primeira vez baixa os binários; ao final imprime uma URL no formato `postgres://postgres:postgres@localhost:<porta>/template1?sslmode=disable`. Colar a saída real.
@@ -572,7 +572,7 @@ DIRECT_URL=<a mesma URL>
 
 > Se as instâncias forem paradas e recriadas, a porta pode mudar: conferir com `npm run db:local:ls` e atualizar os dois arquivos.
 
-- [ ] **Step 6: Gerar o client e aplicar a migração inicial**
+- [x] **Step 6: Gerar o client e aplicar a migração inicial**
 
 Run: `npm run db:generate`
 Expected: `Generated Prisma Client (7.10.0) to ./src/generated/prisma`. A pasta `src/generated/` fica fora do git.
@@ -580,7 +580,7 @@ Expected: `Generated Prisma Client (7.10.0) to ./src/generated/prisma`. A pasta 
 Run: `npm run db:migrate -- --name init`
 Expected: cria `prisma/migrations/<timestamp>_init/migration.sql` e `prisma/migrations/migration_lock.toml`, e aplica no banco `drusign`. Colar a saída. Conferir no SQL gerado: `CREATE TYPE "papel" AS ENUM ('administracao', 'operacao')`, tabelas `empresa`, `usuario` e `sessao`, `"login"` com índice único, `"expira_em" TIMESTAMPTZ(3)`.
 
-- [ ] **Step 7: Escrever o teste da conversão de Decimal**
+- [x] **Step 7: Escrever o teste da conversão de Decimal**
 
 `src/infra/db/decimal.test.ts`:
 ```ts
@@ -609,12 +609,12 @@ describe('conversao de Decimal entre banco e dominio', () => {
 })
 ```
 
-- [ ] **Step 8: Rodar e ver falhar**
+- [x] **Step 8: Rodar e ver falhar**
 
 Run: `npm test -- decimal`
 Expected: FAIL — `Cannot find module './decimal'`
 
-- [ ] **Step 9: Criar `src/infra/db/decimal.ts`**
+- [x] **Step 9: Criar `src/infra/db/decimal.ts`**
 
 ```ts
 import Decimal from 'decimal.js'
@@ -635,12 +635,12 @@ export function paraBanco(valor: Decimal): Prisma.Decimal {
 }
 ```
 
-- [ ] **Step 10: Rodar e ver passar**
+- [x] **Step 10: Rodar e ver passar**
 
 Run: `npm test -- decimal`
 Expected: PASS — 6 passed
 
-- [ ] **Step 11: Reforçar a trava de pureza**
+- [x] **Step 11: Reforçar a trava de pureza**
 
 Em `src/domain/pureza.test.ts`, trocar a linha de `PROIBIDOS` por:
 
@@ -651,7 +651,9 @@ const PROIBIDOS = ['next', 'react', '@prisma/client', '@/generated', '@/infra', 
 Run: `npm test -- pureza`
 Expected: PASS — 1 passed (o domínio da 1A não importa nada disso).
 
-- [ ] **Step 12: Escrever o harness de integração e o primeiro teste com banco real**
+> Nota de execução (2026-08-28): o arquivo commitado na 1A tinha a regex corrompida — o heredoc do shell colapsa barra dupla em barra simples, e `from\s+` dentro de template literal vira `from s+`; a trava nunca tinha casado com nada. Reescrita pela ferramenta de edição e provada com uma violação temporária (`import ... from 'next/headers'` em `src/domain/`): vermelho com ela, verde sem ela. Regra daqui em diante: arquivo com barra dupla nunca sai de heredoc.
+
+- [x] **Step 12: Escrever o harness de integração e o primeiro teste com banco real**
 
 `src/infra/carrega-env.ts`:
 ```ts
@@ -696,6 +698,8 @@ export default function setup(): void {
   execSync('npx prisma migrate deploy', { stdio: 'inherit', env: process.env })
 }
 ```
+
+> Nota de execução (2026-08-28): a linha `process.env.NODE_ENV ??= 'test'` não compila — os tipos do Next declaram `NODE_ENV` somente leitura (TS2540). Removida; o Vitest já define `NODE_ENV=test`.
 
 `src/infra/test/integracao-setup.ts`:
 ```ts
@@ -761,7 +765,7 @@ describe('usuario (banco real)', () => {
 })
 ```
 
-- [ ] **Step 13: Rodar e ver falhar, criar o client, rodar e ver passar**
+- [x] **Step 13: Rodar e ver falhar, criar o client, rodar e ver passar**
 
 Run: `npm run test:int`
 Expected: FAIL — o `globalSetup` aplica as migrações no banco `drusign-test` (`1 migration found` … `applied`), e depois `Cannot find module '@/infra/db/prisma'`.
@@ -788,7 +792,7 @@ if (env().NODE_ENV !== 'production') globalParaPrisma.prisma = prisma
 Run: `npm run test:int`
 Expected: PASS — 3 passed
 
-- [ ] **Step 14: Instrumentação, externals e `postinstall`**
+- [x] **Step 14: Instrumentação, externals e `postinstall`**
 
 `src/instrumentation.ts` (raiz de `src/`, nunca em `domain/`):
 ```ts
@@ -824,7 +828,7 @@ Só agora, no `package.json`, acrescentar aos `scripts`:
 ```
 (`build` substitui o anterior; `postinstall` é novo.)
 
-- [ ] **Step 15: Verificação completa**
+- [x] **Step 15: Verificação completa**
 
 Run: `npm run typecheck`
 Expected: sem erros (o client gerado tem `// @ts-nocheck`; `prisma.config.ts` entra no include).
@@ -838,7 +842,7 @@ Expected: PASS — 3 passed
 Run: `npm run build`
 Expected: `prisma generate` e depois o build verde.
 
-- [ ] **Step 16: Commit**
+- [x] **Step 16: Commit**
 
 ```bash
 git add package.json package-lock.json tsconfig.json next.config.ts prisma/ prisma.config.ts .env.test vitest.config.integration.ts src/infra/ src/instrumentation.ts src/domain/pureza.test.ts

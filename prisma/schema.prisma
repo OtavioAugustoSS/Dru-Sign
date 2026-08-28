@@ -1,0 +1,63 @@
+generator client {
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  runtime             = "nodejs"
+  moduleFormat        = "esm"
+  importFileExtension = "ts"
+}
+
+datasource db {
+  provider = "postgresql"
+  // A URL fica em prisma.config.ts (Prisma 7).
+}
+
+/// Dois papeis, nao mais (spec, secao 3).
+enum Papel {
+  administracao
+  operacao
+
+  @@map("papel")
+}
+
+/// O que sai no cabecalho do impresso. CNPJ, endereco, telefone e logo entram na Fase 5.
+model Empresa {
+  id           String    @id @default(uuid(7)) @db.Uuid
+  razaoSocial  String    @map("razao_social") @db.VarChar(160)
+  criadoEm     DateTime  @default(now()) @map("criado_em") @db.Timestamptz(3)
+  atualizadoEm DateTime  @updatedAt @map("atualizado_em") @db.Timestamptz(3)
+  arquivadoEm  DateTime? @map("arquivado_em") @db.Timestamptz(3)
+
+  usuarios Usuario[]
+
+  @@map("empresa")
+}
+
+model Usuario {
+  id           String   @id @default(uuid(7)) @db.Uuid
+  empresaId    String   @map("empresa_id") @db.Uuid
+  empresa      Empresa  @relation(fields: [empresaId], references: [id])
+  nome         String   @db.VarChar(120)
+  login        String   @unique @db.VarChar(64)
+  senhaHash    String   @map("senha_hash")
+  papel        Papel    @default(operacao)
+  ativo        Boolean  @default(true)
+  criadoEm     DateTime @default(now()) @map("criado_em") @db.Timestamptz(3)
+  atualizadoEm DateTime @updatedAt @map("atualizado_em") @db.Timestamptz(3)
+
+  sessoes Sessao[]
+
+  @@index([empresaId])
+  @@map("usuario")
+}
+
+/// Sessao no banco: o cookie carrega so o id opaco. Nao e dado de negocio — pode ser apagada.
+model Sessao {
+  id        String   @id @db.VarChar(64)
+  usuarioId String   @map("usuario_id") @db.Uuid
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  criadoEm  DateTime @default(now()) @map("criado_em") @db.Timestamptz(3)
+  expiraEm  DateTime @map("expira_em") @db.Timestamptz(3)
+
+  @@index([usuarioId])
+  @@map("sessao")
+}
