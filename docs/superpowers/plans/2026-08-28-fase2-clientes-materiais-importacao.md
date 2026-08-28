@@ -1268,7 +1268,7 @@ git commit -m "feat: leitor de DBF e importacao dos 3.219 clientes do legado com
 - Consumes: repositório da Task 3, `formatarTelefone`, `formatarDocumento`, `exigirUsuario`
 - Produces: rotas `/clientes`, `/clientes/novo`, `/clientes/[id]`, `/clientes/[id]/editar`; `lerFormularioCliente(formData): DadosCliente`; Server Actions `salvarCliente`, `arquivar`, `reativar`
 
-- [ ] **Step 1: Teste da leitura do formulário**
+- [x] **Step 1: Teste da leitura do formulário**
 
 `src/infra/clientes/formulario.test.ts`:
 ```ts
@@ -1301,7 +1301,7 @@ describe('lerFormularioCliente', () => {
 })
 ```
 
-- [ ] **Step 2: Rodar e ver falhar, criar, ver passar**
+- [x] **Step 2: Rodar e ver falhar, criar, ver passar**
 
 Run: `npm test -- formulario` → FAIL — `Cannot find module './formulario'`
 
@@ -1334,7 +1334,7 @@ export function lerFormularioCliente(formData: FormData): DadosCliente {
 
 Run: `npm test -- formulario` → PASS — 2 passed
 
-- [ ] **Step 3: Navegação com papel e o layout**
+- [x] **Step 3: Navegação com papel e o layout**
 
 `src/app/(app)/navegacao.ts`:
 ```ts
@@ -1381,7 +1381,7 @@ const ICONES = {
 ```
 (removendo o import antigo só de `IconListCheck`).
 
-- [ ] **Step 4: Actions de cliente**
+- [x] **Step 4: Actions de cliente**
 
 `src/app/(app)/clientes/actions.ts`:
 ```ts
@@ -1441,7 +1441,7 @@ export async function reativar(formData: FormData): Promise<void> {
 }
 ```
 
-- [ ] **Step 5: Formulário (Client Component) e páginas**
+- [x] **Step 5: Formulário (Client Component) e páginas**
 
 `src/app/(app)/clientes/form-cliente.tsx`:
 ```tsx
@@ -1861,14 +1861,14 @@ export default async function PaginaEditarCliente({ params }: { params: Promise<
 }
 ```
 
-- [ ] **Step 6: Typecheck, testes, build e fumaça**
+- [x] **Step 6: Typecheck, testes, build e fumaça**
 
 Run: `npm run typecheck` → sem erros. Run: `npm test` → PASS (a trava `use-client` continua verde: `form-cliente.tsx` não importa react-bootstrap).
 Run: `npm run build` → rotas `ƒ /clientes`, `ƒ /clientes/[id]`, `ƒ /clientes/[id]/editar`, `ƒ /clientes/novo`.
 
 Fumaça com `next dev` (script `fumaca.mjs` da 1B): `curl -s -o /dev/null -w "%{http_code} %{redirect_url}\n" http://localhost:3000/clientes` → `307 …/entrar?proximo=%2Fclientes`.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/infra/clientes/formulario.ts src/infra/clientes/formulario.test.ts "src/app/(app)/navegacao.ts" "src/app/(app)/layout.tsx" "src/app/(app)/clientes/"

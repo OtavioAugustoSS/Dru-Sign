@@ -1,8 +1,15 @@
 import Link from 'next/link'
-import { IconListCheck } from '@tabler/icons-react'
+import { IconListCheck, IconUsers, IconPackage } from '@tabler/icons-react'
 import { exigirUsuario } from '@/infra/auth/usuario-atual'
 import { MenuUsuario } from '@/componentes/menu-usuario'
 import { sair } from '@/app/(auth)/entrar/actions'
+import { NAVEGACAO } from './navegacao'
+
+const ICONES = {
+  fila: <IconListCheck className="icon" />,
+  clientes: <IconUsers className="icon" />,
+  materiais: <IconPackage className="icon" />,
+} as const
 
 const PAPEL_LEGIVEL = { administracao: 'Administração', operacao: 'Operação' } as const
 
@@ -28,14 +35,14 @@ export default async function LayoutApp({ children }: { children: React.ReactNod
 
           <nav aria-label="Principal" className="navbar-collapse">
             <ul className="navbar-nav pt-lg-3">
-              <li className="nav-item">
-                <Link className="nav-link" href="/">
-                  <span className="nav-link-icon d-md-none d-lg-inline-block">
-                    <IconListCheck className="icon" />
-                  </span>
-                  <span className="nav-link-title">Fila de trabalho</span>
-                </Link>
-              </li>
+              {NAVEGACAO.filter((item) => !item.papel || item.papel === usuario.papel).map((item) => (
+                <li className="nav-item" key={item.href}>
+                  <Link className="nav-link" href={item.href}>
+                    <span className="nav-link-icon d-md-none d-lg-inline-block">{ICONES[item.icone]}</span>
+                    <span className="nav-link-title">{item.titulo}</span>
+                  </Link>
+                </li>
+              ))}
             </ul>
           </nav>
 
