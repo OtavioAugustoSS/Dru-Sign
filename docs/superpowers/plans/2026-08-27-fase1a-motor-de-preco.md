@@ -298,7 +298,7 @@ git commit -m "feat: gabarito do ORDEM2 do legado como fixture de teste"
   - `dinheiro(v: number | string): Decimal` — cria um Decimal
   - `arredondarCentavos(d: Decimal): Decimal` — arredonda para 2 casas, meio para cima
 
-- [ ] **Step 1: Escrever o teste do helper de dinheiro**
+- [x] **Step 1: Escrever o teste do helper de dinheiro**
 
 `src/domain/precificacao/dinheiro.test.ts`:
 ```ts
@@ -328,12 +328,12 @@ describe('arredondarCentavos', () => {
 })
 ```
 
-- [ ] **Step 2: Rodar e ver falhar**
+- [x] **Step 2: Rodar e ver falhar**
 
 Run: `npm test -- dinheiro`
 Expected: FAIL — não consegue resolver `./dinheiro`
 
-- [ ] **Step 3: Criar `src/domain/precificacao/dinheiro.ts`**
+- [x] **Step 3: Criar `src/domain/precificacao/dinheiro.ts`**
 
 ```ts
 import Decimal from 'decimal.js'
@@ -351,7 +351,7 @@ export function arredondarCentavos(d: Decimal): Decimal {
 }
 ```
 
-- [ ] **Step 4: Criar `src/domain/precificacao/tipos.ts`**
+- [x] **Step 4: Criar `src/domain/precificacao/tipos.ts`**
 
 ```ts
 import type { Decimal } from './dinheiro'
@@ -376,12 +376,12 @@ export interface ResultadoItem {
 }
 ```
 
-- [ ] **Step 5: Rodar e ver passar**
+- [x] **Step 5: Rodar e ver passar**
 
 Run: `npm test -- dinheiro`
 Expected: PASS — 4 passed
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/domain/precificacao/tipos.ts src/domain/precificacao/dinheiro.ts src/domain/precificacao/dinheiro.test.ts
