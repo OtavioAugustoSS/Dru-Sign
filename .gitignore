@@ -1,9 +1,26 @@
 node_modules/
 dist/
+.next/
+out/
+.vercel/
+
+# env: so .env.example e .env.test entram no repo
 .env
 .env.*
 !.env.example
+!.env.test
+
+# gerados
+next-env.d.ts
+tsconfig.tsbuildinfo
+src/generated/
+
+# testes
 coverage/
+test-results/
+playwright-report/
+blob-report/
+
 *.log
 .DS_Store
 Thumbs.db

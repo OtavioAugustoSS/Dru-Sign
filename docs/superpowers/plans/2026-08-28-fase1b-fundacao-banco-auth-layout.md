@@ -76,7 +76,7 @@ Instala o Next.js sem `create-next-app`, ajusta o `tsconfig.json` para JSX/DOM s
   - `env(): Env` — lazy e memoizado; `Env = { NODE_ENV: 'development' | 'production' | 'test'; DATABASE_URL: string; DIRECT_URL: string | undefined }`
   - scripts `dev`, `build`, `start`, `typecheck` (= `next typegen && tsc --noEmit`)
 
-- [ ] **Step 1: Instalar o Next.js e o React com versões exatas**
+- [x] **Step 1: Instalar o Next.js e o React com versões exatas**
 
 ```bash
 npm i --save-exact next@16.3.3 react@19.2.8 react-dom@19.2.8
@@ -85,7 +85,7 @@ npm i -D --save-exact @types/react@19.2.18 @types/react-dom@19.2.5
 
 Expected: `package.json` com as cinco versões sem `^`. Não mexer em `typescript`, `vitest`, `@types/node` nem `decimal.js`.
 
-- [ ] **Step 2: Substituir o `tsconfig.json`**
+- [x] **Step 2: Substituir o `tsconfig.json`**
 
 O Next exige `jsx: react-jsx`, `lib` com `dom`, `next-env.d.ts` e `.next/types` no `include`. Aplicar **antes** do primeiro `next build`, senão o Next reescreve o arquivo por conta própria.
 
@@ -123,7 +123,7 @@ O Next exige `jsx: react-jsx`, `lib` com `dom`, `next-env.d.ts` e `.next/types` 
 }
 ```
 
-- [ ] **Step 3: Criar `next.config.ts`**
+- [x] **Step 3: Criar `next.config.ts`**
 
 ```ts
 import type { NextConfig } from 'next'
@@ -135,7 +135,7 @@ const nextConfig: NextConfig = {
 export default nextConfig
 ```
 
-- [ ] **Step 4: Atualizar `vitest.config.ts`**
+- [x] **Step 4: Atualizar `vitest.config.ts`**
 
 `import.meta.dirname` no lugar de `__dirname` (o Vite avisa a cada execução). O `exclude` impede que o padrão unitário capture os testes de integração e e2e das próximas tasks.
 
@@ -153,7 +153,7 @@ export default defineConfig({
 })
 ```
 
-- [ ] **Step 5: Scripts do `package.json`**
+- [x] **Step 5: Scripts do `package.json`**
 
 Substituir o bloco `scripts` inteiro por:
 
@@ -172,7 +172,7 @@ Substituir o bloco `scripts` inteiro por:
 
 `tsc --noEmit` sozinho falha num checkout limpo porque `next-env.d.ts` e `.next/types` não existem; `next typegen` os gera sem buildar.
 
-- [ ] **Step 6: Substituir o `.gitignore`**
+- [x] **Step 6: Substituir o `.gitignore`**
 
 ```
 node_modules/
@@ -203,7 +203,7 @@ blob-report/
 Thumbs.db
 ```
 
-- [ ] **Step 7: Criar o root layout e a página provisória**
+- [x] **Step 7: Criar o root layout e a página provisória**
 
 `src/app/layout.tsx`:
 ```tsx
@@ -233,7 +233,7 @@ export default function PaginaProvisoria() {
 }
 ```
 
-- [ ] **Step 8: Escrever o teste do módulo de ambiente**
+- [x] **Step 8: Escrever o teste do módulo de ambiente**
 
 `src/infra/env.test.ts`:
 ```ts
@@ -278,12 +278,12 @@ describe('validarEnv', () => {
 })
 ```
 
-- [ ] **Step 9: Rodar e ver falhar**
+- [x] **Step 9: Rodar e ver falhar**
 
 Run: `npm test -- env`
 Expected: FAIL — `Cannot find module './env'`
 
-- [ ] **Step 10: Criar `src/infra/env.ts`**
+- [x] **Step 10: Criar `src/infra/env.ts`**
 
 ```ts
 /**
@@ -346,12 +346,12 @@ export function env(): Env {
 }
 ```
 
-- [ ] **Step 11: Rodar e ver passar**
+- [x] **Step 11: Rodar e ver passar**
 
 Run: `npm test -- env`
 Expected: PASS — 6 passed
 
-- [ ] **Step 12: Criar `.env.example`**
+- [x] **Step 12: Criar `.env.example`**
 
 ```
 # Copie para .env.local e preencha. .env.local nunca e versionado.
@@ -374,7 +374,7 @@ SEED_ADMIN_LOGIN=admin
 SEED_ADMIN_SENHA=
 ```
 
-- [ ] **Step 13: Rodar typecheck, suíte e build**
+- [x] **Step 13: Rodar typecheck, suíte e build**
 
 Run: `npm run typecheck`
 Expected: `next typegen` gera `next-env.d.ts`; `tsc --noEmit` sem erros.
@@ -385,7 +385,7 @@ Expected: PASS — todos os arquivos da 1A mais `env.test.ts`; sem o aviso do Vi
 Run: `npm run build`
 Expected: build conclui com `Running TypeScript` … `Finished TypeScript` e a rota `/` listada. Depois, `git status` **não** pode mostrar `tsconfig.json` modificado — se mostrar, o Next reescreveu algo; ler o diff, entender, e manter o resultado.
 
-- [ ] **Step 14: Commit**
+- [x] **Step 14: Commit**
 
 ```bash
 git add package.json package-lock.json tsconfig.json vitest.config.ts .gitignore next.config.ts .env.example src/app/ src/infra/
