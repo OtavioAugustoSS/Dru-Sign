@@ -62,7 +62,7 @@ Medido na base real em 28/08/2026 (script Python de contagem, mesma regra do dom
   - `interpretarMoeda(texto: string): Decimal | null` — aceita `281`, `281,00`, `1.234,56`, `R$ 1.234,56`, `1234.56`
   - `formatarMoeda(valor: Decimal): string` — `R$ 1.234,56`
 
-- [ ] **Step 1: Testes do telefone**
+- [x] **Step 1: Testes do telefone**
 
 `src/domain/clientes/telefone.test.ts`:
 ```ts
@@ -107,12 +107,12 @@ describe('formatarTelefone', () => {
 })
 ```
 
-- [ ] **Step 2: Rodar e ver falhar**
+- [x] **Step 2: Rodar e ver falhar**
 
 Run: `npm test -- telefone`
 Expected: FAIL — `Cannot find module './telefone'`
 
-- [ ] **Step 3: Criar `src/domain/clientes/telefone.ts`**
+- [x] **Step 3: Criar `src/domain/clientes/telefone.ts`**
 
 ```ts
 export interface TelefoneNormalizado {
@@ -173,12 +173,12 @@ export function formatarTelefone(normalizado: string): string {
 }
 ```
 
-- [ ] **Step 4: Rodar e ver passar**
+- [x] **Step 4: Rodar e ver passar**
 
 Run: `npm test -- telefone`
 Expected: PASS — 16 passed
 
-- [ ] **Step 5: Testes do documento**
+- [x] **Step 5: Testes do documento**
 
 `src/domain/clientes/documento.test.ts`:
 ```ts
@@ -208,7 +208,7 @@ describe('formatarDocumento', () => {
 })
 ```
 
-- [ ] **Step 6: Rodar e ver falhar, criar, ver passar**
+- [x] **Step 6: Rodar e ver falhar, criar, ver passar**
 
 Run: `npm test -- documento` → FAIL — `Cannot find module './documento'`
 
@@ -247,7 +247,7 @@ export function formatarDocumento(digitos: string): string {
 
 Run: `npm test -- documento` → PASS — 3 passed
 
-- [ ] **Step 7: Testes da moeda**
+- [x] **Step 7: Testes da moeda**
 
 `src/domain/precificacao/moeda.test.ts`:
 ```ts
@@ -287,7 +287,7 @@ describe('formatarMoeda', () => {
 })
 ```
 
-- [ ] **Step 8: Rodar e ver falhar, criar, ver passar**
+- [x] **Step 8: Rodar e ver falhar, criar, ver passar**
 
 Run: `npm test -- moeda` → FAIL — `Cannot find module './moeda'`
 
@@ -329,7 +329,7 @@ export function formatarMoeda(valor: Decimal): string {
 
 Run: `npm test -- moeda` → PASS — 18 passed
 
-- [ ] **Step 9: Verificação e commit**
+- [x] **Step 9: Verificação e commit**
 
 Run: `npm test` → PASS (a trava de pureza continua verde: os módulos novos só importam `./dinheiro`).
 Run: `npm run typecheck` → sem erros.
