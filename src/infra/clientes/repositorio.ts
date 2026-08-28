@@ -113,7 +113,7 @@ function telefonesParaCriar(empresaId: string, telefones: string[]) {
     .filter((t) => t !== '' && !vistos.has(t) && vistos.add(t))
     .map((original, ordem) => {
       const n = normalizarTelefone(original)
-      return { empresaId, original: original.slice(0, 20), normalizado: n.normalizado, inferido: n.inferido, ordem }
+      return { empresaId, original, normalizado: n.normalizado, inferido: n.inferido, ordem }
     })
 }
 
@@ -191,7 +191,12 @@ export async function buscarClientes(
     { telefones: { some: { normalizado: { contains: digitos } } } },
     { documento: { contains: digitos } },
   ] : []
-  const ou = [...porTexto, ...porDigitos]
+  // Digitado como no cartao do legado, "(38)9968-1168", o numero so bate depois de ganhar o nono digito.
+  const telefoneNormalizado = normalizarTelefone(texto).normalizado
+  const porTelefoneCompleto = telefoneNormalizado
+    ? [{ telefones: { some: { normalizado: telefoneNormalizado } } }]
+    : []
+  const ou = [...porTexto, ...porDigitos, ...porTelefoneCompleto]
 
   return prisma.cliente.findMany({
     where: { empresaId, ...filtroArquivo, ...(ou.length > 0 ? { OR: ou } : {}) },

@@ -1,4 +1,5 @@
 import Decimal from 'decimal.js'
+import { cabeEmNumeric12x4 } from '@/domain/precificacao/dinheiro'
 import { Prisma } from '@/generated/prisma/client'
 
 /**
@@ -12,5 +13,7 @@ export function paraDominio(valor: Prisma.Decimal): Decimal {
 
 /** Dominio -> banco. `toFixed()` sem argumento e a representacao exata, sem notacao cientifica. */
 export function paraBanco(valor: Decimal): Prisma.Decimal {
+  // O Postgres arredondaria a 5a casa em silencio e estouraria acima de 8 digitos inteiros: recusar antes.
+  if (!cabeEmNumeric12x4(valor)) throw new Error(`valor fora de numeric(12,4): ${valor.toFixed()}`)
   return new Prisma.Decimal(valor.toFixed())
 }

@@ -60,8 +60,14 @@ export async function importarClientesLegado(caminhoDbf: string, empresaId: stri
     resultado.descartados += c.descartados
   }
 
-  for (const lote of lotes(clientes)) await prisma.cliente.createMany({ data: lote })
-  for (const lote of lotes(telefones)) await prisma.telefoneCliente.createMany({ data: lote })
+  // Tudo ou nada: uma falha no meio nao pode deixar clientes sem telefone com o rerun recusando.
+  await prisma.$transaction(
+    async (tx) => {
+      for (const lote of lotes(clientes)) await tx.cliente.createMany({ data: lote })
+      for (const lote of lotes(telefones)) await tx.telefoneCliente.createMany({ data: lote })
+    },
+    { timeout: 180_000 },
+  )
 
   return resultado
 }

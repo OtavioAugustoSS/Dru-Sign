@@ -2413,3 +2413,21 @@ Verificação da spec (seção 13): *"busca por apelido acha o Bretas e a FACTU;
 - [x] O banco de desenvolvimento tem os 3.219 clientes (`npm run importar:clientes`)
 
 Feito isso, a Fase 3 (ordem de serviço, entrada assistida, itens, acréscimos, ajuste de preço e impresso) ganha seu próprio plano.
+
+## Revisão adversarial (2026-08-28, após a Fase 2)
+
+Workflow de 5 lentes (auth, dados, domínio, UI, testes) com 3 refutadores por achado: 27 achados brutos, 18 confirmados (3 duplicados), 9 refutados. Corrigido no commit "fix: revisao adversarial das fases 1B e 2":
+
+- Importação do legado em **uma transação** (`$transaction`, timeout 180 s) — falha no meio não deixa clientes sem telefone com o rerun recusando.
+- Busca por telefone aceita o número **como está no cartão do legado** (`(38)9968-1168`): o termo também é normalizado e comparado por igualdade.
+- `TRUNCATE` do harness só roda com `NODE_ENV=test` e `DATABASE_URL` apontando para um banco `*_test` (`src/infra/test/banco-de-teste.ts`).
+- Trava de pureza cobre `from`, `import '…'`, `import()`, `require()`, caminhos relativos para `infra/generated/app/componentes`, módulos Node com e sem `node:`, e arquivos `.tsx`; provada com uma violação temporária de cada forma.
+- Validação antes do banco: limites de tamanho do schema, UF com 2 letras, CPF/CNPJ com 11/14 dígitos (`src/infra/clientes/validacao.ts`); preço dentro de `numeric(12,4)` (`cabeEmNumeric12x4`, e `paraBanco` recusa o que não cabe); erro do Prisma nas actions volta como mensagem, não como 500.
+- `<select>` de unidade recebe `key` (o React 19 reseta o form após a action e `defaultValue` de select só vale na montagem).
+- `not-found.tsx` e `error.tsx` no grupo `(app)`, em português e dentro do shell.
+- Data de cadastro no fuso da loja para registros novos (UTC só para os importados).
+- Login com limite de 5 tentativas por conta e bloqueio de 1 minuto (`src/infra/auth/tentativas.ts`).
+- Seed cria também o usuário `producao` (operação) quando `SEED_OPERACAO_SENHA` existe; e2e prova que operação não vê nem abre Materiais; e2e confere os atributos do cookie de sessão.
+- Data do legado com dia inválido para o mês (ou no futuro) vira nula em vez de rolar para o mês seguinte.
+
+Refutados (comportamento pretendido ou não reproduz): limpeza de sessões expiradas (fora da v1), `?proximo` sem query string, "1.000" lido como 1000 (regra documentada), busca por palavras não contíguas, tolerância de 90% do gabarito, e2e no banco de dev, assert de 14 dígitos.

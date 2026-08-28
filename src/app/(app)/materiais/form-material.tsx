@@ -37,7 +37,8 @@ export function FormMaterial({ id, inicial }: Props) {
         </div>
         <div className="col-md-2">
           <label className="form-label required" htmlFor="unidadeCobranca">Cobrado</label>
-          <select id="unidadeCobranca" name="unidadeCobranca" className="form-select" defaultValue={v.unidadeCobranca} required>
+          {/* key: o React 19 reseta o form apos a action, e defaultValue de <select> so vale na montagem. */}
+          <select key={v.unidadeCobranca} id="unidadeCobranca" name="unidadeCobranca" className="form-select" defaultValue={v.unidadeCobranca} required>
             <option value="">escolha…</option>
             {UNIDADES_COBRANCA.map((u) => <option key={u.valor} value={u.valor}>{u.rotulo}</option>)}
           </select>

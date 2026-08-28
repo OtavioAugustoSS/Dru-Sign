@@ -5,6 +5,7 @@ import { prisma } from '@/infra/db/prisma'
 import { verificarSenha, hashDummy } from '@/infra/auth/senha'
 import { abrirSessaoNoCookie, fecharSessaoDoCookie } from '@/infra/auth/cookie-sessao'
 import { destinoSeguro } from '@/infra/auth/destino'
+import { bloqueadoAte, registrarFalha, registrarSucesso } from '@/infra/auth/tentativas'
 
 export interface EstadoEntrar {
   erro?: string
@@ -24,6 +25,9 @@ export async function entrar(_estado: EstadoEntrar, formData: FormData): Promise
   if (login.length > 64 || senha.length > 256) {
     return { erro: ERRO_CREDENCIAIS, login }
   }
+  if (bloqueadoAte(login) !== null) {
+    return { erro: 'Muitas tentativas. Aguarde um minuto e tente de novo.', login }
+  }
 
   const usuario = await prisma.usuario.findUnique({
     where: { login },
@@ -34,9 +38,11 @@ export async function entrar(_estado: EstadoEntrar, formData: FormData): Promise
   const senhaOk = await verificarSenha(usuario?.senhaHash ?? (await hashDummy()), senha)
 
   if (!usuario || !senhaOk || !usuario.ativo) {
+    registrarFalha(login)
     return { erro: ERRO_CREDENCIAIS, login }
   }
 
+  registrarSucesso(login)
   await abrirSessaoNoCookie(usuario.id)
   redirect(proximo) // lanca NEXT_REDIRECT; fica fora de try/catch de proposito
 }

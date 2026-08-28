@@ -16,6 +16,11 @@ describe('conversao de Decimal entre banco e dominio', () => {
     expect(volta.equals(dominio)).toBe(true)
   })
 
+  it('recusa o que nao cabe em numeric(12,4)', () => {
+    expect(() => paraBanco(new Decimal('0.12345'))).toThrow(/numeric\(12,4\)/)
+    expect(() => paraBanco(new Decimal('100000000'))).toThrow(/numeric\(12,4\)/)
+  })
+
   it('nao passa por ponto flutuante', () => {
     const banco = paraBanco(new Decimal('0.1').plus('0.2'))
     expect(banco.toFixed()).toBe('0.3')

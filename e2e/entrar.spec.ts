@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { COOKIE_SESSAO } from '../src/infra/auth/constantes'
 
 // Credenciais do seed (npm run db:seed), lidas de .env.local pelo playwright.config.ts.
 const LOGIN = process.env.SEED_ADMIN_LOGIN ?? 'admin'
@@ -34,6 +35,12 @@ test.describe('Entrar', () => {
 
     await expect(page).toHaveURL(/\/$/)
     await expect(page.getByRole('heading', { name: 'Fila de trabalho' })).toBeVisible()
+
+    // O cookie carrega so um id opaco (32 bytes em base64url), httpOnly, lax, por 12 h.
+    const cookie = (await page.context().cookies()).find((c) => c.name === COOKIE_SESSAO)
+    expect(cookie).toMatchObject({ httpOnly: true, sameSite: 'Lax', path: '/' })
+    expect(cookie?.value).toMatch(/^[A-Za-z0-9_-]{43}$/)
+    expect((cookie?.expires ?? 0) - Date.now() / 1000).toBeGreaterThan(11 * 3600)
     await expect(page.getByRole('navigation', { name: 'Principal' })).toBeVisible()
 
     // Ja logado, /entrar volta para a home (validado no banco, nao so pelo cookie).

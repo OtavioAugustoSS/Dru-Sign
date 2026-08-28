@@ -66,7 +66,8 @@ export default async function PaginaFichaCliente({ params }: { params: Promise<{
                     <dt className="col-4">Endereço</dt><dd className="col-8">{endereco || '—'}</dd>
                     <dt className="col-4">Cadastro</dt>
                     <dd className="col-8">
-                      {c.criadoEm.toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
+                      {/* Data do legado foi gravada a meia-noite UTC; cadastro novo e no fuso da loja. */}
+                      {c.criadoEm.toLocaleDateString('pt-BR', { timeZone: c.codigoLegado !== null ? 'UTC' : 'America/Sao_Paulo' })}
                       {c.codigoLegado !== null ? <small className="text-secondary ms-2">legado nº {c.codigoLegado}</small> : null}
                     </dd>
                   </dl>

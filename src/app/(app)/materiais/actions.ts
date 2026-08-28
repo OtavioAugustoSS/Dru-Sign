@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation'
 import { exigirPapel } from '@/infra/auth/usuario-atual'
 import { interpretarMoeda } from '@/domain/precificacao/moeda'
+import { cabeEmNumeric12x4 } from '@/domain/precificacao/dinheiro'
 import { criarMaterial, atualizarMaterial, definirAtivo, ehUnidadeCobranca } from '@/infra/materiais/repositorio'
 
 export interface EstadoMaterial {
@@ -23,6 +24,7 @@ export async function salvarMaterial(_estado: EstadoMaterial, formData: FormData
   if (campos.nome === '') return { erro: 'O nome é obrigatório.', campos }
   const preco = interpretarMoeda(campos.preco)
   if (preco === null) return { erro: 'Preço inválido. Use, por exemplo, 281,00.', campos }
+  if (!cabeEmNumeric12x4(preco)) return { erro: 'Preço com até 4 casas decimais e abaixo de R$ 100.000.000,00.', campos }
   if (!ehUnidadeCobranca(campos.unidadeCobranca)) return { erro: 'Escolha como o material é cobrado.', campos }
 
   const dados = { nome: campos.nome, categoria: campos.categoria, preco, unidadeCobranca: campos.unidadeCobranca }

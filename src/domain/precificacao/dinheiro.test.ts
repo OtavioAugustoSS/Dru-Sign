@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { dinheiro, arredondarCentavos } from './dinheiro'
+import { dinheiro, arredondarCentavos, cabeEmNumeric12x4 } from './dinheiro'
 
 describe('dinheiro', () => {
   it('nao sofre o erro classico de ponto flutuante', () => {
@@ -21,4 +21,12 @@ describe('arredondarCentavos', () => {
   it('preserva valores ja com duas casas', () => {
     expect(arredondarCentavos(dinheiro('40.80')).toString()).toBe('40.8')
   })
+})
+
+describe('cabeEmNumeric12x4', () => {
+  it.each([['0', true], ['99999999.9999', true], ['-99999999.9999', true], ['100000000', false], ['0.12345', false], ['281', true]])(
+    '%s cabe: %s', (valor, esperado) => {
+      expect(cabeEmNumeric12x4(dinheiro(valor))).toBe(esperado)
+    },
+  )
 })

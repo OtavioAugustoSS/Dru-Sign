@@ -31,7 +31,10 @@ function data(v: string): Date | null {
   const mes = Number(v.slice(4, 6))
   const dia = Number(v.slice(6, 8))
   if (ano < 1990 || mes < 1 || mes > 12 || dia < 1 || dia > 31) return null
-  return new Date(Date.UTC(ano, mes - 1, dia))
+  const d = new Date(Date.UTC(ano, mes - 1, dia))
+  // 30 de fevereiro "rola" para marco no Date; a spec registra datas absurdas na base — nao aceitar.
+  if (d.getUTCMonth() !== mes - 1 || d.getUTCDate() !== dia || d.getTime() > Date.now()) return null
+  return d
 }
 
 /** Um registro do CLIENTES.DBF vira os dados de um cliente novo. */

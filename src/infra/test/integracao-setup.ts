@@ -1,9 +1,11 @@
 import { afterAll, beforeEach } from 'vitest'
 import '@/infra/carrega-env'
+import { exigirBancoDeTeste } from './banco-de-teste'
 import { prisma } from '@/infra/db/prisma'
 
-/** TRUNCATE em todas as tabelas (menos a de migracoes) antes de cada teste. */
+/** TRUNCATE em todas as tabelas (menos a de migracoes) antes de cada teste — so no banco de teste. */
 async function limparBanco(): Promise<void> {
+  exigirBancoDeTeste(process.env.DATABASE_URL)
   const linhas = await prisma.$queryRaw<Array<{ tablename: string }>>`
     SELECT tablename FROM pg_tables WHERE schemaname = 'public'`
   const tabelas = linhas

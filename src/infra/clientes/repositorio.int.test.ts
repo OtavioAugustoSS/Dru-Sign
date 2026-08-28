@@ -35,6 +35,9 @@ describe('clientes (banco real)', () => {
     expect((await buscarClientes(empresaId, 'cencosud')).map((c) => c.apelido)).toEqual(['BRETAS'])
     expect((await buscarClientes(empresaId, '99681168')).map((c) => c.nome)).toEqual(['Sandra Hofig de Barros'])
     expect((await buscarClientes(empresaId, '(38) 99968-1168')).map((c) => c.nome)).toEqual(['Sandra Hofig de Barros'])
+    // Como esta no cartao do legado, sem o nono digito: precisa achar mesmo assim.
+    expect((await buscarClientes(empresaId, '(38)9968-1168')).map((c) => c.nome)).toEqual(['Sandra Hofig de Barros'])
+    expect((await buscarClientes(empresaId, '3899681168')).map((c) => c.nome)).toEqual(['Sandra Hofig de Barros'])
     expect(await buscarClientes(empresaId, 'ninguem')).toEqual([])
   })
 

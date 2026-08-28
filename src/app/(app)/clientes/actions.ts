@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation'
 import { exigirUsuario } from '@/infra/auth/usuario-atual'
 import { lerFormularioCliente } from '@/infra/clientes/formulario'
+import { validarDadosCliente } from '@/infra/clientes/validacao'
 import {
   criarCliente, atualizarCliente, arquivarCliente, reativarCliente, clientesComTelefone,
   type ClienteResumo, type DadosCliente,
@@ -22,8 +23,9 @@ export async function salvarCliente(_estado: EstadoCliente, formData: FormData):
   const confirmou = formData.get('confirmarDuplicidade') === '1'
   const dados = lerFormularioCliente(formData)
 
-  if (dados.nome === '') {
-    return { erro: 'O nome é obrigatório.', campos: dados }
+  const erro = validarDadosCliente(dados)
+  if (erro) {
+    return { erro, campos: dados }
   }
 
   if (!confirmou) {
@@ -33,10 +35,20 @@ export async function salvarCliente(_estado: EstadoCliente, formData: FormData):
     }
   }
 
-  const salvo = id
-    ? await atualizarCliente(usuario.empresaId, id, dados)
-    : await criarCliente(usuario.empresaId, dados)
-  redirect(`/clientes/${salvo.id}`)
+  let salvoId: string
+  try {
+    const salvo = id
+      ? await atualizarCliente(usuario.empresaId, id, dados)
+      : await criarCliente(usuario.empresaId, dados)
+    salvoId = salvo.id
+  } catch (e) {
+    // Erro do banco (tamanho, conexao): devolve o formulario com o que foi digitado, em vez de uma pagina 500.
+    if (typeof e === 'object' && e !== null && 'code' in e) {
+      return { erro: 'Não foi possível salvar. Confira os campos e tente de novo.', campos: dados }
+    }
+    throw e
+  }
+  redirect(`/clientes/${salvoId}`) // fora do try: redirect() lanca NEXT_REDIRECT
 }
 
 export async function arquivar(formData: FormData): Promise<void> {
