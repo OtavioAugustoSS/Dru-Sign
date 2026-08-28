@@ -27,7 +27,9 @@ model Empresa {
   atualizadoEm DateTime  @updatedAt @map("atualizado_em") @db.Timestamptz(3)
   arquivadoEm  DateTime? @map("arquivado_em") @db.Timestamptz(3)
 
-  usuarios Usuario[]
+  usuarios  Usuario[]
+  clientes  Cliente[]
+  materiais Material[]
 
   @@map("empresa")
 }
@@ -60,4 +62,83 @@ model Sessao {
 
   @@index([usuarioId])
   @@map("sessao")
+}
+
+/// Tres formas de cobrar, e uma ordem mistura as tres (spec, secao 5).
+enum UnidadeCobranca {
+  m2
+  unidade
+  metro_linear
+
+  @@map("unidade_cobranca")
+}
+
+/// Cliente e plano: cadastros da mesma entidade sao agrupados por documento nos relatorios.
+model Cliente {
+  id           String    @id @default(uuid(7)) @db.Uuid
+  empresaId    String    @map("empresa_id") @db.Uuid
+  empresa      Empresa   @relation(fields: [empresaId], references: [id])
+  /// COD do CLIENTES.DBF, para ligar as ordens legadas na Fase 6. Nao e unico: o legado repetiu 2.
+  codigoLegado Int?      @map("codigo_legado")
+  nome         String    @db.VarChar(120)
+  /// Como a loja conhece o cliente: "Bretas", "FACTU". A busca sempre olha aqui.
+  apelido      String?   @db.VarChar(60)
+  /// So digitos: 11 (CPF) ou 14 (CNPJ).
+  documento    String?   @db.VarChar(14)
+  email        String?   @db.VarChar(120)
+  contato      String?   @db.VarChar(80)
+  endereco     String?   @db.VarChar(160)
+  bairro       String?   @db.VarChar(60)
+  cidade       String?   @db.VarChar(60)
+  uf           String?   @db.VarChar(2)
+  cep          String?   @db.VarChar(9)
+  observacoes  String?
+  criadoEm     DateTime  @default(now()) @map("criado_em") @db.Timestamptz(3)
+  atualizadoEm DateTime  @updatedAt @map("atualizado_em") @db.Timestamptz(3)
+  arquivadoEm  DateTime? @map("arquivado_em") @db.Timestamptz(3)
+
+  telefones TelefoneCliente[]
+
+  @@index([empresaId, nome])
+  @@index([empresaId, apelido])
+  @@index([empresaId, documento])
+  @@index([codigoLegado])
+  @@map("cliente")
+}
+
+/// Original e normalizado lado a lado, com a marca de inferido (spec, secao 10).
+model TelefoneCliente {
+  id          String  @id @default(uuid(7)) @db.Uuid
+  empresaId   String  @map("empresa_id") @db.Uuid
+  clienteId   String  @map("cliente_id") @db.Uuid
+  cliente     Cliente @relation(fields: [clienteId], references: [id])
+  /// Como veio (do legado ou digitado). Nunca sobrescrito.
+  original    String  @db.VarChar(20)
+  /// So digitos, discavel: 11 (celular) ou 10 (fixo). null quando nao da para discar.
+  normalizado String? @db.VarChar(11)
+  /// true quando o sistema completou o nono digito ou o DDD.
+  inferido    Boolean @default(false)
+  ordem       Int     @default(0)
+
+  @@index([empresaId, normalizado])
+  @@index([clienteId])
+  @@map("telefone_cliente")
+}
+
+/// Tabela de preco, nao estoque: sem quantidade, saldo nem movimentacao (spec, secao 4).
+model Material {
+  id              String          @id @default(uuid(7)) @db.Uuid
+  empresaId       String          @map("empresa_id") @db.Uuid
+  empresa         Empresa         @relation(fields: [empresaId], references: [id])
+  nome            String          @db.VarChar(120)
+  categoria       String?         @db.VarChar(60)
+  /// Preco por unidade de cobranca. numeric(12,4).
+  preco           Decimal         @db.Decimal(12, 4)
+  unidadeCobranca UnidadeCobranca @map("unidade_cobranca")
+  ativo           Boolean         @default(true)
+  criadoEm        DateTime        @default(now()) @map("criado_em") @db.Timestamptz(3)
+  atualizadoEm    DateTime        @updatedAt @map("atualizado_em") @db.Timestamptz(3)
+
+  @@unique([empresaId, nome])
+  @@map("material")
 }

@@ -351,7 +351,7 @@ git commit -m "feat: normalizacao de telefone e documento, e leitura/formatacao 
 **Interfaces:**
 - Produces: modelos `Cliente`, `TelefoneCliente`, `Material`, enum `UnidadeCobranca { m2, unidade, metro_linear }`; `exigirPapel(papel: PapelUsuario): Promise<UsuarioSessao>`
 
-- [ ] **Step 1: Acrescentar ao `prisma/schema.prisma`**
+- [x] **Step 1: Acrescentar ao `prisma/schema.prisma`**
 
 Em `model Empresa`, junto de `usuarios Usuario[]`:
 ```prisma
@@ -441,7 +441,7 @@ model Material {
 }
 ```
 
-- [ ] **Step 2: Migrar e gerar**
+- [x] **Step 2: Migrar e gerar**
 
 Nenhum `next dev` aberto.
 
@@ -450,7 +450,7 @@ Expected: migração criada e aplicada no banco `drusign`; no SQL: `CREATE TYPE 
 
 Run: `npm run db:generate` → client regenerado.
 
-- [ ] **Step 3: `exigirPapel`**
+- [x] **Step 3: `exigirPapel`**
 
 Acrescentar ao fim de `src/infra/auth/usuario-atual.ts`:
 ```ts
@@ -463,7 +463,7 @@ export async function exigirPapel(papel: PapelUsuario): Promise<UsuarioSessao> {
 ```
 e, no topo, `import type { PapelUsuario } from '@/domain/usuarios/tipos'`.
 
-- [ ] **Step 4: Verificação e commit**
+- [x] **Step 4: Verificação e commit**
 
 Run: `npm run typecheck` → sem erros.
 Run: `npm run test:int` → PASS — 8 passed (o `globalSetup` aplica a migração nova no banco de teste; o `TRUNCATE` passa a limpar as tabelas novas também).
