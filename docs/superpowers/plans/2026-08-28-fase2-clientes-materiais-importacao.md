@@ -1891,7 +1891,7 @@ git commit -m "feat: telas de clientes com busca por apelido e telefone e aviso 
   - `DadosMaterial { nome; categoria?; preco: Decimal; unidadeCobranca }`; `UNIDADES_COBRANCA` com rótulos: `m2 → 'por m²'`, `unidade → 'por unidade'`, `metro_linear → 'por metro linear'`
   - rotas `/materiais` e `/materiais/[id]` (só administração)
 
-- [ ] **Step 1: Teste de integração**
+- [x] **Step 1: Teste de integração**
 
 `src/infra/materiais/repositorio.int.test.ts`:
 ```ts
@@ -1944,7 +1944,7 @@ describe('materiais (banco real)', () => {
 })
 ```
 
-- [ ] **Step 2: Rodar e ver falhar, criar, ver passar**
+- [x] **Step 2: Rodar e ver falhar, criar, ver passar**
 
 Run: `npm run test:int -- materiais` → FAIL — `Cannot find module './repositorio'`
 
@@ -2032,7 +2032,9 @@ export async function definirAtivo(empresaId: string, id: string, ativo: boolean
 
 Run: `npm run test:int -- materiais` → PASS — 5 passed
 
-- [ ] **Step 3: Actions, formulário e páginas**
+> Nota de execução (2026-08-28): `UNIDADES_COBRANCA`, `rotuloUnidade` e `ehUnidadeCobranca` foram para `src/infra/materiais/unidades.ts` (módulo puro) e o repositório os reexporta. Motivo: `form-material.tsx` é Client Component; importar o repositório (que carrega o Prisma) do lado do navegador quebraria o bundle.
+
+- [x] **Step 3: Actions, formulário e páginas**
 
 `src/app/(app)/materiais/actions.ts`:
 ```ts
@@ -2261,7 +2263,7 @@ export default async function PaginaEditarMaterial({ params }: { params: Promise
 }
 ```
 
-- [ ] **Step 4: Typecheck, testes, build e commit**
+- [x] **Step 4: Typecheck, testes, build e commit**
 
 Run: `npm run typecheck` → sem erros. Run: `npm test` → PASS. Run: `npm run test:int` → PASS.
 Run: `npm run build` → rotas `ƒ /materiais` e `ƒ /materiais/[id]`.

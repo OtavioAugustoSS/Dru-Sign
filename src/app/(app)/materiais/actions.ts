@@ -1,0 +1,47 @@
+'use server'
+
+import { redirect } from 'next/navigation'
+import { exigirPapel } from '@/infra/auth/usuario-atual'
+import { interpretarMoeda } from '@/domain/precificacao/moeda'
+import { criarMaterial, atualizarMaterial, definirAtivo, ehUnidadeCobranca } from '@/infra/materiais/repositorio'
+
+export interface EstadoMaterial {
+  erro?: string
+  campos?: { nome: string; categoria: string; preco: string; unidadeCobranca: string }
+}
+
+export async function salvarMaterial(_estado: EstadoMaterial, formData: FormData): Promise<EstadoMaterial> {
+  const usuario = await exigirPapel('administracao')
+  const id = String(formData.get('id') ?? '')
+  const campos = {
+    nome: String(formData.get('nome') ?? '').trim(),
+    categoria: String(formData.get('categoria') ?? '').trim(),
+    preco: String(formData.get('preco') ?? '').trim(),
+    unidadeCobranca: String(formData.get('unidadeCobranca') ?? ''),
+  }
+
+  if (campos.nome === '') return { erro: 'O nome é obrigatório.', campos }
+  const preco = interpretarMoeda(campos.preco)
+  if (preco === null) return { erro: 'Preço inválido. Use, por exemplo, 281,00.', campos }
+  if (!ehUnidadeCobranca(campos.unidadeCobranca)) return { erro: 'Escolha como o material é cobrado.', campos }
+
+  const dados = { nome: campos.nome, categoria: campos.categoria, preco, unidadeCobranca: campos.unidadeCobranca }
+  try {
+    if (id) await atualizarMaterial(usuario.empresaId, id, dados)
+    else await criarMaterial(usuario.empresaId, dados)
+  } catch (e) {
+    if (typeof e === 'object' && e !== null && 'code' in e && e.code === 'P2002') {
+      return { erro: `Já existe um material chamado “${campos.nome}”.`, campos }
+    }
+    throw e
+  }
+  redirect('/materiais')
+}
+
+export async function alternarAtivo(formData: FormData): Promise<void> {
+  const usuario = await exigirPapel('administracao')
+  const id = String(formData.get('id') ?? '')
+  const ativo = formData.get('ativo') === '1'
+  await definirAtivo(usuario.empresaId, id, ativo)
+  redirect('/materiais')
+}
