@@ -1290,7 +1290,7 @@ Só CSS e fonte: nenhum comportamento novo. A verificação é o build e a inspe
 - Consumes: nada
 - Produces: todas as classes do Tabler disponíveis em qualquer página; `--tblr-primary` = `#0E7C93`; `--tblr-font-sans-serif` = Geist; `--font-geist-mono` disponível para números tabulares
 
-- [ ] **Step 1: Instalar as dependências de UI**
+- [x] **Step 1: Instalar as dependências de UI**
 
 ```bash
 npm i --save-exact @tabler/core@1.4.0 react-bootstrap@2.10.10 @tabler/icons-react@3.46.0 geist@1.7.2
@@ -1298,7 +1298,7 @@ npm i --save-exact @tabler/core@1.4.0 react-bootstrap@2.10.10 @tabler/icons-reac
 
 **Não** instalar `bootstrap`: o `@tabler/core` já é o Bootstrap 5.3 recompilado com prefixo `--tblr-`. Se o npm avisar `TAR_ENTRY_ERROR ENOENT` em `dist/libs/nouislider` (caminho longo do Windows), é só aviso — conferir que `node_modules/@tabler/core/dist/css/tabler.min.css` existe e seguir.
 
-- [ ] **Step 2: Criar `src/app/tema.css`**
+- [x] **Step 2: Criar `src/app/tema.css`**
 
 Só `--tblr-primary` não basta: vários tons ficam fixos em azul no CSS compilado. Esta é a lista completa.
 
@@ -1344,7 +1344,7 @@ Só `--tblr-primary` não basta: vários tons ficam fixos em azul no CSS compila
 }
 ```
 
-- [ ] **Step 3: Atualizar `src/app/layout.tsx`**
+- [x] **Step 3: Atualizar `src/app/layout.tsx`**
 
 A ordem dos imports importa: `tema.css` depois de `tabler.min.css`, porque os dois declaram `:root` e o último vence. `GeistSans.variable` vai no `<html>`; **não** usar `GeistSans.className` no `<body>`, senão a fonte é aplicada inline e o Tabler perde o controle via `--tblr-font-sans-serif`.
 
@@ -1368,7 +1368,7 @@ export default function LayoutRaiz({ children }: { children: React.ReactNode }) 
 }
 ```
 
-- [ ] **Step 4: Build e inspeção**
+- [x] **Step 4: Build e inspeção**
 
 Run: `npm run build`
 Expected: verde.
@@ -1376,7 +1376,7 @@ Expected: verde.
 Run: `npx next start -p 3000` em segundo plano; depois `curl -s http://localhost:3000/ | grep -o 'tabler[^"]*\.css\|--font-geist-sans[^;"]*' | head -5`; depois parar o servidor.
 Expected: aparece o link do CSS do Tabler e a classe com `--font-geist-sans` no `<html>`. (O Turbopack pode juntar os CSS num só arquivo `/_next/static/…/*.css`; nesse caso, `curl` esse arquivo e confirmar com `grep -c 'tblr-primary:#0E7C93'` ≥ 1.)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add package.json package-lock.json src/app/layout.tsx src/app/tema.css

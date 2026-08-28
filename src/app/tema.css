@@ -1,0 +1,39 @@
+:root {
+  /* Fonte: Geist, injetada pelo next/font como --font-geist-sans no <html> */
+  --tblr-font-sans-serif: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  --tblr-font-monospace: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Cor primaria DruSign (spec, secao 8): #0E7C93 tem 4,86:1 sobre branco */
+  --tblr-primary: #0E7C93;
+  --tblr-primary-rgb: 14, 124, 147;
+  --tblr-primary-fg: #ffffff;
+  --tblr-primary-darken: #0A6478;          /* hover/active de .btn-primary */
+  --tblr-primary-lt: #E4F2F6;              /* .bg-primary-lt, badges, avatares */
+  --tblr-primary-lt-rgb: 228, 242, 246;
+  --tblr-primary-200: rgba(14, 124, 147, 0.2);
+  --tblr-primary-text-emphasis: #0A6478;
+  --tblr-primary-bg-subtle: #E4F2F6;
+  --tblr-primary-border-subtle: #9FD0DB;
+
+  /* Links */
+  --tblr-link-color: #0E7C93;
+  --tblr-link-color-rgb: 14, 124, 147;
+  --tblr-link-hover-color: #0A6478;
+  --tblr-link-hover-color-rgb: 10, 100, 120;
+
+  /* Foco (btn, form-control, form-select, form-check) */
+  --tblr-focus-ring-color: rgba(14, 124, 147, 0.25);
+}
+
+/* O Tabler 1.4.0 fixa a borda de foco em azul; alinhar a primaria */
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+  border-color: #0E7C93;
+}
+
+/* Numeros alinhados a direita, com digitos tabulares (spec, secao 7) */
+.numero {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}

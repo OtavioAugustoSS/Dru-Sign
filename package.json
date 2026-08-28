@@ -40,10 +40,14 @@
     "@node-rs/argon2": "2.1.0",
     "@prisma/adapter-pg": "7.10.0",
     "@prisma/client": "7.10.0",
+    "@tabler/core": "1.4.0",
+    "@tabler/icons-react": "3.46.0",
     "decimal.js": "^10.6.0",
+    "geist": "1.7.2",
     "next": "16.3.3",
     "pg": "8.23.0",
     "react": "19.2.8",
+    "react-bootstrap": "2.10.10",
     "react-dom": "19.2.8"
   },
   "devDependencies": {
