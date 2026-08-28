@@ -689,7 +689,7 @@ Escolhe a fórmula pela unidade declarada e roda as 772 linhas do legado como te
 - Consumes: `calcularArea`, `calcularUnidade`, `calcularMetroLinear`
 - Produces: `calcularItem(item: ItemCobranca): ResultadoItem`
 
-- [ ] **Step 1: Escrever o teste do seletor e da regressão**
+- [x] **Step 1: Escrever o teste do seletor e da regressão**
 
 `src/domain/precificacao/formulas.gabarito.test.ts`:
 ```ts
@@ -758,12 +758,12 @@ describe('regressao contra o gabarito do legado', () => {
 })
 ```
 
-- [ ] **Step 2: Rodar e ver falhar**
+- [x] **Step 2: Rodar e ver falhar**
 
 Run: `npm test -- formulas.gabarito`
 Expected: FAIL — `calcularItem is not a function`
 
-- [ ] **Step 3: Acrescentar o seletor em `formulas.ts`**
+- [x] **Step 3: Acrescentar o seletor em `formulas.ts`**
 
 ```ts
 export function calcularItem(item: ItemCobranca): ResultadoItem {
@@ -778,17 +778,17 @@ export function calcularItem(item: ItemCobranca): ResultadoItem {
 }
 ```
 
-- [ ] **Step 4: Rodar e ver passar**
+- [x] **Step 4: Rodar e ver passar**
 
 Run: `npm test -- formulas.gabarito`
 Expected: PASS — 6 passed
 
-- [ ] **Step 5: Rodar a suíte inteira**
+- [x] **Step 5: Rodar a suíte inteira**
 
 Run: `npm test`
 Expected: PASS — todos os testes verdes
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/domain/precificacao/formulas.ts src/domain/precificacao/formulas.gabarito.test.ts

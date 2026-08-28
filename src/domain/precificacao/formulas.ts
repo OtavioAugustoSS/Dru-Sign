@@ -38,3 +38,14 @@ export function calcularMetroLinear(item: ItemCobranca): ResultadoItem {
   )
   return { unidade: 'metro_linear', medida, total }
 }
+
+export function calcularItem(item: ItemCobranca): ResultadoItem {
+  switch (item.unidade) {
+    case 'm2':
+      return calcularArea(item)
+    case 'unidade':
+      return calcularUnidade(item)
+    case 'metro_linear':
+      return calcularMetroLinear(item)
+  }
+}
