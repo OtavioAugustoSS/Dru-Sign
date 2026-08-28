@@ -868,7 +868,7 @@ Conferir com `git status` que `.env.local`, `.env.test.local` e `src/generated/`
   - `hashDummy(): Promise<string>` — hash válido para verificar quando o login não existe (tempo constante)
   - `npm run db:seed` cria a empresa e o usuário `admin` (papel `administracao`) a partir de `SEED_ADMIN_LOGIN` / `SEED_ADMIN_SENHA`
 
-- [ ] **Step 1: Instalar o Argon2**
+- [x] **Step 1: Instalar o Argon2**
 
 ```bash
 npm i --save-exact @node-rs/argon2@2.1.0
@@ -876,7 +876,7 @@ npm i --save-exact @node-rs/argon2@2.1.0
 
 Expected: `node_modules/@node-rs/argon2-win32-x64-msvc` presente (binário pré-compilado; nada de node-gyp). Nunca instalar com `--no-optional`.
 
-- [ ] **Step 2: Escrever o teste, real e sem mock**
+- [x] **Step 2: Escrever o teste, real e sem mock**
 
 `src/infra/auth/senha.test.ts`:
 ```ts
@@ -919,12 +919,12 @@ describe('senha (argon2id real, sem mock)', () => {
 })
 ```
 
-- [ ] **Step 3: Rodar e ver falhar**
+- [x] **Step 3: Rodar e ver falhar**
 
 Run: `npm test -- senha`
 Expected: FAIL — `Cannot find module './senha'`
 
-- [ ] **Step 4: Criar `src/infra/auth/senha.ts`**
+- [x] **Step 4: Criar `src/infra/auth/senha.ts`**
 
 ```ts
 import { Algorithm, hash, verify } from '@node-rs/argon2'
@@ -963,12 +963,14 @@ export function hashDummy(): Promise<string> {
 }
 ```
 
-- [ ] **Step 5: Rodar e ver passar**
+- [x] **Step 5: Rodar e ver passar**
 
 Run: `npm test -- senha`
 Expected: PASS — 6 passed (uns 5–8 s: é Argon2 de verdade)
 
-- [ ] **Step 6: Criar o seed e registrar o pacote nativo no Next**
+> Nota de execução (2026-08-28): `Algorithm.Argon2id` é um const enum ambiente e o `isolatedModules` recusa (TS2748). O campo `algorithm` foi retirado de `PARAMETROS` — Argon2id é o padrão da lib, e o teste do prefixo `$argon2id$` garante isso. Os 6 testes rodaram em ~0,7 s, não 5–8 s.
+
+- [x] **Step 6: Criar o seed e registrar o pacote nativo no Next**
 
 `prisma/seed.ts`:
 ```ts
@@ -1021,15 +1023,17 @@ Em `next.config.ts`, acrescentar `'@node-rs/argon2'` à lista:
 serverExternalPackages: ['@prisma/client', '@prisma/adapter-pg', 'pg', '@node-rs/argon2'],
 ```
 
-- [ ] **Step 7: Rodar o seed no banco de desenvolvimento**
+- [x] **Step 7: Rodar o seed no banco de desenvolvimento**
 
 Run: `npm run db:seed`
 Expected: `empresa "DruSign Placas e Comunicacao Visual" e usuario "admin" (administracao) prontos` e, do Prisma, `The seed command has been executed`.
 
+> Nota de execução (2026-08-28): sob o `tsx`, `import { loadEnvConfig } from '@next/env'` falha (`does not provide an export named`): o pacote é CommonJS empacotado. `src/infra/carrega-env.ts` passou a carregá-lo com `createRequire`. Nos arquivos que rodam dentro do Vite/Vitest o import nomeado continua funcionando.
+
 Run: `npm run db:seed` (de novo)
 Expected: a mesma mensagem, sem erro — o seed é idempotente.
 
-- [ ] **Step 8: Verificação e commit**
+- [x] **Step 8: Verificação e commit**
 
 Run: `npm run typecheck` → sem erros.
 Run: `npm test` → PASS, incluindo `senha`.

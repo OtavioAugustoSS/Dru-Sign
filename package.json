@@ -37,6 +37,7 @@
   "homepage": "https://github.com/OtavioAugustoSS/Dru-Sign#readme",
   "dependencies": {
     "@next/env": "16.3.3",
+    "@node-rs/argon2": "2.1.0",
     "@prisma/adapter-pg": "7.10.0",
     "@prisma/client": "7.10.0",
     "decimal.js": "^10.6.0",
