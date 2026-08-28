@@ -507,7 +507,7 @@ git commit -m "feat: formula de cobranca por metro quadrado"
 - Consumes: o mesmo da Task 4
 - Produces: `calcularUnidade(item: ItemCobranca): ResultadoItem`
 
-- [ ] **Step 1: Escrever o teste com os casos reais**
+- [x] **Step 1: Escrever o teste com os casos reais**
 
 `src/domain/precificacao/formulas.unidade.test.ts`:
 ```ts
@@ -550,12 +550,12 @@ describe('calcularUnidade', () => {
 })
 ```
 
-- [ ] **Step 2: Rodar e ver falhar**
+- [x] **Step 2: Rodar e ver falhar**
 
 Run: `npm test -- formulas.unidade`
 Expected: FAIL — `calcularUnidade is not a function`
 
-- [ ] **Step 3: Acrescentar a função em `formulas.ts`**
+- [x] **Step 3: Acrescentar a função em `formulas.ts`**
 
 ```ts
 export function calcularUnidade(item: ItemCobranca): ResultadoItem {
@@ -569,12 +569,12 @@ export function calcularUnidade(item: ItemCobranca): ResultadoItem {
 }
 ```
 
-- [ ] **Step 4: Rodar e ver passar**
+- [x] **Step 4: Rodar e ver passar**
 
 Run: `npm test -- formulas.unidade`
 Expected: PASS — 7 passed
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/domain/precificacao/formulas.ts src/domain/precificacao/formulas.unidade.test.ts

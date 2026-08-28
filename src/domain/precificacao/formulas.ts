@@ -14,3 +14,13 @@ export function calcularArea(item: ItemCobranca): ResultadoItem {
   )
   return { unidade: 'm2', medida, total }
 }
+
+export function calcularUnidade(item: ItemCobranca): ResultadoItem {
+  if (item.quantidade <= 0) {
+    throw new Error('quantidade precisa ser maior que zero')
+  }
+  const total = arredondarCentavos(
+    dinheiro(item.valorUnitario).times(dinheiro(item.quantidade)),
+  )
+  return { unidade: 'unidade', medida: dinheiro(1), total }
+}
