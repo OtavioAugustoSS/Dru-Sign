@@ -1880,7 +1880,7 @@ Nenhuma pesquisa executou `proxy.ts` + Server Action + cookie dentro de um Next 
 - Consumes: o app inteiro; o usuário `admin` do seed (Task 3)
 - Produces: `npm run e2e` e `npm run check`
 
-- [ ] **Step 1: Instalar o Playwright e o Chromium**
+- [x] **Step 1: Instalar o Playwright e o Chromium**
 
 ```bash
 npm i -D --save-exact @playwright/test@1.62.1
@@ -1889,7 +1889,7 @@ npx playwright install chromium
 
 Expected: download de ~280 MB para `%USERPROFILE%\AppData\Local\ms-playwright`. **Risco aceito:** a matriz oficial do Playwright 1.62 é Windows 11+; o Chromium costuma rodar no Windows 10 19045. Se `npx playwright install` ou o primeiro teste falhar por causa do sistema, **parar e avisar** — o e2e passa a rodar só em CI, e a fase fecha com o Step 11 da Task 6 como evidência.
 
-- [ ] **Step 2: Configuração**
+- [x] **Step 2: Configuração**
 
 `playwright.config.ts` — localmente sobe `next dev` (rápido, cookie sem `Secure`); em CI, build de produção.
 ```ts
@@ -1945,7 +1945,7 @@ No `package.json`, acrescentar aos `scripts`:
 }
 ```
 
-- [ ] **Step 3: Escrever o teste**
+- [x] **Step 3: Escrever o teste**
 
 `e2e/entrar.spec.ts`:
 ```ts
@@ -2001,14 +2001,16 @@ test.describe('Entrar', () => {
 })
 ```
 
-- [ ] **Step 4: Rodar o e2e**
+- [x] **Step 4: Rodar o e2e**
 
 Antes: nenhum `next dev` aberto (o Playwright sobe o dele), `npm run db:local:ls` mostrando a instância `drusign` de pé, e o seed já aplicado (Task 3).
 
 Run: `npm run e2e`
-Expected: `3 passed`. Colar a saída. Se um teste falhar, ler o erro do Playwright (`test-results/` tem screenshot e trace) — os pontos mais prováveis são `cookies()` chamado fora de action, `redirect()` dentro de `try`, ou o `Dropdown.Toggle` não abrindo (fallback: `<details>` nativo com as classes do Tabler).
+Expected: `3 passed`.
 
-- [ ] **Step 5: Typecheck com o e2e incluso e a verificação final da fase**
+> Notas de execução (2026-08-28): (1) `import { loadEnvConfig } from '@next/env'` falha sob o Node ESM que carrega o `playwright.config.ts` — trocado por `createRequire`, como no `carrega-env.ts`. (2) O `next dev` injeta um `role="alert"` próprio (route announcer) e o `getByRole('alert')` violou o modo estrito; o teste passou a filtrar por `hasText`. (3) O `next dev` do Next 16 gera `AGENTS.md`/`CLAUDE.md` na raiz — desligado com `agentRules: false` no `next.config.ts` e os arquivos apagados. Resultado: 3 passed em ~15 s no Windows 10, com o Chromium headless shell (114 MB, não 280). Colar a saída. Se um teste falhar, ler o erro do Playwright (`test-results/` tem screenshot e trace) — os pontos mais prováveis são `cookies()` chamado fora de action, `redirect()` dentro de `try`, ou o `Dropdown.Toggle` não abrindo (fallback: `<details>` nativo com as classes do Tabler).
+
+- [x] **Step 5: Typecheck com o e2e incluso e a verificação final da fase**
 
 Run: `npm run check`
 Expected: typecheck sem erros (inclui `e2e/` e `playwright.config.ts`); unitários verdes; integração verde (8 passed).
@@ -2016,7 +2018,7 @@ Expected: typecheck sem erros (inclui `e2e/` e `playwright.config.ts`); unitári
 Run: `npm run build`
 Expected: verde.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add package.json package-lock.json tsconfig.json playwright.config.ts e2e/
@@ -2029,11 +2031,11 @@ git commit -m "test: login ponta a ponta com Playwright e script check"
 
 Verificação da Fase 1 na spec (seção 13): *"as três fórmulas reproduzem os resultados conhecidos do legado"* — cumprido na 1A. Para a 1B, o que prova que a fundação está de pé:
 
-- [ ] `npm run check` passa: typecheck, unitários (sem banco) e integração (banco real, 8 testes)
-- [ ] `npm run build` passa no TypeScript 7, sem `experimental.useTypeScriptCli`
-- [ ] `npm run e2e` passa: sem sessão redireciona; senha errada avisa; login certo chega na fila de trabalho, `/entrar` devolve para a home, e sair derruba a sessão no banco
-- [ ] `prisma/migrations/` versionada com a migração `init`; `src/generated/`, `.env.local` e `.env.test.local` fora do git
-- [ ] `src/domain/` continua puro, agora também contra `@/generated` e `@/infra` — verificado por teste
+- [x] `npm run check` passa: typecheck, unitários (sem banco) e integração (banco real, 8 testes)
+- [x] `npm run build` passa no TypeScript 7, sem `experimental.useTypeScriptCli`
+- [x] `npm run e2e` passa: sem sessão redireciona; senha errada avisa; login certo chega na fila de trabalho, `/entrar` devolve para a home, e sair derruba a sessão no banco
+- [x] `prisma/migrations/` versionada com a migração `init`; `src/generated/`, `.env.local` e `.env.test.local` fora do git
+- [x] `src/domain/` continua puro, agora também contra `@/generated` e `@/infra` — verificado por teste
 
 Feito isso, a Fase 2 (Cliente, Material e a importação dos 3.219 clientes com normalização de telefone) ganha seu próprio plano.
 

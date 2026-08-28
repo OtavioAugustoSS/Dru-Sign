@@ -22,7 +22,9 @@
     "db:local": "prisma dev -n drusign --detach",
     "db:local:test": "prisma dev -n drusign-test --detach",
     "db:local:ls": "prisma dev ls",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "e2e": "playwright test",
+    "check": "npm run typecheck && npm run test && npm run test:int"
   },
   "repository": {
     "type": "git",
@@ -52,6 +54,7 @@
     "server-only": "0.0.1"
   },
   "devDependencies": {
+    "@playwright/test": "1.62.1",
     "@types/node": "^26.4.0",
     "@types/pg": "8.23.1",
     "@types/react": "19.2.18",
