@@ -490,7 +490,7 @@ git commit -m "feat: modelos de cliente, telefone e material"
   - `interface ClienteResumo { id; nome; apelido; documento; arquivadoEm; telefones: TelefoneResumo[] }`, `interface TelefoneResumo { original; normalizado; inferido }`
   - `criarCliente(empresaId, dados, extras?)`, `atualizarCliente(empresaId, id, dados)`, `arquivarCliente(empresaId, id)`, `reativarCliente(empresaId, id)`, `obterCliente(empresaId, id)`, `buscarClientes(empresaId, termo, opcoes?)`, `clientesComTelefone(empresaId, telefones, excetoId?)`
 
-- [ ] **Step 1: Escrever o teste de integração**
+- [x] **Step 1: Escrever o teste de integração**
 
 `src/infra/clientes/repositorio.int.test.ts`:
 ```ts
@@ -578,12 +578,12 @@ describe('clientes (banco real)', () => {
 })
 ```
 
-- [ ] **Step 2: Rodar e ver falhar**
+- [x] **Step 2: Rodar e ver falhar**
 
 Run: `npm run test:int -- repositorio`
 Expected: FAIL — `Cannot find module './repositorio'`
 
-- [ ] **Step 3: Criar `src/infra/clientes/repositorio.ts`**
+- [x] **Step 3: Criar `src/infra/clientes/repositorio.ts`**
 
 ```ts
 import { prisma } from '@/infra/db/prisma'
@@ -788,12 +788,12 @@ export async function clientesComTelefone(
 }
 ```
 
-- [ ] **Step 4: Rodar e ver passar**
+- [x] **Step 4: Rodar e ver passar**
 
 Run: `npm run test:int -- repositorio`
 Expected: PASS — 7 passed
 
-- [ ] **Step 5: Typecheck e commit**
+- [x] **Step 5: Typecheck e commit**
 
 Run: `npm run typecheck` → sem erros.
 
