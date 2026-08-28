@@ -812,7 +812,7 @@ Converte a linha que o operador digita em um item estruturado. É o risco númer
   - `interpretarLinha(texto: string): LinhaInterpretada`
   - `normalizarDimensao(token: string): number` — converte para metros
 
-- [ ] **Step 1: Escrever o teste do normalizador de dimensão**
+- [x] **Step 1: Escrever o teste do normalizador de dimensão**
 
 `src/domain/precificacao/parser.test.ts`:
 ```ts
@@ -893,12 +893,12 @@ describe('interpretarLinha', () => {
 })
 ```
 
-- [ ] **Step 2: Rodar e ver falhar**
+- [x] **Step 2: Rodar e ver falhar**
 
 Run: `npm test -- parser`
 Expected: FAIL — não consegue resolver `./parser`
 
-- [ ] **Step 3: Criar `src/domain/precificacao/parser.ts`**
+- [x] **Step 3: Criar `src/domain/precificacao/parser.ts`**
 
 ```ts
 import type { UnidadeCobranca } from './tipos'
@@ -959,12 +959,12 @@ export function interpretarLinha(texto: string): LinhaInterpretada {
 }
 ```
 
-- [ ] **Step 4: Rodar e ver passar**
+- [x] **Step 4: Rodar e ver passar**
 
 Run: `npm test -- parser`
 Expected: PASS — 14 passed
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/domain/precificacao/parser.ts src/domain/precificacao/parser.test.ts
