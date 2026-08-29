@@ -3,7 +3,7 @@ import type { PapelUsuario } from '@/domain/usuarios/tipos'
 export interface ItemNavegacao {
   href: string
   titulo: string
-  icone: 'fila' | 'producao' | 'ordens' | 'clientes' | 'materiais' | 'operacao' | 'financeiro' | 'plano' | 'usuarios' | 'empresa'
+  icone: 'fila' | 'producao' | 'ordens' | 'historico' | 'clientes' | 'materiais' | 'operacao' | 'financeiro' | 'plano' | 'usuarios' | 'empresa'
   /** Sem papel: todo mundo ve. */
   papel?: PapelUsuario
 }
@@ -14,6 +14,7 @@ export const NAVEGACAO: ItemNavegacao[] = [
   { href: '/', titulo: 'Fila de trabalho', icone: 'fila', papel: 'administracao' },
   { href: '/producao', titulo: 'Produção', icone: 'producao' },
   { href: '/ordens', titulo: 'Ordens', icone: 'ordens' },
+  { href: '/historico', titulo: 'Histórico', icone: 'historico' },
   { href: '/clientes', titulo: 'Clientes', icone: 'clientes' },
   { href: '/materiais', titulo: 'Materiais e preços', icone: 'materiais', papel: 'administracao' },
   { href: '/operacao', titulo: 'Operação', icone: 'operacao', papel: 'administracao' },

@@ -593,7 +593,7 @@ Dois ajustes de codigo:
 - Consumes: `prisma`, `paraDominio`, `limitesDoDia`, `ErroDeValidacao`.
 - Produces: `interface LinhaHistorico`, `interface Historico`, `buscarHistorico(empresaId, filtros: FiltrosHistorico): Promise<Historico>`, `historicoDoCliente(empresaId, clienteId, limite?): Promise<LinhaHistorico[]>`.
 
-- [ ] **Step 1: A consulta (teste de integração)**
+- [x] **Step 1: A consulta (teste de integração)**
 
 `src/infra/legado/consulta.int.test.ts`:
 ```ts
@@ -672,7 +672,7 @@ describe('consulta do historico (banco real)', () => {
 
 Run: `npm run test:int -- consulta` → vermelho.
 
-- [ ] **Step 2: A consulta (implementação)**
+- [x] **Step 2: A consulta (implementação)**
 
 `src/infra/legado/consulta.ts`:
 ```ts
@@ -782,7 +782,7 @@ export async function historicoDoCliente(empresaId: string, clienteId: string, l
 
 Run: `npm run test:int -- consulta` → PASS (7).
 
-- [ ] **Step 3: A tela do histórico**
+- [x] **Step 3: A tela do histórico**
 
 Em `navegacao.ts`, depois de "Ordens": `{ href: '/historico', titulo: 'Histórico', icone: 'historico' }`, e `'historico'` no tipo `icone`. Em `layout.tsx`, importar `IconArchive` e acrescentar `historico: <IconArchive className="icon" />`.
 
@@ -886,7 +886,7 @@ export default async function PaginaHistorico({ searchParams }: { searchParams: 
 }
 ```
 
-- [ ] **Step 4: As ordens antigas na ficha do cliente**
+- [x] **Step 4: As ordens antigas na ficha do cliente**
 
 Em `src/app/(app)/clientes/[id]/page.tsx`: importar `historicoDoCliente`, `formatarDataCalendario`, `formatarNumeroOs`, `formatarMoeda` e `dinheiro` (o que já não estiver lá), carregar `const antigas = await historicoDoCliente(usuario.empresaId, id)` junto com o cliente, e antes do fechamento do `container-xl` acrescentar:
 ```tsx
@@ -912,12 +912,17 @@ Em `src/app/(app)/clientes/[id]/page.tsx`: importar `historicoDoCliente`, `forma
 
 Run: `npm run typecheck` → sem erros. Run: `npm run build` → `ƒ /historico` na lista.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/infra/legado "src/app/(app)/historico" "src/app/(app)/navegacao.ts" "src/app/(app)/layout.tsx" "src/app/(app)/clientes/[id]/page.tsx"
 git commit -m "feat: consulta do historico do sistema antigo, por numero, cliente e texto, e as ordens antigas na ficha do cliente"
 ```
+
+**Executado (29/08/2026).** 7 testes de integracao da consulta verdes, typecheck limpo, build com
+`ƒ /historico`. Um ajuste sobre o plano: a ficha do cliente ja tinha um card "Histórico de ordens"
+com um estado vazio que prometia a Fase 6 — em vez de acrescentar um card novo embaixo, esse card
+virou o do arquivo, e o estado vazio dele passou a explicar quando as ordens antigas aparecem.
 
 ---
 
