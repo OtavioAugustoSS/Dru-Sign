@@ -6,6 +6,7 @@ import { obterImpresso } from '@/infra/ordens/impresso'
 import { formatarMoeda } from '@/domain/precificacao/moeda'
 import { formatarDocumento } from '@/domain/clientes/documento'
 import { formatarDataCalendario, formatarDataHora } from '@/domain/ordem/datas'
+import { formatarTelefone } from '@/domain/clientes/telefone'
 import { TEXTOS_IMPRESSO, descreverCobranca, formatarDimensao, tituloDocumento, type DadosEmpresaImpresso, type OrdemImpressa } from '@/domain/ordem/impresso'
 import { BotaoImprimir } from './botao-imprimir'
 
@@ -43,8 +44,8 @@ function Via({ rotulo, empresa, ordem }: { rotulo: string; empresa: DadosEmpresa
   return (
     <article className="via" aria-label={`${tituloDocumento(ordem.estadoProducao)} ${numero} — ${rotulo}`}>
       <header className="bloco cabecalho-empresa">
-        <div><div className="nome">{empresa.nomeFantasia}</div><div className="razao">{empresa.razaoSocial}{empresa.cnpj ? ` · CNPJ ${empresa.cnpj}` : ''}</div></div>
-        <div className="contato">{empresa.endereco ? <div>{empresa.endereco}</div> : null}{empresa.cidadeUf ? <div>{empresa.cidadeUf}</div> : null}{(empresa.telefones ?? []).map((t) => <div key={t}>{t}</div>)}</div>
+        <div><div className="nome">{empresa.nomeFantasia}</div><div className="razao">{empresa.razaoSocial}{empresa.cnpj ? ` · CNPJ ${formatarDocumento(empresa.cnpj)}` : ''}</div></div>
+        <div className="contato">{empresa.endereco ? <div>{empresa.endereco}</div> : null}{empresa.cidadeUf ? <div>{empresa.cidadeUf}</div> : null}{(empresa.telefones ?? []).map((t) => <div key={t}>{formatarTelefone(t)}</div>)}</div>
       </header>
       <section className="bloco identificacao">
         <div><div className="via-rotulo">{rotulo}</div><div className="titulo">{tituloDocumento(ordem.estadoProducao)}</div><div className="numero-os">Nº {numero}</div></div>

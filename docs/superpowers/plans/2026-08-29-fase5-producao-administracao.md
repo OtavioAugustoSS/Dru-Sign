@@ -2160,7 +2160,7 @@ do `page.tsx` antigo, sem alterar uma linha (66 linhas). Sem desvios.
 - Create: `e2e/producao.spec.ts`, `e2e/administracao.spec.ts`
 - Modify: `e2e/materiais.spec.ts` e `e2e/dinheiro.spec.ts` (o que a operação vê ao ser redirecionada para `/`)
 
-- [ ] **Step 1: Ajustar os dois testes que assumem a fila de trabalho para a operação**
+- [x] **Step 1: Ajustar os dois testes que assumem a fila de trabalho para a operação**
 
 Em `e2e/materiais.spec.ts`, no teste "operacao nao ve nem abre Materiais e preços", e em `e2e/dinheiro.spec.ts`, no teste "operacao nao ve nem abre o Financeiro`, a última linha muda:
 ```ts
@@ -2168,7 +2168,7 @@ Em `e2e/materiais.spec.ts`, no teste "operacao nao ve nem abre Materiais e preç
 ```
 (A partir desta fase, `/` mostra a fila de produção para quem é da operação — a URL continua `/`, só o conteúdo muda.)
 
-- [ ] **Step 2: O teste da produção**
+- [x] **Step 2: O teste da produção**
 
 `e2e/producao.spec.ts`:
 ```ts
@@ -2233,7 +2233,7 @@ test.describe('Produção', () => {
 })
 ```
 
-- [ ] **Step 3: O teste da administração**
+- [x] **Step 3: O teste da administração**
 
 `e2e/administracao.spec.ts`:
 ```ts
@@ -2331,19 +2331,24 @@ test.describe('Administração', () => {
 })
 ```
 
-- [ ] **Step 4: Rodar**
+- [x] **Step 4: Rodar**
 
 Antes: `npm run typecheck`; `npm run db:local:ls` com `drusign` e `drusign-test` de pé; `DATABASE_POOL_MAX=2` no `.env.local`.
 
 Run: `npm run e2e`
 Expected: **30 passed** (24 anteriores + 2 de produção + 4 de administração). Se aparecer `Connection terminated unexpectedly`, reiniciar o daemon (`npx prisma dev stop drusign` e `npm run db:local`) — o `gracefulShutdown` do Playwright já evita a sangria, mas um `next dev` morto à força fora da suíte ainda derruba o teto.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add e2e
 git commit -m "test: fila de producao, indicadores, carteira, usuarios e dados da empresa no impresso ponta a ponta"
 ```
+
+**Executado (29/08/2026).** **30 passed**, o numero previsto. Um defeito real apareceu:
+o cabecalho do impresso mostrava CNPJ e telefone **crus** (`11222333000181`), porque ate agora
+esses campos eram sempre null e ninguem tinha visto. Passa a usar `formatarDocumento` e
+`formatarTelefone`, os mesmos do resto do sistema — e o documento que vai para a mao do cliente.
 
 ---
 

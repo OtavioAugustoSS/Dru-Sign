@@ -39,6 +39,6 @@ test.describe('Materiais e preços', () => {
     await expect(page.getByRole('link', { name: 'Materiais e preços' })).toHaveCount(0)
     await page.goto('/materiais')
     await expect(page).toHaveURL(/\/$/)
-    await expect(page.getByRole('heading', { name: 'Fila de trabalho' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Fila de produção' })).toBeVisible()
   })
 })

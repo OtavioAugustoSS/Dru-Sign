@@ -132,7 +132,7 @@ test.describe('Dinheiro', () => {
     await expect(page.getByRole('link', { name: 'Plano de contas' })).toHaveCount(0)
     await page.goto('/financeiro')
     await expect(page).toHaveURL(/\/$/)
-    await expect(page.getByRole('heading', { name: 'Fila de trabalho' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Fila de produção' })).toBeVisible()
   })
 
   test('plano de contas: as 48 do legado por grupo, VENDAS DIVERSAS recebe as vendas, conta nova e desativar', async ({ page }) => {
