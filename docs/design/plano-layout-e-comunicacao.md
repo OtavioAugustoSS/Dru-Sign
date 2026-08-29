@@ -335,8 +335,36 @@ Ordem por tráfego e por gravidade do que foi encontrado.
   quase vazio. Com item de verdade, o bloco de trabalho ocupa o espaço e o botão
   passa a ser o rodapé que ele é. Vale reconferir com dados reais.
 
-- [ ] **T2. `/ordens[/…]` — lista.** Paginação de verdade. Resolver o confete de
-  dois selos pastel por linha. Linha inteira clicável.
+- [x] **T2. `/ordens` — lista.** ✅ Feito.
+
+  **Paginação de verdade**, 50 por página: "Mostrando 1 a 50 de 148", "Página 1 de
+  3". São links, sem JavaScript — a página entra no endereço, então o botão voltar
+  do navegador funciona e dá para guardar o link. Verificado que o filtro
+  sobrevive: `/ordens?estado=aberta&pagina=2` mostra 51 a 100 de 100. A altura caiu
+  de 4.769px para 2.583px. O componente `Paginacao` fica pronto para `/historico`
+  e `/clientes`.
+
+  **O confete de selos acabou:** era um selo de Situação **e** um de Pagamento em
+  cada linha, dois pastéis lado a lado que não davam para varrer. Agora é **um selo
+  por linha**. Situação continua selo, porque é o ciclo da ordem; pagamento virou
+  texto e só se colore quando pede atenção — "Pago" fica cinza discreto, "Não pago"
+  vermelho, e no parcial o que aparece é **quanto falta**, que é a informação útil.
+  O olho agora vai direto para o que deve dinheiro.
+
+  Contraste medido dos textos novos: vermelho **13,72:1** claro / 5,76:1 escuro;
+  âmbar **9,32:1** / 9,23:1. Usei as versões `-emphasis` de propósito: o vermelho
+  cheio dá 4,04:1 e reprovaria.
+
+  Na consulta, `contarOrdens` ficou separado de `listarOrdens` porque os testes de
+  integração dependem daquela devolver um array. As duas compartilham a mesma
+  função de filtro: se divergirem, a paginação mente.
+
+  **Desvio do plano:** não fiz a **linha inteira clicável**. Fazer isso exige ou um
+  `onClick` por linha (que quebra seleção de texto e clique do meio para abrir em
+  outra aba) ou uma sobreposição de link (que engole a seleção do mesmo jeito).
+  Copiar o nome de um cliente da tabela é coisa que se faz. Em vez disso o **nome
+  do cliente virou link também**, que é um alvo bem maior que o número.
+
 - [ ] **T3. `/ordens/[id]` — a mais densa.** Subir o preço final para a primeira
   dobra. Desempatar os dois botões primários: "Concluir e receber" é a ação,
   "Ajustar preço" não. Resolver "Preço final" com dois sentidos a 60px de distância.

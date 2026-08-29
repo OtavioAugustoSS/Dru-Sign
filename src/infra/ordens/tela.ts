@@ -144,23 +144,45 @@ export interface FiltrosOrdens {
   de?: string
   ate?: string
   limite?: number
+  /** 1 e a primeira. Junto com `limite`, decide o trecho que a tela mostra. */
+  pagina?: number
+}
+
+/**
+ * Quantas ordens o filtro encontra, ignorando a pagina.
+ *
+ * Fica separado de `listarOrdens` de proposito: aquela devolve um array e os
+ * testes de integracao dependem disso. Sao duas consultas, e a de contagem e
+ * barata porque nao carrega linha nenhuma.
+ */
+export async function contarOrdens(empresaId: string, filtros: FiltrosOrdens = {}): Promise<number> {
+  const periodo = filtros.de && filtros.ate ? limitesDoDia(filtros.de, filtros.ate) : null
+  if (filtros.de && filtros.ate && !periodo) return 0
+  return prisma.ordemServico.count({ where: condicaoDeOrdens(empresaId, filtros, periodo) })
+}
+
+/** O mesmo filtro para a listagem e para a contagem: se divergirem, a paginacao mente. */
+function condicaoDeOrdens(empresaId: string, filtros: FiltrosOrdens, periodo: { inicio: Date; fim: Date } | null) {
+  const q = filtros.q?.trim() ?? ''
+  return {
+    empresaId,
+    ...(filtros.estado ? { estadoProducao: filtros.estado } : {}),
+    ...(periodo ? { abertaEm: { gte: periodo.inicio, lt: periodo.fim } } : {}),
+    ...(q === '' ? {} : /^\d+$/.test(q)
+      ? { numero: Number(q) }
+      : { OR: [{ clienteNome: { contains: q, mode: 'insensitive' as const } }, { clienteApelido: { contains: q, mode: 'insensitive' as const } }] }),
+  }
 }
 
 export async function listarOrdens(empresaId: string, filtros: FiltrosOrdens = {}): Promise<OrdemResumo[]> {
-  const q = filtros.q?.trim() ?? ''
   const periodo = filtros.de && filtros.ate ? limitesDoDia(filtros.de, filtros.ate) : null
   if (filtros.de && filtros.ate && !periodo) return []
+  const limite = filtros.limite ?? 100
   const linhas = await prisma.ordemServico.findMany({
-    where: {
-      empresaId,
-      ...(filtros.estado ? { estadoProducao: filtros.estado } : {}),
-      ...(periodo ? { abertaEm: { gte: periodo.inicio, lt: periodo.fim } } : {}),
-      ...(q === '' ? {} : /^\d+$/.test(q)
-        ? { numero: Number(q) }
-        : { OR: [{ clienteNome: { contains: q, mode: 'insensitive' } }, { clienteApelido: { contains: q, mode: 'insensitive' } }] }),
-    },
+    where: condicaoDeOrdens(empresaId, filtros, periodo),
     orderBy: { numero: 'desc' },
-    take: filtros.limite ?? 100,
+    skip: filtros.pagina && filtros.pagina > 1 ? (filtros.pagina - 1) * limite : 0,
+    take: limite,
     select: { id: true, numero: true, estadoProducao: true, clienteNome: true, clienteApelido: true, abertaEm: true, prometidaPara: true, precoFinal: true },
   })
   const totais = await totalRecebidoPorOrdem(prisma, empresaId, linhas.map((o) => o.id))
