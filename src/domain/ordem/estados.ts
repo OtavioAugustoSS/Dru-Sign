@@ -1,4 +1,5 @@
 import { dinheiro } from '../precificacao/dinheiro'
+import type { ValorNumerico } from '../precificacao/tipos'
 
 export type EstadoProducao = 'orcamento' | 'aberta' | 'concluida' | 'cancelada'
 export type EstadoPagamento = 'nao_pago' | 'parcial' | 'pago'
@@ -26,8 +27,8 @@ export function transicionar(de: EstadoProducao, para: EstadoProducao): EstadoPr
 const TOLERANCIA = dinheiro('0.01')
 
 export function calcularEstadoPagamento(
-  precoFinal: number,
-  recebimentos: number[],
+  precoFinal: ValorNumerico,
+  recebimentos: ValorNumerico[],
 ): EstadoPagamento {
   const total = dinheiro(precoFinal)
   const recebido = recebimentos.reduce((s, r) => s.plus(dinheiro(r)), dinheiro(0))
@@ -52,9 +53,13 @@ export interface PermissoesOrdem {
   editarObservacoes: boolean
   aprovarOrcamento: boolean
   cancelar: boolean
+  /** "Servico finalizado": so de aberta; nao toca em dinheiro. */
+  concluir: boolean
+  /** Receber (e "Concluir e receber" quando ainda aberta). */
+  receber: boolean
 }
 
-/** O que a tela deixa mexer em cada estado. Concluir e receber e da Fase 4. */
+/** O que a tela deixa mexer em cada estado. */
 export function permissoes(estado: EstadoProducao): PermissoesOrdem {
   const emEdicao = estado === 'orcamento' || estado === 'aberta'
   return {
@@ -64,6 +69,8 @@ export function permissoes(estado: EstadoProducao): PermissoesOrdem {
     editarObservacoes: estado !== 'cancelada',
     aprovarOrcamento: estado === 'orcamento',
     cancelar: emEdicao,
+    concluir: estado === 'aberta',
+    receber: estado === 'aberta' || estado === 'concluida',
   }
 }
 

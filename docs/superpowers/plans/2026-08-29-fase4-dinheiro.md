@@ -66,7 +66,7 @@
   - `interface ContaLegado { codigo: number; nome: string; nivel: number; tipo: TipoConta; grupo: string }`, `converterContaLegado(valores: Record<string, string | number | null>): ContaLegado`
   - `permissoes(estado)` ganha `concluir: boolean` (só `aberta`) e `receber: boolean` (`aberta` ou `concluida`)
 
-- [ ] **Step 1: Formas de pagamento e o eixo derivado (testes)**
+- [x] **Step 1: Formas de pagamento e o eixo derivado (testes)**
 
 `src/domain/caixa/pagamento.test.ts`:
 ```ts
@@ -146,7 +146,7 @@ describe('validarRecebimento', () => {
 
 Run: `npm test -- src/domain/caixa/pagamento` → vermelho (`Cannot find module './pagamento'`).
 
-- [ ] **Step 2: Formas e pagamento (implementação)**
+- [x] **Step 2: Formas e pagamento (implementação)**
 
 `src/domain/caixa/formas.ts`:
 ```ts
@@ -276,7 +276,7 @@ e, no bloco de `permissoes` (se existir; senão criar um `describe('permissoes')
 
 Run: `npm test -- src/domain/caixa/pagamento src/domain/ordem/estados` → PASS.
 
-- [ ] **Step 3: Lançamento — saída validada, histórico do recebimento, número da OS (testes)**
+- [x] **Step 3: Lançamento — saída validada, histórico do recebimento, número da OS (testes)**
 
 `src/domain/caixa/lancamento.test.ts`:
 ```ts
@@ -333,7 +333,7 @@ describe('historicoDeRecebimento', () => {
 
 Run: `npm test -- src/domain/caixa/lancamento` → vermelho.
 
-- [ ] **Step 4: Lançamento (implementação)**
+- [x] **Step 4: Lançamento (implementação)**
 
 `src/domain/caixa/lancamento.ts`:
 ```ts
@@ -404,7 +404,7 @@ export function historicoDeRecebimento(numero: number, clienteNome: string | nul
 
 Run: `npm test -- src/domain/caixa/lancamento` → PASS.
 
-- [ ] **Step 5: A fila de trabalho (testes)**
+- [x] **Step 5: A fila de trabalho (testes)**
 
 `src/domain/caixa/fila.test.ts`:
 ```ts
@@ -454,7 +454,7 @@ describe('classificarFila', () => {
 
 Run: `npm test -- src/domain/caixa/fila` → vermelho.
 
-- [ ] **Step 6: A fila (implementação)**
+- [x] **Step 6: A fila (implementação)**
 
 `src/domain/caixa/fila.ts`:
 ```ts
@@ -507,7 +507,7 @@ export function classificarFila(ordens: OrdemDaFila[], agora: Date, diasParada =
 
 Run: `npm test -- src/domain/caixa/fila` → PASS.
 
-- [ ] **Step 7: Plano de contas do legado (teste e implementação)**
+- [x] **Step 7: Plano de contas do legado (teste e implementação)**
 
 `src/domain/caixa/plano.test.ts`:
 ```ts
@@ -563,12 +563,17 @@ export function converterContaLegado(v: Record<string, string | number | null>):
 
 Run: `npm test -- src/domain/caixa/plano` → PASS. Run: `npm test` → PASS incluindo `pureza` (nada em `src/domain/caixa` importa infra). Run: `npm run typecheck` → sem erros.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/domain/caixa src/domain/ordem/estados.ts src/domain/ordem/estados.test.ts
 git commit -m "feat: dominio do dinheiro - pagamento derivado, formas, saida validada, fila de trabalho e plano de contas do legado"
 ```
+
+**Executado (29/08/2026).** 262 unitarios verdes (eram 224), typecheck limpo, `pureza.test.ts`
+continua passando — nada em `src/domain/caixa` importa infra. Um desvio do codigo do plano:
+`pagamento.ts` importa `Decimal` como valor, nao `type Decimal`, porque usa `Decimal.max`;
+o `dinheiro.ts` ja exporta a classe. Sem outras mudancas.
 
 ---
 ### Task 2: Schema — conta do plano, recebimento colado ao lançamento, migração e a importação das 48 contas

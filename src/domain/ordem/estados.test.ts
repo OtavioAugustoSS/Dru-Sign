@@ -61,6 +61,12 @@ describe('estado de pagamento derivado', () => {
   it('ordem de valor zero ja nasce paga', () => {
     expect(calcularEstadoPagamento(0, [])).toBe('pago')
   })
+
+  it('aceita strings decimais exatas', () => {
+    expect(calcularEstadoPagamento('2528.00', ['2528.00'])).toBe('pago')
+    expect(calcularEstadoPagamento('2528.00', ['1000.00', '1527.99'])).toBe('pago')
+    expect(calcularEstadoPagamento('2528.00', ['1000.00', '1527.98'])).toBe('parcial')
+  })
 })
 
 describe('permissoes por estado', () => {
@@ -69,6 +75,12 @@ describe('permissoes por estado', () => {
     expect(permissoes('aberta')).toMatchObject({ editarItens: true, aprovarOrcamento: false, cancelar: true })
     expect(permissoes('concluida')).toMatchObject({ editarItens: false, editarObservacoes: true, cancelar: false })
     expect(permissoes('cancelada')).toMatchObject({ editarItens: false, editarObservacoes: false })
+  })
+  it('concluir so em aberta; receber em aberta e concluida', () => {
+    expect(permissoes('aberta')).toMatchObject({ concluir: true, receber: true })
+    expect(permissoes('concluida')).toMatchObject({ concluir: false, receber: true })
+    expect(permissoes('orcamento')).toMatchObject({ concluir: false, receber: false })
+    expect(permissoes('cancelada')).toMatchObject({ concluir: false, receber: false })
   })
   it('rotulos no vocabulario da loja', () => {
     expect(ROTULO_ESTADO.concluida).toBe('Serviço finalizado')
