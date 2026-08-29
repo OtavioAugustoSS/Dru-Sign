@@ -134,7 +134,9 @@ export default async function PaginaOrdem({ params }: { params: Promise<{ id: st
                 </div>
                 {pode.editarPreco ? (
                   <div className="card-body border-top">
-                    <FormAjuste ordemId={ordem.id} versao={ordem.versao} precoFinal={ordem.precoFinal} motivo={ordem.ajuste?.motivo ?? ''} />
+                    {/* key no preco: mudou o total (item novo, acrescimo), o campo do ajuste
+                        volta a mostrar o valor de agora em vez do que estava na tela antes. */}
+                    <FormAjuste key={ordem.precoFinal} ordemId={ordem.id} versao={ordem.versao} precoFinal={ordem.precoFinal} motivo={ordem.ajuste?.motivo ?? ''} />
                     {ordem.ajuste && !ordem.ajuste.desatualizado ? <div className="mt-2"><BotaoMutacao acao={acao(removerAjusteAction)} rotulo="Remover ajuste" className="btn btn-link px-0" /></div> : null}
                   </div>
                 ) : null}

@@ -72,6 +72,25 @@ test.describe('Ordem de serviço', () => {
     await expect(page.getByTestId('preco-final')).toHaveText('R$ 2.102,00')
   })
 
+  test('ajuste digitado com ponto decimal vale dois mil, nao duzentos mil', async ({ page }) => {
+    await novaOrdem(page)
+    await lancar(page, '2 placa 1000,00')
+    await lancar(page, '+deslocamento 34 km 102,00')
+
+    // Campo do ajuste acompanha o total: depois do acrescimo mostra 2102,00, nao o 2000,00 de antes.
+    await expect(page.getByLabel('Preço final')).toHaveValue('2102,00')
+
+    await page.getByLabel('Preço final').fill('2050.50')
+    await page.getByLabel('Motivo do ajuste').fill('cliente antigo')
+    await page.getByRole('button', { name: 'Ajustar preço' }).click()
+    await expect(page.getByTestId('preco-final')).toHaveText('R$ 2.050,50', { timeout: 30_000 })
+
+    await page.getByLabel('Preço final').fill('dois mil')
+    await page.getByRole('button', { name: 'Ajustar preço' }).click()
+    await expect(page.getByRole('alert').filter({ hasText: 'Preço inválido' })).toBeVisible()
+    await expect(page.getByTestId('preco-final')).toHaveText('R$ 2.050,50')
+  })
+
   test('pendencia nao grava; Esc limpa; segundo Enter nao conflita', async ({ page }) => {
     await novaOrdem(page)
     const campo = page.getByLabel('Lançar item ou acréscimo')

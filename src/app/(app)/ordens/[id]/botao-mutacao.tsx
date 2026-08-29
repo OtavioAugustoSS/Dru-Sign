@@ -26,7 +26,9 @@ export function BotaoMutacao({ acao, rotulo, className = 'btn', confirmar }: Pro
           iniciar(async () => {
             const r = await acao(chave.current)
             if (r.ok) { chave.current = gerarChave(); setErro(null); iniciar(() => router.refresh()) }
-            else if (r.conflito) { setErro('A ordem mudou. Recarregando…'); router.refresh() }
+            // Recarrega e diz o que houve. Nao promete um "recarregando…" que ja acabou:
+            // a mensagem fica ate a proxima acao, que e quando o operador confere e repete.
+            else if (r.conflito) { setErro('A ordem mudou. Confira os valores e tente de novo.'); router.refresh() }
             else { chave.current = gerarChave(); setErro(r.erro) }
           })
         }}>

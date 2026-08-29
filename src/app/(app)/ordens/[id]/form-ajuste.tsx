@@ -2,6 +2,7 @@
 
 import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { interpretarMoeda } from '@/domain/precificacao/moeda'
 import { ajustarPrecoAction, type Resposta } from './actions'
 import { gerarChave } from './chave'
 
@@ -9,6 +10,7 @@ export function FormAjuste({ ordemId, versao, precoFinal, motivo }: { ordemId: s
   const router = useRouter()
   const [pendente, iniciar] = useTransition()
   const [resposta, setResposta] = useState<Resposta | null>(null)
+  const [invalido, setInvalido] = useState(false)
   const chave = useRef(gerarChave())
   const [preco, setPreco] = useState(precoFinal.replace('.', ','))
   const [texto, setTexto] = useState(motivo)
@@ -18,8 +20,13 @@ export function FormAjuste({ ordemId, versao, precoFinal, motivo }: { ordemId: s
       onSubmit={(e) => {
         e.preventDefault()
         if (pendente) return
+        // A mesma leitura da entrada assistida: "2050.50" e dois mil e cinquenta e cinquenta,
+        // nao duzentos mil. Ler a virgula na mao aqui ja custou esse zero a mais.
+        const valor = interpretarMoeda(preco)
+        if (valor === null) { setInvalido(true); setResposta(null); return }
+        setInvalido(false)
         iniciar(async () => {
-          const r = await ajustarPrecoAction(ordemId, versao, chave.current, preco.replace(/\./g, '').replace(',', '.'), texto)
+          const r = await ajustarPrecoAction(ordemId, versao, chave.current, valor.toFixed(2), texto)
           setResposta(r)
           if (r.ok) { chave.current = gerarChave(); iniciar(() => router.refresh()) }
           else if (r.conflito) router.refresh()
@@ -36,6 +43,7 @@ export function FormAjuste({ ordemId, versao, precoFinal, motivo }: { ordemId: s
       <label className="form-label mb-0" htmlFor="motivoAjuste">Motivo do ajuste</label>
       <input id="motivoAjuste" className="form-control" value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="arredondamento comercial, cliente antigo…" required />
       <button type="submit" className="btn btn-primary" disabled={pendente}>{pendente ? 'Gravando…' : 'Ajustar preço'}</button>
+      {invalido ? <div className="text-danger small" role="alert">Preço inválido. Use 2528,00 ou 2528.</div> : null}
       {resposta && !resposta.ok && !resposta.conflito ? <div className="text-danger small" role="alert">{resposta.erro}</div> : null}
     </form>
   )

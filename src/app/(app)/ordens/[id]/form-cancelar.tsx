@@ -20,7 +20,7 @@ export function FormCancelar({ ordemId, versao }: { ordemId: string; versao: num
       iniciar(async () => {
         const r = await cancelarOrdemAction(ordemId, versao, chave.current, motivo)
         if (r.ok) router.push('/ordens')
-        else if (r.conflito) router.refresh()
+        else if (r.conflito) { setErro('A ordem mudou. Confira os valores e tente de novo.'); router.refresh() }
         else { chave.current = gerarChave(); setErro(r.erro) }
       })
     }}>
