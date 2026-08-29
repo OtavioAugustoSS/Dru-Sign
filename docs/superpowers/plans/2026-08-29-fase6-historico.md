@@ -936,7 +936,7 @@ virou o do arquivo, e o estado vazio dele passou a explicar quando as ordens ant
 - Consumes: `listarLivro` e `LinhaLivro` (`src/infra/caixa/livro.ts`); `mesCalendario`; `formatarMoeda`; `exigirPapel`.
 - Produces: `agruparPorConta(linhas: LinhaLivro[]): RelatorioContador`, `paraCsv(relatorio, periodo): string`; `montarRelatorio(empresaId, periodo): Promise<RelatorioContador>`; rotas `/financeiro/contador?de=&ate=` e `/financeiro/contador/csv?de=&ate=`.
 
-- [ ] **Step 1: O agrupamento e o CSV (teste)**
+- [x] **Step 1: O agrupamento e o CSV (teste)**
 
 `src/domain/caixa/relatorio.test.ts`:
 ```ts
@@ -1010,7 +1010,7 @@ describe('paraCsv', () => {
 
 Run: `npm test -- src/domain/caixa/relatorio` → vermelho.
 
-- [ ] **Step 2: O agrupamento e o CSV (implementação)**
+- [x] **Step 2: O agrupamento e o CSV (implementação)**
 
 `src/domain/caixa/relatorio.ts`:
 ```ts
@@ -1089,7 +1089,7 @@ export function paraCsv(r: RelatorioContador, periodo: { de: string; ate: string
 
 Run: `npm test -- src/domain/caixa/relatorio` → PASS. Run: `npm test -- pureza` → PASS.
 
-- [ ] **Step 3: A tela e o CSV**
+- [x] **Step 3: A tela e o CSV**
 
 `src/infra/caixa/relatorio.ts`:
 ```ts
@@ -1225,12 +1225,19 @@ Em `src/app/(app)/financeiro/page.tsx`, no `col-auto` do cabeçalho, antes do bo
 
 Run: `npm run typecheck` → sem erros. Run: `npm run build` → `ƒ /financeiro/contador` e `ƒ /financeiro/contador/csv`.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/domain/caixa/relatorio.ts src/domain/caixa/relatorio.test.ts src/infra/caixa/relatorio.ts "src/app/(app)/financeiro"
 git commit -m "feat: relatorio para o contador por conta, com CSV que o Excel do escritorio abre direto"
 ```
+
+**Executado (29/08/2026).** 271 testes de dominio verdes, build com `ƒ /financeiro/contador` e
+`ƒ /financeiro/contador/csv`. A ressalva do Step 2 se confirmou: a trava de pureza e **textual** e
+nao aceita nem `import type` de `@/infra`. Foi tomado o caminho que o proprio plano indicava —
+`LinhaLivro` mudou para `src/domain/caixa/lancamento.ts`, que e onde ela pertence (linha de
+livro-caixa e conceito de negocio), e o `livro.ts` passou a importar e reexportar de la, sem
+quebrar nenhum chamador.
 
 ---
 

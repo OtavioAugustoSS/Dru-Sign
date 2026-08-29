@@ -33,7 +33,7 @@ export default async function PaginaFinanceiro({ searchParams }: { searchParams:
         <div className="container-xl">
           <div className="row g-2 align-items-center">
             <div className="col"><div className="page-pretitle">Administração</div><h2 className="page-title">Livro-caixa</h2></div>
-            <div className="col-auto"><Link href="/financeiro/saida" className="btn btn-primary"><IconPlus className="icon" /> Nova saída</Link></div>
+            <div className="col-auto"><Link href="/financeiro/contador" className="btn me-2">Relatório do contador</Link><Link href="/financeiro/saida" className="btn btn-primary"><IconPlus className="icon" /> Nova saída</Link></div>
           </div>
         </div>
       </div>

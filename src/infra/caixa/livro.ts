@@ -3,7 +3,8 @@ import { prisma } from '@/infra/db/prisma'
 import { executarUmaVez, type Contexto } from '@/infra/mutacoes/idempotencia'
 import { ErroDeValidacao } from '@/domain/precificacao/erros'
 import { dinheiro } from '@/domain/precificacao/dinheiro'
-import { validarSaida, type TipoLancamento } from '@/domain/caixa/lancamento'
+import { validarSaida, type LinhaLivro } from '@/domain/caixa/lancamento'
+export type { LinhaLivro }
 import { lerDataCalendario } from '@/domain/ordem/datas'
 
 export interface DadosSaida {
@@ -45,24 +46,6 @@ export async function estornarLancamento(ctx: Contexto, lancamentoId: string, mo
   })
 }
 
-export interface LinhaLivro {
-  id: string
-  /** ISO da @db.Date (meia-noite UTC): formatar com formatarDataCalendario. */
-  data: string
-  tipo: TipoLancamento
-  valor: string
-  contaCodigo: number
-  contaNome: string
-  historico: string
-  ordemId: string | null
-  ordemNumero: number | null
-  fornecedor: string | null
-  parcela: number | null
-  totalParcelas: number | null
-  usuarioNome: string
-  estornadoEm: string | null
-  motivoEstorno: string | null
-}
 
 export interface Livro {
   de: string

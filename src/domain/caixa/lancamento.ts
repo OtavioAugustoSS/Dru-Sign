@@ -61,3 +61,27 @@ export function historicoDeRecebimento(numero: number, clienteNome: string | nul
   const quem = clienteApelido || clienteNome || 'Venda de balcão'
   return `OS ${formatarNumeroOs(numero)} · ${quem} · ${ROTULO_FORMA[forma]}`
 }
+
+/**
+ * Uma linha do livro-caixa, como a tela e o relatorio a leem. Mora no dominio porque e
+ * conceito de negocio: a infra so a preenche a partir do banco.
+ */
+export interface LinhaLivro {
+  id: string
+  /** ISO da @db.Date (meia-noite UTC): formatar com formatarDataCalendario. */
+  data: string
+  tipo: TipoLancamento
+  valor: string
+  contaCodigo: number
+  contaNome: string
+  historico: string
+  ordemId: string | null
+  ordemNumero: number | null
+  fornecedor: string | null
+  parcela: number | null
+  totalParcelas: number | null
+  usuarioNome: string
+  estornadoEm: string | null
+  motivoEstorno: string | null
+}
+
