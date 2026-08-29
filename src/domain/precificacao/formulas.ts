@@ -2,7 +2,22 @@ import { dinheiro, arredondarCentavos } from './dinheiro'
 import { ErroDeValidacao } from './erros'
 import type { ItemCobranca, ResultadoItem } from './tipos'
 
+/**
+ * O que vale para qualquer unidade. Valor negativo abaixaria o preco final por fora
+ * do ajuste manual — sem motivo e sem quem ajustou; desconto tem um caminho so.
+ * Zero e legitimo: item de cortesia.
+ */
+function validarComum(item: ItemCobranca): void {
+  if (item.quantidade <= 0) {
+    throw new ErroDeValidacao('quantidade precisa ser maior que zero')
+  }
+  if (dinheiro(item.valorUnitario).lt(0)) {
+    throw new ErroDeValidacao('valor unitario nao pode ser negativo')
+  }
+}
+
 export function calcularArea(item: ItemCobranca): ResultadoItem {
+  validarComum(item)
   if (item.altura === undefined || item.largura === undefined) {
     throw new ErroDeValidacao('altura e largura sao obrigatorias para cobranca por m2')
   }
@@ -17,9 +32,7 @@ export function calcularArea(item: ItemCobranca): ResultadoItem {
 }
 
 export function calcularUnidade(item: ItemCobranca): ResultadoItem {
-  if (item.quantidade <= 0) {
-    throw new ErroDeValidacao('quantidade precisa ser maior que zero')
-  }
+  validarComum(item)
   const total = arredondarCentavos(
     dinheiro(item.valorUnitario).times(dinheiro(item.quantidade)),
   )
@@ -27,6 +40,7 @@ export function calcularUnidade(item: ItemCobranca): ResultadoItem {
 }
 
 export function calcularMetroLinear(item: ItemCobranca): ResultadoItem {
+  validarComum(item)
   if (item.altura === undefined || item.largura === undefined) {
     throw new ErroDeValidacao('altura e largura sao obrigatorias para cobranca por metro linear')
   }

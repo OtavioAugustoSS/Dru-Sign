@@ -201,3 +201,55 @@ describe('ordem de servico (banco real)', () => {
     expect(await obterOrdemParaTela(outra.id, ordem.id)).toBeNull()
   })
 })
+
+/**
+ * O id que chega da action e texto do cliente: a FK do banco nao sabe de empresa nem de
+ * ativo/arquivado. Cada id de outra tabela e reconferido dentro da transacao.
+ */
+describe('ids vindos do formulario sao reconferidos contra a empresa', () => {
+  it('responsavel de outra empresa, inativo ou inexistente e recusado — em criar e no cabecalho', async () => {
+    const outra = await prisma.empresa.create({ data: { razaoSocial: 'Grafica Vizinha' } })
+    const deOutra = await prisma.usuario.create({ data: { empresaId: outra.id, nome: 'Estranho', login: `e-${randomUUID()}`, senhaHash: 'x' } })
+    const inativo = await prisma.usuario.create({ data: { empresaId: base.empresaId, nome: 'Demitido', login: `d-${randomUUID()}`, senhaHash: 'x', ativo: false } })
+
+    await expect(criarOrdem(ctx(), { estado: 'aberta', responsavelId: deOutra.id })).rejects.toThrow(/responsavel/)
+    await expect(criarOrdem(ctx(), { estado: 'aberta', responsavelId: inativo.id })).rejects.toThrow(/responsavel/)
+    await expect(criarOrdem(ctx(), { estado: 'aberta', responsavelId: randomUUID() })).rejects.toThrow(/responsavel/)
+
+    const ordem = await criarOrdem(ctx(), { estado: 'aberta' })
+    await expect(atualizarCabecalho(ctx(), ordem.id, ordem.versao, { responsavelId: deOutra.id })).rejects.toThrow(/responsavel/)
+    await expect(atualizarCabecalho(ctx(), ordem.id, ordem.versao, { responsavelId: inativo.id })).rejects.toThrow(/responsavel/)
+    expect((await prisma.ordemServico.findUniqueOrThrow({ where: { id: ordem.id } })).responsavelId).toBe(base.usuarioId)
+  })
+
+  it('material de outra empresa ou inativo e recusado no item', async () => {
+    const outra = await prisma.empresa.create({ data: { razaoSocial: 'Grafica Vizinha' } })
+    const deOutra = await prisma.material.create({ data: { empresaId: outra.id, nome: 'ACM 3mm', preco: '281.0000', unidadeCobranca: 'm2' } })
+    const inativo = await prisma.material.create({ data: { empresaId: base.empresaId, nome: 'Lona antiga', preco: '35.0000', unidadeCobranca: 'm2', ativo: false } })
+    const meu = await prisma.material.create({ data: { empresaId: base.empresaId, nome: 'ACM 3mm', preco: '281.0000', unidadeCobranca: 'm2' } })
+    const ordem = await criarOrdem(ctx(), { estado: 'aberta' })
+
+    const comMaterial = (materialId: string | null): DadosItem => ({ ...UNIDADE('PLACA', 1, '281.00'), materialId })
+    await expect(adicionarItem(ctx(), ordem.id, ordem.versao, comMaterial(deOutra.id))).rejects.toThrow(/material/)
+    await expect(adicionarItem(ctx(), ordem.id, ordem.versao, comMaterial(inativo.id))).rejects.toThrow(/material/)
+    await expect(adicionarItem(ctx(), ordem.id, ordem.versao, comMaterial(randomUUID()))).rejects.toThrow(/material/)
+    expect(await prisma.itemOrdem.count({ where: { ordemId: ordem.id } })).toBe(0)
+
+    const r = await adicionarItem(ctx(), ordem.id, ordem.versao, comMaterial(meu.id))
+    expect(r.precoFinal).toBe('281.00')
+  })
+
+  it('cliente arquivado nao pode ser posto na ordem', async () => {
+    await prisma.cliente.update({ where: { id: clienteId }, data: { arquivadoEm: new Date() } })
+    const ordem = await criarOrdem(ctx(), { estado: 'aberta' })
+    await expect(atualizarCabecalho(ctx(), ordem.id, ordem.versao, { clienteId })).rejects.toThrow(/cliente/)
+    await expect(criarOrdem(ctx(), { estado: 'aberta', clienteId })).rejects.toThrow(/cliente/)
+  })
+
+  it('item com valor unitario negativo nao abaixa o preco final', async () => {
+    const ordem = await criarOrdem(ctx(), { estado: 'aberta' })
+    const v = (await adicionarItem(ctx(), ordem.id, ordem.versao, UNIDADE('PLACA', 1, '281.00'))).versao
+    await expect(adicionarItem(ctx(), ordem.id, v, UNIDADE('DESCONTO', 1, '-100.00'))).rejects.toThrow(/negativo/)
+    expect((await obterOrdemParaTela(base.empresaId, ordem.id))?.precoFinal).toBe('281.00')
+  })
+})

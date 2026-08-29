@@ -122,10 +122,25 @@ async function recalcular(tx: Tx, ctx: Contexto, ordemId: string, versao: number
   }
 }
 
+/**
+ * Todo id de outra tabela chega como texto do formulario: a FK do banco garante que existe,
+ * nao que e da empresa nem que esta ativo. Cada um e reconferido dentro da transacao —
+ * um id de fora vira ErroDeValidacao, nao P2003 na tela de erro.
+ */
+async function exigirResponsavel(tx: Tx, empresaId: string, responsavelId: string): Promise<void> {
+  const u = await tx.usuario.findFirst({ where: { id: responsavelId, empresaId, ativo: true }, select: { id: true } })
+  if (!u) throw new ErroDeValidacao('responsavel nao encontrado')
+}
+
+async function exigirMaterial(tx: Tx, empresaId: string, materialId: string): Promise<void> {
+  const m = await tx.material.findFirst({ where: { id: materialId, empresaId, ativo: true }, select: { id: true } })
+  if (!m) throw new ErroDeValidacao('material nao encontrado')
+}
+
 async function snapshotCliente(tx: Tx, empresaId: string, clienteId: string | null | undefined) {
   if (!clienteId) return { clienteId: null, clienteNome: null, clienteApelido: null, clienteTelefone: null }
   const c = await tx.cliente.findFirst({
-    where: { id: clienteId, empresaId },
+    where: { id: clienteId, empresaId, arquivadoEm: null },
     select: { id: true, nome: true, apelido: true, telefones: { orderBy: { ordem: 'asc' }, take: 1, select: { original: true } } },
   })
   if (!c) throw new ErroDeValidacao('cliente nao encontrado')
@@ -137,6 +152,7 @@ export async function criarOrdem(
   dados: { estado: 'orcamento' | 'aberta'; clienteId?: string | null; prometidaPara?: string | null; responsavelId?: string },
 ): Promise<{ id: string; numero: number; versao: number }> {
   return executarUmaVez(ctx, 'ordem.criar', async (tx) => {
+    if (dados.responsavelId) await exigirResponsavel(tx, ctx.empresaId, dados.responsavelId)
     // Row lock ate o commit: sem buraco e sem duplicata, por empresa.
     const contador = await tx.contadorEmpresa.update({
       where: { empresaId: ctx.empresaId },
@@ -187,6 +203,7 @@ export async function adicionarItem(ctx: Contexto, ordemId: string, versao: numb
   const colunas = colunasItem(ctx, dados) // lanca ErroDeValidacao antes de abrir a transacao
   return executarUmaVez(ctx, 'item.adicionar', async (tx) => {
     await carregarEditavel(tx, ctx, ordemId, versao)
+    if (dados.materialId) await exigirMaterial(tx, ctx.empresaId, dados.materialId)
     const ultimo = await tx.itemOrdem.aggregate({ where: { ordemId }, _max: { ordemExibicao: true } })
     await tx.itemOrdem.create({ data: { ...colunas, ordemId, ordemExibicao: (ultimo._max.ordemExibicao ?? 0) + 1 } })
     return recalcular(tx, ctx, ordemId, versao)
@@ -281,6 +298,7 @@ export async function atualizarCabecalho(ctx: Contexto, ordemId: string, versao:
     if (!editavel(ordem.estadoProducao) && !(soObservacoes && ordem.estadoProducao === 'concluida')) {
       throw new OrdemNaoEditavel(ordem.estadoProducao)
     }
+    if (dados.responsavelId) await exigirResponsavel(tx, ctx.empresaId, dados.responsavelId)
     const snapshot = dados.clienteId === undefined ? {} : await snapshotCliente(tx, ctx.empresaId, dados.clienteId)
     let prometida: Date | null | undefined
     if (dados.prometidaPara !== undefined) {

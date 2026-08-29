@@ -25,10 +25,16 @@ describe('calcularItem — seletor', () => {
 })
 
 describe('regressao contra o gabarito do legado', () => {
-  const porArea = gabarito.filter((l) => l.totmt > 0 && l.unidadeLegado === 'MT2' && l.altura > 0 && l.largura > 0)
+  // `quantidade > 0` em todos: o legado gravou 9 linhas com quantidade zero (uma delas de
+  // area, a OS 532, tambem com valor e total zerados) — linha vazia, sem preco a conferir.
+  const porArea = gabarito.filter(
+    (l) => l.totmt > 0 && l.unidadeLegado === 'MT2' && l.altura > 0 && l.largura > 0 && l.quantidade > 0,
+  )
   const porUnidade = gabarito.filter((l) => l.totmt === 0 && l.valor > 0 && l.quantidade > 0)
   const porPerimetro = gabarito.filter(
-    (l) => ['MTL', 'MT', 'ML'].includes(l.unidadeLegado) && l.altura > 0 && l.largura > 0 && l.totmt > 0,
+    (l) =>
+      ['MTL', 'MT', 'ML'].includes(l.unidadeLegado) &&
+      l.altura > 0 && l.largura > 0 && l.totmt > 0 && l.quantidade > 0,
   )
 
   it('reproduz ao menos 90% das linhas de area', () => {
