@@ -24,6 +24,7 @@ achem o que procuram sem procurar.
 | Modo escuro | Segue o sistema operacional por padrão, com botão no menu do usuário para forçar claro ou escuro. Escolha gravada em cookie, por usuário. Sem piscar branco no carregamento. |
 | Menu lateral | Agrupado por fluxo de trabalho (ver abaixo). |
 | Ritmo do trabalho | Uma tela por volta do `/loop`, com verificação e commit próprios. |
+| **Celular** | **Fora de escopo aqui** (decisão de 29/08). O sistema é usado no balcão e na bancada, em computador. Adaptar de verdade para celular é trabalho de branch e período próprios, tela por tela — ver **M1** no fim desta lista. Até lá, a verificação de cada item é feita em **1440px e 1280px**, nos dois temas. |
 
 ### Menu lateral — estrutura acordada
 
@@ -319,7 +320,7 @@ Ordem por tráfego e por gravidade do que foi encontrado.
   ganhar ponto final, a frase composta fica "Data inválida. — mostrando o mês
   atual." Cada uma precisa ser decidida junto com o lugar onde aparece; não é
   varredura mecânica.
-- [ ] **Z1. Passada final.** Percorrer as 22 telas nos dois temas em 390px e 1440px.
+- [ ] **Z1. Passada final.** Percorrer as 22 telas nos dois temas em 1440px e 1280px.
   Conferir contraste de todo par texto/fundo. Navegar o sistema inteiro só pelo
   teclado. Rodar `npm run check` e `npm run e2e`. Escrever o que ficou de fora.
 
@@ -331,7 +332,8 @@ Uma volta só está pronta quando:
 
 1. `npm run typecheck` passa;
 2. `npm test` passa (e ganhou teste novo se a mudança mexeu em cálculo ou formato);
-3. a tela foi aberta no navegador **nos dois temas** e conferida por captura;
+3. a tela foi aberta no navegador **nos dois temas**, em **1440px e 1280px**, e
+   conferida por captura (celular não entra: ver M1);
 4. o texto visível foi lido em voz de quem usa: Odete no balcão, não desenvolvedor;
 5. existe um commit só daquele item, com mensagem que diz o que a pessoa ganha.
 
@@ -340,3 +342,25 @@ Uma volta só está pronta quando:
 O motor de preço, a máquina de estados, as transações e o schema. Este trabalho é
 de casca. Se alguma melhoria de layout exigir mudar regra de negócio, ela para e
 vira conversa.
+
+---
+
+## Adiado para branch própria
+
+- [ ] **M1. Adaptar o sistema para celular, tela por tela.** Decisão do Otavio em
+  29/08: o sistema é usado em computador, no balcão e na bancada. Fazer celular
+  "de passagem", junto com outra coisa, entrega meio-termo em 22 telas. Merece
+  branch e período próprios.
+
+  **O que a C2 já deixou pronto e não precisa ser refeito:** a lateral vira gaveta
+  abaixo de 992px, o conteúdo começa em 80px em vez de 823px, e nenhuma tela tem
+  rolagem horizontal. Ou seja, o sistema **abre e navega** no celular. O que falta
+  é cada tela ser pensada para a tela pequena, e não apenas caber nela:
+
+  - tabelas de 7 colunas que hoje viram rolagem lateral (ordens, financeiro,
+    histórico) provavelmente devem virar cartões;
+  - `/ordens/[id]`, que tem duas colunas e cinco painéis, precisa de uma ordem de
+    leitura própria no estreito;
+  - a fila de produção é a candidata mais forte a uso real em celular, na bancada;
+  - alvos de toque, teclado numérico nos campos de valor, e a foto do anexo de
+    arte quando a Fase 6 destravar.
