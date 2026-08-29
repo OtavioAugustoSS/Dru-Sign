@@ -20,17 +20,20 @@ export default async function PaginaMateriais() {
 
   return (
     <>
-      <CabecalhoPagina pretitulo="Administração" titulo="Materiais e preços" />
+      <CabecalhoPagina pretitulo="Configuração" titulo="Materiais e preços" />
       <CorpoPagina>
         <div className="card mb-3">
           <div className="card-header"><h2 className="card-title">Novo material</h2></div>
           <div className="card-body"><FormMaterial /></div>
         </div>
 
+        {/* O texto nao repete "use o formulario acima": ele esta logo ali,
+            visivel. O que a pessoa nao sabe e o que o catalogo E, e que da para
+            trabalhar sem ele -- as duas coisas que sobraram das cinco frases. */}
         {materiais.length === 0 ? (
           <EstadoVazio
-            titulo="O catálogo nasce vazio"
-            descricao="É tabela de preço, não estoque: não tem quantidade nem saldo. Cadastre o que a loja vende com mais frequência, com o preço e como ele é cobrado — por m², por unidade ou por metro linear. O formulário acima é o próximo passo. Sem catálogo o sistema funciona: o preço é digitado na hora, item por item."
+            titulo="O catálogo está vazio"
+            descricao="É tabela de preço, não estoque: não tem quantidade nem saldo, só quanto custa e como se cobra. E dá para trabalhar sem ele: o preço pode ser digitado na hora, item por item."
           />
         ) : (
           <CartaoTabela

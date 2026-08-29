@@ -528,8 +528,24 @@ Ordem por tráfego e por gravidade do que foi encontrado.
   inteiro de qualquer forma. Paginar um livro-caixa que se lê para conferir o mês
   atrapalharia em vez de ajudar.
 
-- [ ] **T10. `/materiais` + `/materiais/[id]`.** O `…` como rótulo de botão
-  pendente. O estado vazio mais longo do app, sem ação, com o formulário logo acima.
+- [x] **T10. `/materiais` + `/materiais/[id]`.** ✅ Feito.
+
+  - **O estado vazio mais longo do app** tinha cinco frases, uma delas apontando
+    para o formulário que está logo acima, visível. Sobraram duas: o que o catálogo
+    **é** (tabela de preço, não estoque) e que **dá para trabalhar sem ele**. As duas
+    coisas que a pessoa não sabe.
+  - O `…` como rótulo de botão pendente já tinha caído na F6. Conferido: nenhuma
+    reticência solta na tela.
+  - A primeira opção do select era `escolha…`, minúscula e fora da família das
+    outras telas ("Escolha a forma", "Escolha a conta", "Escolha o papel").
+  - Pretítulo pela regra da T6: a lista leva "Configuração" (grupo), a edição leva
+    "Materiais e preços" (item de menu pai). Antes a lista dizia "Administração",
+    que não é grupo nenhum do menu novo.
+
+  **Errei e a captura mostrou:** troquei `escolha…` por "Escolha como é cobrado", e
+  na tela apareceu **"Escolha como é"**, cortado — texto longo demais para a
+  coluna. Ficou "Escolha", que mede 50px num campo de 167px.
+
 - [ ] **T11. `/plano-de-contas`.** 3.493px. Aspas retas no meio do português. O
   padrão de caixa de seleção com botão "Atualizar" que não existe em nenhuma outra
   tela.
