@@ -33,5 +33,9 @@ export default defineConfig({
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,
+    // Sem isto o Playwright mata o servidor a forca e as conexoes ficam penduradas no
+    // `prisma dev` (PGlite), que nao as recolhe: o teto de conexoes cai a cada rodada
+    // ate o app nao conseguir mais abrir nenhuma. Ver docs/desenvolvimento.md.
+    gracefulShutdown: { signal: 'SIGTERM', timeout: 10_000 },
   },
 })

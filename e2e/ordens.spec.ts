@@ -30,7 +30,8 @@ test.describe('Ordem de serviço', () => {
 
   test('reproduz a OS 18449 digitando as seis linhas do legado: R$ 2.528,00', async ({ page }) => {
     await novaOrdem(page)
-    await expect(page.getByRole('heading', { name: /Ordem de serviço nº 0184\d\d/ })).toBeVisible({ timeout: 60_000 })
+    // O contador anda a cada rodada (ja passou de 18500): o que importa aqui e o total, nao o numero.
+    await expect(page.getByRole('heading', { name: /Ordem de serviço nº \d{6}/ })).toBeVisible({ timeout: 60_000 })
 
     const campo = page.getByLabel('Lançar item ou acréscimo')
     await campo.fill(LINHAS_18449[3]!)

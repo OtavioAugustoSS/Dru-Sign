@@ -54,7 +54,7 @@ export function FormSaida({ hoje, contas }: Props) {
         <div className="col-md-8"><label className="form-label" htmlFor="historico">Histórico</label><input id="historico" className="form-control" value={historico} onChange={(e) => setHistorico(e.target.value)} placeholder="Chapa ACM, solvente, mídia" /></div>
         <div className="col-md-4"><label className="form-label" htmlFor="fornecedor">Fornecedor</label><input id="fornecedor" className="form-control" value={fornecedor} onChange={(e) => setFornecedor(e.target.value)} placeholder="opcional" /></div>
         <div className="col-md-2"><label className="form-label" htmlFor="parcela">Parcela</label><input id="parcela" className="form-control numero" inputMode="numeric" value={parcela} onChange={(e) => setParcela(e.target.value)} placeholder="2" /></div>
-        <div className="col-md-2"><label className="form-label" htmlFor="totalParcelas">de</label><input id="totalParcelas" className="form-control numero" inputMode="numeric" value={totalParcelas} onChange={(e) => setTotalParcelas(e.target.value)} placeholder="3" /></div>
+        <div className="col-md-2"><label className="form-label" htmlFor="totalParcelas">de</label><input id="totalParcelas" aria-label="Total de parcelas" className="form-control numero" inputMode="numeric" value={totalParcelas} onChange={(e) => setTotalParcelas(e.target.value)} placeholder="3" /></div>
         <div className="col-12 form-hint">A compra parcelada entra uma vez por parcela, cada uma na sua data. Vazio quando não é parcelado.</div>
       </div>
       <div className="card-footer d-flex align-items-center gap-2">

@@ -48,8 +48,10 @@ export default async function PaginaOrdem({ params }: { params: Promise<{ id: st
         <div className="container-xl">
           <div className="row g-2 align-items-center">
             <div className="col">
+              {/* Cancelada nao recebe (o dominio recusa): mostrar "Nao pago" ao lado seria promessa de cobranca. */}
               <div className="page-pretitle">
-                {ROTULO_ESTADO[ordem.estadoProducao]}{' · '}{ROTULO_PAGAMENTO[ordem.pagamento.estado]}
+                {ROTULO_ESTADO[ordem.estadoProducao]}
+                {ordem.estadoProducao === 'cancelada' ? '' : ` · ${ROTULO_PAGAMENTO[ordem.pagamento.estado]}`}
                 {ordem.concluidaEm ? ` · serviço finalizado em ${formatarDataHora(new Date(ordem.concluidaEm))}` : ''}
                 {ordem.canceladaEm ? ` · ${ordem.motivoCancelamento}` : ''}
               </div>
@@ -109,7 +111,9 @@ export default async function PaginaOrdem({ params }: { params: Promise<{ id: st
 
             <div className="col-lg-4">
               <div className="mb-3">
-                <PainelPagamento ordemId={ordem.id} versao={ordem.versao} estadoProducao={ordem.estadoProducao} pagamento={ordem.pagamento}
+                {/* key no saldo: item novo, acrescimo ou recebimento mudam o que falta, e o campo
+                    de valor volta a nascer do saldo de agora em vez do que estava na tela antes. */}
+                <PainelPagamento key={ordem.pagamento.saldo} ordemId={ordem.id} versao={ordem.versao} estadoProducao={ordem.estadoProducao} pagamento={ordem.pagamento}
                   recebimentos={ordem.recebimentos} hoje={hojeCalendario(new Date())} podeConcluir={pode.concluir} podeReceber={pode.receber}
                   administracao={usuario.papel === 'administracao'} />
               </div>

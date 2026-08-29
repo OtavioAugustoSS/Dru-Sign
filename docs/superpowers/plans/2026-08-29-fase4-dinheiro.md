@@ -2475,7 +2475,7 @@ passou no TS 7, sem precisar do plano B), 265 unitarios verdes com o `use-client
 **Files:**
 - Create: `e2e/dinheiro.spec.ts`
 
-- [ ] **Step 1: O teste**
+- [x] **Step 1: O teste**
 
 Pré-requisito no banco de desenvolvimento: `npm run importar:plano` já rodado (Task 2, Step 4) — a página do plano precisa listar VENDAS DIVERSAS e o recebimento precisa da conta.
 
@@ -2632,19 +2632,43 @@ test.describe('Dinheiro', () => {
 })
 ```
 
-- [ ] **Step 2: Rodar**
+- [x] **Step 2: Rodar**
 
 Antes: `npm run typecheck`; `npm run db:local:ls` com `drusign` e `drusign-test` de pé; `npm run importar:plano` rodado; `DATABASE_POOL_MAX=2` no `.env.local`.
 
 Run: `npm run e2e`
 Expected: **22 passed** (16 anteriores + 6). Se o `next dev` cair com `Connection terminated unexpectedly`, reiniciar o daemon (`npx prisma dev stop drusign && npm run db:local`) e rodar de novo.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add e2e/dinheiro.spec.ts
 git commit -m "test: concluir e receber, parcial na fila, estorno, livro-caixa e plano de contas ponta a ponta"
 ```
+
+**Executado (29/08/2026).** **24 passed**, nao 22: a base ja era 17 (o teste do ajuste com ponto
+decimal entrou junto com as correcoes da revisao da Fase 3) e o `dinheiro.spec.ts` ficou com 7
+testes. Cinco ajustes foram necessarios, todos reais:
+
+1. **Campo "Valor recebido" nascia com o saldo do primeiro render** — mesmo defeito do `FormAjuste`:
+   a ordem e criada vazia e o item entra depois, entao o campo mostrava `0,00`. `key={ordem.pagamento.saldo}`
+   no `PainelPagamento`.
+2. **`getByLabel('de')` batia em dois elementos** (o campo e o botao do Next.js Dev Tools). O campo de
+   total de parcelas ganhou `aria-label="Total de parcelas"` — o "de" visivel continua para quem enxerga.
+   Pelo mesmo motivo, `getByLabel('Parcela')` passou a `{ exact: true }`.
+3. **Pretitle da ordem cancelada** — o plano mandava sempre mostrar o eixo de pagamento ao lado do de
+   producao, o que punha "Cancelada · Nao pago" na tela e quebrou o teste da Fase 3. Ordem cancelada
+   nao recebe (o dominio recusa), entao o eixo de pagamento nao aparece nela.
+4. **`/entrar` redireciona quem ja tem sessao**, entao a troca de usuario no fim do teste do financeiro
+   nunca chegava no formulario. A checagem de papel virou teste proprio, como em `materiais.spec.ts`.
+5. **Historico da saida e numero da OS fixos** — o banco de desenvolvimento guarda o que as rodadas
+   anteriores lancaram: o `.first()` pegava uma linha ja estornada, e o contador de OS passou de 18500,
+   vencendo a regex `0184\d\d` da Fase 3. Historico com timestamp e regex `\d{6}`.
+
+Fora do plano, uma correcao de ambiente: `playwright.config.ts` ganhou
+`gracefulShutdown: { signal: 'SIGTERM', timeout: 10_000 }`. Sem isso o Playwright matava o `next dev`
+a forca e as conexoes ficavam penduradas no PGlite, que nao as recolhe — o teto caia de 8 para 4 em
+uma rodada so. Com o desligamento limpo a suite passou de 4,4min para 2,3min, sem timeout.
 
 ---
 
