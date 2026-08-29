@@ -926,7 +926,7 @@ git commit -m "feat: modelos de ordem de servico, itens, acrescimos, contador e 
   - `obterOrdemParaTela(empresaId, id): OrdemTela | null`, `listarOrdens(empresaId, { limite? })` — tudo serializável (dinheiro em string, datas em ISO)
   - `DadosItem = { descricao; materialId: string | null; quantidade: number; altura: string | null; largura: string | null; unidadeCobranca; valorUnitario: string }`, `DadosAcrescimo = { tipo; descricao; valor: string }`
 
-- [ ] **Step 1: Teste da idempotência**
+- [x] **Step 1: Teste da idempotência**
 
 `src/infra/mutacoes/idempotencia.int.test.ts`:
 ```ts
@@ -975,7 +975,7 @@ describe('executarUmaVez', () => {
 })
 ```
 
-- [ ] **Step 2: Rodar e ver falhar, criar, ver passar**
+- [x] **Step 2: Rodar e ver falhar, criar, ver passar**
 
 Run: `npm run test:int -- idempotencia` → FAIL — `Cannot find module './idempotencia'`
 
@@ -1044,7 +1044,9 @@ export async function executarUmaVez<R extends Prisma.InputJsonValue>(
 
 Run: `npm run test:int -- idempotencia` → PASS — 4 passed
 
-- [ ] **Step 3: Teste de integração do repositório de ordens — o gabarito da fase**
+> Nota de execução (2026-08-29): `R extends Prisma.InputJsonValue` recusa interfaces (sem index signature); o genérico virou `R extends object` com cast na gravação.
+
+- [x] **Step 3: Teste de integração do repositório de ordens — o gabarito da fase**
 
 `src/infra/ordens/repositorio.int.test.ts`:
 ```ts
@@ -1251,11 +1253,11 @@ describe('ordem de servico (banco real)', () => {
 })
 ```
 
-- [ ] **Step 4: Rodar e ver falhar**
+- [x] **Step 4: Rodar e ver falhar**
 
 Run: `npm run test:int -- ordens` → FAIL — `Cannot find module './repositorio'`
 
-- [ ] **Step 5: Criar `src/infra/ordens/repositorio.ts`**
+- [x] **Step 5: Criar `src/infra/ordens/repositorio.ts`**
 
 ```ts
 import { prisma } from '@/infra/db/prisma'
@@ -1701,11 +1703,11 @@ export async function listarOrdens(empresaId: string, opcoes: { limite?: number 
 }
 ```
 
-- [ ] **Step 6: Rodar e ver passar**
+- [x] **Step 6: Rodar e ver passar**
 
 Run: `npm run test:int -- ordens` → PASS — 12 passed. Se `descricao` do item 4 não vier `PLACAS ACM E ADES/ IMP`, conferir o que `interpretarLinha` devolve para a linha (o parser remove a dimensão e junta o resto).
 
-- [ ] **Step 7: Verificação e commit**
+- [x] **Step 7: Verificação e commit**
 
 Run: `npm run typecheck` → sem erros. Run: `npm run test:int` → PASS — 37 passed. Run: `npm test` → PASS.
 
