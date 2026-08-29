@@ -1252,7 +1252,7 @@ quebrar nenhum chamador.
 **Interfaces:**
 - Produces: tabela `anexo`; `urlDeEnvio(chave, tipo)`, `urlDeLeitura(chave)`; `registrarAnexo(ctx, ordemId, dados)`, `listarAnexos(empresaId, ordemId)`, `removerAnexo(ctx, anexoId)`.
 
-- [ ] **Step 1: Confirmar a credencial antes de tudo**
+- [x] **Step 1: Confirmar a credencial antes de tudo** — rodado; resultado abaixo
 
 Run: `node -e "const e=process.env;console.log(['R2_ACCOUNT_ID','R2_ACCESS_KEY_ID','R2_SECRET_ACCESS_KEY','R2_BUCKET'].map(k=>k+'='+(e[k]?'ok':'FALTA')).join(' '))"` com o `.env.local` carregado.
 Expected: quatro `ok`. Qualquer `FALTA` → **parar a tarefa**, anotar no plano e seguir para a Task 6.
@@ -1327,7 +1327,7 @@ git commit -m "feat: anexo de arte na ordem, no R2, por URL assinada"
 - Modify: `src/app/(app)/ordens/page.tsx`, `src/app/(app)/clientes/page.tsx`, `src/app/(app)/materiais/page.tsx` (estados vazios que ensinam)
 - Create: `e2e/historico.spec.ts`
 
-- [ ] **Step 1: Estados vazios que ensinam**
+- [x] **Step 1: Estados vazios que ensinam**
 
 Cada lista vazia passa a dizer **o que é**, **por que está vazia** e **qual é o próximo passo**, com o botão do passo ao lado (spec, tela 17). As telas da Fase 4 e 5 já nasceram assim; faltam as três da Fase 2 e 3:
 
@@ -1335,7 +1335,7 @@ Cada lista vazia passa a dizer **o que é**, **por que está vazia** e **qual é
 - `/clientes` vazio: "Nenhum cliente cadastrado" / "Os 3.219 clientes do sistema antigo entram com `npm run importar:clientes`. Ou cadastre o primeiro agora." + botão.
 - `/materiais` vazio: "Nenhum material cadastrado" / "O catálogo nasce vazio de propósito: ele é tabela de preço, não estoque. Cadastre o que a loja vende com mais frequência." + botão.
 
-- [ ] **Step 2: e2e do histórico**
+- [x] **Step 2: e2e do histórico**
 
 `e2e/historico.spec.ts`:
 ```ts
@@ -1383,11 +1383,11 @@ test.describe('Histórico', () => {
 })
 ```
 
-- [ ] **Step 3: Tudo verde**
+- [x] **Step 3: Tudo verde**
 
 Run: `npm run check` → typecheck, unitários e integração verdes. Run: `npm run build` → verde. Run: `npm run e2e` → verde (30 anteriores + 2 = **32**, ou 34 se a Task 5 tiver rodado).
 
-- [ ] **Step 4: Marcar o plano e a memória**
+- [x] **Step 4: Marcar o plano e a memória**
 
 Marcar todos os passos e os critérios abaixo, anotar os desvios, e atualizar `drusign-sistema-novo.md`: Fase 6 concluída, o que ficou de fora e por quê.
 
@@ -1396,20 +1396,31 @@ git add docs/superpowers/plans/2026-08-29-fase6-historico.md
 git commit -m "docs: plano da Fase 6 executado"
 ```
 
+**Executado (29/08/2026).** `npm run typecheck` limpo · **322 unitarios** · **81 de integracao** ·
+`npm run build` compilado · `npm run e2e` **32 passed**, o numero previsto.
+
+A Task 5 (anexo de arte no R2) **nao rodou**: a verificacao do Step 1 devolveu `FALTA` nas quatro
+variaveis. Os outros cinco criterios de conclusao fecharam. O que falta para desbloquear esta
+escrito na propria Task 5.
+
+Observacao do `npm run check`: com o teste de importacao das 18.443 ordens, a suite de integracao
+passou de 10 minutos quando encadeada com typecheck e build no mesmo comando. Rodar `npm run build`
+em separado resolve; se incomodar, o teste de importacao merece uma marca para rodar so quando pedido.
+
 ---
 
 ## Critério de conclusão da Fase 6
 
 Verificação da spec (seção 13): *"Importação das 18.443 ordens legadas como arquivo, anexo de arte, relatório para o contador, estados vazios refinados."*
 
-- [ ] `ordens-legado.int.test.ts` verde: as 18.443 entram com a soma de R$ 5.654.432,03, 269 com saída antes da entrada (as outras 2 das 271 da spec têm saída ilegível) e 3.152 com o nome destruído, e rodar duas vezes não duplica
-- [ ] o texto de `OBS1..OBS7` está preservado como veio, sem nenhuma tentativa de estruturar
-- [ ] `consulta.int.test.ts` verde: busca por número, nome e texto; período; e o histórico do cliente pela ficha dele
-- [ ] `/historico` mostra o arquivo e a ficha do cliente mostra as ordens antigas dele
-- [ ] `relatorio.test.ts` verde: agrupamento por conta com estornado fora, e o CSV com ponto e vírgula, vírgula decimal e BOM
-- [ ] os estados vazios de `/ordens`, `/clientes` e `/materiais` dizem o que fazer
-- [ ] `npm run check`, `npm run build` e `npm run e2e` verdes
-- [ ] **anexo de arte:** feito, **ou** registrado aqui como pendente por falta da credencial do R2 — com o que exatamente falta
+- [x] `ordens-legado.int.test.ts` verde: as 18.443 entram com a soma de R$ 5.654.432,03, 269 com saída antes da entrada (as outras 2 das 271 da spec têm saída ilegível) e 3.152 com o nome destruído, e rodar duas vezes não duplica
+- [x] o texto de `OBS1..OBS7` está preservado como veio, sem nenhuma tentativa de estruturar
+- [x] `consulta.int.test.ts` verde: busca por número, nome e texto; período; e o histórico do cliente pela ficha dele
+- [x] `/historico` mostra o arquivo e a ficha do cliente mostra as ordens antigas dele
+- [x] `relatorio.test.ts` verde: agrupamento por conta com estornado fora, e o CSV com ponto e vírgula, vírgula decimal e BOM
+- [x] os estados vazios de `/ordens`, `/clientes` e `/materiais` dizem o que fazer
+- [x] `npm run check`, `npm run build` e `npm run e2e` verdes
+- [x] **anexo de arte:** feito, **ou** registrado aqui como pendente por falta da credencial do R2 — com o que exatamente falta — **registrado como pendente**: as quatro variáveis do R2 faltam no `.env.local` (ver a nota na Task 5).
 
 Feito isso, as seis fases da spec estão implementadas. O que vem depois não é fase: é o que a Odete pedir depois de usar.
 

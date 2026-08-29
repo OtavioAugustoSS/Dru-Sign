@@ -34,7 +34,9 @@ export default async function PaginaMateriais() {
                 <div className="empty">
                   <p className="empty-title">O catálogo nasce vazio</p>
                   <p className="empty-subtitle text-secondary">
-                    É tabela de preço, não estoque. Cadastre cada material com o preço e como ele é cobrado: por m², por unidade ou por metro linear.
+                    É tabela de preço, não estoque: não tem quantidade nem saldo. Cadastre o que a loja vende
+                    com mais frequência, com o preço e como ele é cobrado — por m², por unidade ou por metro linear.
+                    O formulário acima é o próximo passo. Sem catálogo o sistema funciona: o preço é digitado na hora, item por item.
                   </p>
                 </div>
               </div>

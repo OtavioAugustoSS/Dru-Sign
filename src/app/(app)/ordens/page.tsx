@@ -58,8 +58,15 @@ export default async function PaginaOrdens({ searchParams }: { searchParams: Pro
           {ordens.length === 0 ? (
             <div className="card"><div className="card-body"><div className="empty">
               <p className="empty-title">{q || estado || de ? 'Nenhuma ordem com esse filtro' : 'Nenhuma ordem ainda'}</p>
-              <p className="empty-subtitle text-secondary">A primeira será a nº 18461, continuando a numeração do sistema antigo.</p>
-              <div className="empty-action"><Link href="/ordens/nova" className="btn btn-primary">Nova ordem</Link></div>
+              <p className="empty-subtitle text-secondary">
+                {q || estado || de
+                  ? 'A busca olha o número da OS, o nome e o apelido do cliente. O que foi feito até 2026 está no Histórico.'
+                  : 'A primeira será a nº 18461, continuando a numeração do sistema antigo. As 18.443 anteriores ficam no Histórico.'}
+              </p>
+              <div className="empty-action d-flex gap-2 justify-content-center">
+                <Link href="/ordens/nova" className="btn btn-primary">Nova ordem</Link>
+                <Link href="/historico" className="btn">Ver o histórico</Link>
+              </div>
             </div></div></div>
           ) : (
             <div className="card"><div className="table-responsive">

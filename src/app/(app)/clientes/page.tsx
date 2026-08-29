@@ -57,7 +57,9 @@ export default async function PaginaClientes({
                 <div className="empty">
                   <p className="empty-title">{q ? `Nenhum cliente com “${q}”` : 'Nenhum cliente cadastrado'}</p>
                   <p className="empty-subtitle text-secondary">
-                    A busca olha nome, apelido, telefone e documento. Se é cliente novo, cadastre.
+                    {q
+                      ? 'A busca olha nome, apelido, telefone e documento. Se é cliente novo, cadastre.'
+                      : 'Os 3.219 clientes do sistema antigo entram de uma vez com npm run importar:clientes. Ou cadastre o primeiro agora.'}
                   </p>
                   <div className="empty-action">
                     <Link href="/clientes/novo" className="btn btn-primary">Cadastrar cliente</Link>
