@@ -1,6 +1,5 @@
-import Link from 'next/link'
 import { exigirUsuario } from '@/infra/auth/usuario-atual'
-import { NavegacaoLateral } from '@/componentes/navegacao-lateral'
+import { CascaLateral } from '@/componentes/casca-lateral'
 import { MenuUsuario } from '@/componentes/menu-usuario'
 import { ROTULO_PAPEL } from '@/componentes/rotulos'
 import { sair } from '@/app/(auth)/entrar/actions'
@@ -22,26 +21,19 @@ export default async function LayoutApp({ children }: { children: React.ReactNod
 
   return (
     <div className="page">
-      <aside className="navbar navbar-vertical navbar-expand-lg">
-        <div className="container-fluid">
-          <div className="navbar-brand navbar-brand-autodark">
-            <Link href="/">DruSign</Link>
-          </div>
-
-          <NavegacaoLateral itens={navegacaoPara(usuario.papel)} />
-
-          <div className="navbar-nav mt-auto pb-lg-3">
-            <MenuUsuario
-              nome={usuario.nome}
-              papel={ROTULO_PAPEL[usuario.papel]}
-              iniciais={iniciais(usuario.nome)}
-              tema={tema}
-              sairAction={sair}
-              escolherTemaAction={escolherTema}
-            />
-          </div>
-        </div>
-      </aside>
+      <CascaLateral
+        itens={navegacaoPara(usuario.papel)}
+        menuUsuario={
+          <MenuUsuario
+            nome={usuario.nome}
+            papel={ROTULO_PAPEL[usuario.papel]}
+            iniciais={iniciais(usuario.nome)}
+            tema={tema}
+            sairAction={sair}
+            escolherTemaAction={escolherTema}
+          />
+        }
+      />
 
       <div className="page-wrapper">{children}</div>
     </div>

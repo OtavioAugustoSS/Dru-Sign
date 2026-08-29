@@ -214,9 +214,24 @@ sozinho. Marcar `[x]` só depois do commit.
   532px para **823px** de menu antes do conteúdo. Piorou de propósito, porque a C2
   (menu em `offcanvas`) tira a lateral do fluxo e o número deixa de existir.
 
-- [ ] **C2. Celular.** Menu em `offcanvas` com botão de abrir, cabeçalhos de página
-  que não vazam da tela em 390px, e tabelas que não espremem valor em duas linhas.
-  Conferir em 390px, 768px e 1440px.
+- [x] **C2. Celular.** ✅ Feito. A lateral existe em duas formas: fixa em telas
+  largas, gaveta (`offcanvas`) em telas estreitas, com barra de topo e botão. A
+  gaveta fecha sozinha quando a pessoa escolhe um item — senão ela navega e
+  continua olhando para o menu.
+
+  **O número que resume:** em 390px o conteúdo começava em **823px** (todo o menu
+  empilhado acima, sem como fechar) e agora começa em **80px**.
+
+  Medido em 390px, 768px e 1440px, nos dois temas:
+  - **zero** rolagem horizontal da página em qualquer largura;
+  - o que ultrapassa a tela está **todo** dentro do `.table-responsive`, que rola
+    sozinho — nenhum elemento fora de um rolador próprio;
+  - a troca é limpa: até 768px barra de topo e sem lateral (margem 0), em 1440px
+    lateral e sem barra (margem 240px).
+
+  O botão "Nova ordem" e o total do cartão, que a vistoria pegou cortados na
+  borda, cabem inteiros agora.
+
 - [ ] **C3. Estrutura da página.** `<main>` de verdade, um `<h1>` por tela, e link
   de pular para o conteúdo — hoje são 11 links de menu antes do conteúdo em toda
   navegação por teclado.
