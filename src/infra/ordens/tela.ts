@@ -1,8 +1,12 @@
 import { prisma } from '@/infra/db/prisma'
 import { paraDominio } from '@/infra/db/decimal'
-import { ajusteDesatualizado, type EstadoProducao } from '@/domain/ordem/estados'
+import { ajusteDesatualizado, type EstadoProducao, type EstadoPagamento } from '@/domain/ordem/estados'
 import type { UnidadeCobranca } from '@/domain/precificacao/tipos'
 import type { TipoAcrescimo } from '@/domain/precificacao/resolucao'
+import { resumirPagamento } from '@/domain/caixa/pagamento'
+import type { FormaPagamento } from '@/domain/caixa/formas'
+import { limitesDoDia } from '@/domain/ordem/datas'
+import { totalRecebidoPorOrdem } from '@/infra/caixa/resumo'
 
 /** Tudo serializavel: dinheiro em string, datas em ISO. Vai para Server e Client Components. */
 export interface ItemTela {
@@ -21,6 +25,18 @@ export interface AcrescimoTela {
   tipo: TipoAcrescimo
   descricao: string
   valor: string
+}
+
+export interface RecebimentoTela {
+  id: string
+  /** ISO da @db.Date. */
+  data: string
+  valor: string
+  forma: FormaPagamento
+  observacao: string | null
+  usuario: string
+  estornadoEm: string | null
+  motivoEstorno: string | null
 }
 
 export interface OrdemTela {
@@ -44,6 +60,9 @@ export interface OrdemTela {
   ajuste: { motivo: string; por: string; precoCalculadoNoAjuste: string; desatualizado: boolean } | null
   itens: ItemTela[]
   acrescimos: AcrescimoTela[]
+  concluidaEm: string | null
+  pagamento: { estado: EstadoPagamento; totalRecebido: string; saldo: string }
+  recebimentos: RecebimentoTela[]
 }
 
 type Dec = Parameters<typeof paraDominio>[0]
@@ -58,9 +77,12 @@ export async function obterOrdemParaTela(empresaId: string, id: string): Promise
       ajustadoPor: { select: { nome: true } },
       itens: { where: { removidoEm: null }, orderBy: { ordemExibicao: 'asc' } },
       acrescimos: { where: { removidoEm: null }, orderBy: { criadoEm: 'asc' } },
+      recebimentos: { orderBy: [{ data: 'asc' }, { criadoEm: 'asc' }], include: { usuario: { select: { nome: true } } } },
     },
   })
   if (!o) return null
+  const vivos = o.recebimentos.filter((r) => r.estornadoEm === null).map((r) => paraDominio(r.valor).toFixed())
+  const pagamento = resumirPagamento(paraDominio(o.precoFinal).toFixed(), vivos)
   const precoCalculado = d2(o.precoCalculado)
   const precoCalculadoNoAjuste = o.precoCalculadoNoAjuste === null ? null : d2(o.precoCalculadoNoAjuste)
   return {
@@ -92,6 +114,12 @@ export async function obterOrdemParaTela(empresaId: string, id: string): Promise
       unidadeCobranca: i.unidadeCobranca, valorUnitario: d2(i.valorUnitario), total: d2(i.total),
     })),
     acrescimos: o.acrescimos.map((a) => ({ id: a.id, tipo: a.tipo, descricao: a.descricao, valor: d2(a.valor) })),
+    concluidaEm: o.concluidaEm?.toISOString() ?? null,
+    pagamento: { estado: pagamento.estado, totalRecebido: pagamento.totalRecebido.toFixed(2), saldo: pagamento.saldo.toFixed(2) },
+    recebimentos: o.recebimentos.map((r) => ({
+      id: r.id, data: r.data.toISOString(), valor: d2(r.valor), forma: r.forma, observacao: r.observacao, usuario: r.usuario.nome,
+      estornadoEm: r.estornadoEm?.toISOString() ?? null, motivoEstorno: r.motivoEstorno,
+    })),
   }
 }
 
@@ -104,17 +132,44 @@ export interface OrdemResumo {
   abertaEm: string
   prometidaPara: string | null
   precoFinal: string
+  estadoPagamento: EstadoPagamento
+  saldo: string
 }
 
-export async function listarOrdens(empresaId: string, opcoes: { limite?: number } = {}): Promise<OrdemResumo[]> {
+export interface FiltrosOrdens {
+  /** Numero da OS (so digitos) ou trecho do nome/apelido do cliente. */
+  q?: string
+  estado?: EstadoProducao
+  /** 'AAAA-MM-DD', sobre aberta_em no calendario de Sao Paulo. */
+  de?: string
+  ate?: string
+  limite?: number
+}
+
+export async function listarOrdens(empresaId: string, filtros: FiltrosOrdens = {}): Promise<OrdemResumo[]> {
+  const q = filtros.q?.trim() ?? ''
+  const periodo = filtros.de && filtros.ate ? limitesDoDia(filtros.de, filtros.ate) : null
+  if (filtros.de && filtros.ate && !periodo) return []
   const linhas = await prisma.ordemServico.findMany({
-    where: { empresaId },
+    where: {
+      empresaId,
+      ...(filtros.estado ? { estadoProducao: filtros.estado } : {}),
+      ...(periodo ? { abertaEm: { gte: periodo.inicio, lt: periodo.fim } } : {}),
+      ...(q === '' ? {} : /^\d+$/.test(q)
+        ? { numero: Number(q) }
+        : { OR: [{ clienteNome: { contains: q, mode: 'insensitive' } }, { clienteApelido: { contains: q, mode: 'insensitive' } }] }),
+    },
     orderBy: { numero: 'desc' },
-    take: opcoes.limite ?? 100,
+    take: filtros.limite ?? 100,
     select: { id: true, numero: true, estadoProducao: true, clienteNome: true, clienteApelido: true, abertaEm: true, prometidaPara: true, precoFinal: true },
   })
-  return linhas.map((o) => ({
-    id: o.id, numero: o.numero, estadoProducao: o.estadoProducao, clienteNome: o.clienteNome, clienteApelido: o.clienteApelido,
-    abertaEm: o.abertaEm.toISOString(), prometidaPara: o.prometidaPara?.toISOString() ?? null, precoFinal: d2(o.precoFinal),
-  }))
+  const totais = await totalRecebidoPorOrdem(prisma, empresaId, linhas.map((o) => o.id))
+  return linhas.map((o) => {
+    const p = resumirPagamento(paraDominio(o.precoFinal).toFixed(), [totais.get(o.id) ?? '0.00'])
+    return {
+      id: o.id, numero: o.numero, estadoProducao: o.estadoProducao, clienteNome: o.clienteNome, clienteApelido: o.clienteApelido,
+      abertaEm: o.abertaEm.toISOString(), prometidaPara: o.prometidaPara?.toISOString() ?? null, precoFinal: d2(o.precoFinal),
+      estadoPagamento: p.estado, saldo: p.saldo.toFixed(2),
+    }
+  })
 }

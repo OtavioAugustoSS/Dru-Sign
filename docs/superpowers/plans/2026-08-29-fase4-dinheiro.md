@@ -882,7 +882,7 @@ desenvolvimento imprimiu exatamente `48 contas importadas para "DruSign Placas e
   - `hojeCalendario(agora: Date): string` ('AAAA-MM-DD' em America/Sao_Paulo), `mesCalendario(agora: Date): { de: string; ate: string }`, `limitesDoDia(de: string, ate: string): { inicio: Date; fim: Date } | null`
   - `permissoes(estado).concluir/receber` (Task 1) passam a ser usadas pelas telas
 
-- [ ] **Step 1: Datas do calendário em São Paulo (teste e implementação)**
+- [x] **Step 1: Datas do calendário em São Paulo (teste e implementação)**
 
 Acrescentar a `src/domain/ordem/datas.test.ts`:
 ```ts
@@ -940,7 +940,7 @@ export function limitesDoDia(de: string, ate: string): { inicio: Date; fim: Date
 
 Run: `npm test -- src/domain/ordem/datas` → PASS.
 
-- [ ] **Step 2: Erros da ordem em arquivo próprio e o resumo por ordem**
+- [x] **Step 2: Erros da ordem em arquivo próprio e o resumo por ordem**
 
 `src/infra/ordens/erros.ts`:
 ```ts
@@ -984,7 +984,7 @@ export async function totalRecebidoPorOrdem(db: Db, empresaId: string, ordemIds:
 
 Run: `npm run typecheck` → sem erros.
 
-- [ ] **Step 3: Recebimento, conclusão e estorno (teste de integração)**
+- [x] **Step 3: Recebimento, conclusão e estorno (teste de integração)**
 
 `src/infra/caixa/dinheiro.int.test.ts`:
 ```ts
@@ -1227,7 +1227,7 @@ describe('fila e lista (banco real)', () => {
 
 Run: `npm run test:int -- dinheiro` → vermelho (`Cannot find module './recebimentos'`).
 
-- [ ] **Step 4: Recebimentos — a transação única**
+- [x] **Step 4: Recebimentos — a transação única**
 
 `src/infra/caixa/recebimentos.ts`:
 ```ts
@@ -1359,7 +1359,7 @@ export async function estornarRecebimento(ctx: Contexto, ordemId: string, versao
 }
 ```
 
-- [ ] **Step 5: Livro-caixa, plano de contas e fila**
+- [x] **Step 5: Livro-caixa, plano de contas e fila**
 
 `src/infra/caixa/livro.ts`:
 ```ts
@@ -1551,7 +1551,7 @@ export async function carregarFila(empresaId: string, agora: Date = new Date()):
 }
 ```
 
-- [ ] **Step 6: A tela da ordem e a lista ganham o eixo de pagamento**
+- [x] **Step 6: A tela da ordem e a lista ganham o eixo de pagamento**
 
 Em `src/infra/ordens/tela.ts`:
 - imports novos: `import { resumirPagamento } from '@/domain/caixa/pagamento'`, `import type { EstadoPagamento } from '@/domain/ordem/estados'`, `import type { FormaPagamento } from '@/domain/caixa/formas'`, `import { limitesDoDia } from '@/domain/ordem/datas'`, `import { totalRecebidoPorOrdem } from '@/infra/caixa/resumo'`.
@@ -1632,12 +1632,17 @@ export async function listarOrdens(empresaId: string, filtros: FiltrosOrdens = {
 
 Run: `npm run typecheck` → sem erros. Run: `npm run test:int` → PASS (37 anteriores + 1 do plano + 13 de dinheiro = **51**). Run: `npm test` → PASS.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/infra/ordens/erros.ts src/infra/ordens/repositorio.ts src/infra/ordens/tela.ts src/infra/caixa src/domain/ordem/datas.ts src/domain/ordem/datas.test.ts
 git commit -m "feat: recebimento com lancamento no caixa na mesma transacao, concluir e receber, estorno, livro-caixa, plano de contas e fila"
 ```
+
+**Executado (29/08/2026).** 265 unitarios e **56** de integracao verdes, typecheck limpo.
+A conta de 51 no Step 6 estava defasada: a base ja era 41 (os 37 mais os 4 testes dos ids
+reconferidos da revisao da Fase 3) e o `dinheiro.int.test.ts` tem 14 testes, nao 13 —
+41 + 1 + 14 = 56. Nenhum teste precisou de ajuste; o codigo do plano rodou como escrito.
 
 ---
 ### Task 4: Telas — painel de pagamento na ordem, fila de trabalho, lista com os dois eixos, financeiro e plano de contas

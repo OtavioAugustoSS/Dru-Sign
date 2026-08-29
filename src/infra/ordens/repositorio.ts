@@ -9,16 +9,8 @@ import { transicionar, type EstadoProducao } from '@/domain/ordem/estados'
 import { lerDataCalendario } from '@/domain/ordem/datas'
 import { executarUmaVez, type Contexto, type Tx } from '@/infra/mutacoes/idempotencia'
 
-export class ConflitoVersao extends Error {
-  constructor() {
-    super('a ordem mudou desde a ultima leitura')
-  }
-}
-export class OrdemNaoEditavel extends Error {
-  constructor(estado: string) {
-    super(`ordem ${estado}: nao aceita esta alteracao`)
-  }
-}
+import { ConflitoVersao, OrdemNaoEditavel } from './erros'
+export { ConflitoVersao, OrdemNaoEditavel }
 
 export interface DadosItem {
   descricao: string
