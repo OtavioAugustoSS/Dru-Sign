@@ -365,12 +365,32 @@ Ordem por tráfego e por gravidade do que foi encontrado.
   Copiar o nome de um cliente da tabela é coisa que se faz. Em vez disso o **nome
   do cliente virou link também**, que é um alvo bem maior que o número.
 
-- [ ] **T3. `/ordens/[id]` — a mais densa.** Subir o preço final para a primeira
-  dobra. Desempatar os dois botões primários: "Concluir e receber" é a ação,
-  "Ajustar preço" não. Resolver "Preço final" com dois sentidos a 60px de distância.
-  Mostrar estado como selo, igual ao resto do sistema. Corrigir o placeholder
-  cortado do campo cliente. Completar o combobox (`role`, `aria-expanded`,
-  `aria-controls`, `aria-activedescendant`).
+- [x] **T3. `/ordens/[id]` — a mais densa.** ✅ Feito. A coluna da direita passou a
+  ler na ordem certa: **quanto custa** primeiro, **o que fazer** depois.
+
+  - **Preço final subiu para a primeira dobra:** estava em y≈866 (fora da tela em
+    900px, e ainda por baixo do selo do Next), agora em **y=209**. Medido.
+  - **Um botão primário, não dois.** "Concluir e receber" é a ação; "Ajustar preço"
+    é correção administrativa e virou botão comum. Conferido: sobrou um só
+    `btn-primary` no conteúdo.
+  - **"Preço final" com dois sentidos a 60px de distância:** o total (que se lê) e
+    o campo do ajuste (que se escreve). O formulário de ajuste virou uma seção
+    dobrada, "Ajustar o preço", aberta só quando já existe ajuste, e o campo passou
+    a se chamar "Novo preço final".
+  - **Estado virou selo**, igual ao resto do sistema. Era texto cinza em maiúsculas
+    aqui e selo colorido na lista: a mesma informação com duas caras.
+  - **A página não pula mais no carregamento.** O `autoFocus` do campo de item
+    rolava até 783px sozinho, de forma intermitente. Trocado por foco com
+    `preventScroll`: o cursor ainda vai para o campo, a tela fica quieta. Medido:
+    rolagem 0 no carregamento.
+  - **Placeholder do cliente não é mais cortado** ("… vazio é venda de balc"): o
+    texto encurtou e a explicação desceu para a dica do campo.
+  - **Combobox completo:** o campo ganhou `role="combobox"`, `aria-expanded`,
+    `aria-controls` e `aria-autocomplete`. Antes a lista se anunciava como
+    `listbox` mas nada dizia que o campo a controlava.
+  - O `style={{ zIndex: 10 }}` da lista virou classe — mais um dos quatro estilos
+    inline que a vistoria apontou (restam dois, ambos `whiteSpace: pre-line`).
+
 - [ ] **T4. `/` — Fila de trabalho.** Os dois cartões de altura desigual, o campo de
   busca superdimensionado, e "Venda de balcão" repetido 14 vezes em coluna.
 - [ ] **T5. `/historico`.** 18.854px sem paginação, na tela cujo propósito é buscar.

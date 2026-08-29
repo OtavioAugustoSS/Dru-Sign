@@ -5,7 +5,9 @@ import { IconPrinter } from '@tabler/icons-react'
 import { exigirUsuario } from '@/infra/auth/usuario-atual'
 import { valorEmReais } from '@/componentes/dinheiro'
 import { formatarNumeroOs } from '@/domain/caixa/lancamento'
-import { Selo } from '@/componentes/selo'
+import { Selo, SeloEstado, SeloPagamento } from '@/componentes/selo'
+import { CabecalhoPagina } from '@/componentes/cabecalho-pagina'
+import { CorpoPagina } from '@/componentes/corpo-pagina'
 import { prisma } from '@/infra/db/prisma'
 import { obterOrdemParaTela } from '@/infra/ordens/repositorio'
 import { dinheiro } from '@/domain/precificacao/dinheiro'
@@ -20,7 +22,6 @@ import { FormAjuste } from './form-ajuste'
 import { FormCabecalho } from './form-cabecalho'
 import { FormCancelar } from './form-cancelar'
 import { PainelPagamento } from './painel-pagamento'
-import { ROTULO_PAGAMENTO } from '@/domain/caixa/pagamento'
 import { removerItemAction, removerAcrescimoAction, confirmarAjusteAction, removerAjusteAction, aprovarOrcamentoAction } from './actions'
 
 export const metadata: Metadata = { title: 'Ordem de serviço' }
@@ -45,33 +46,36 @@ export default async function PaginaOrdem({ params }: { params: Promise<{ id: st
 
   return (
     <>
-      <div className="page-header d-print-none">
-        <div className="container-xl">
-          <div className="row g-2 align-items-center">
-            <div className="col">
-              {/* Cancelada nao recebe (o dominio recusa): mostrar "Nao pago" ao lado seria promessa de cobranca. */}
-              <div className="page-pretitle">
-                {ROTULO_ESTADO[ordem.estadoProducao]}
-                {ordem.estadoProducao === 'cancelada' ? '' : ` · ${ROTULO_PAGAMENTO[ordem.pagamento.estado]}`}
-                {ordem.concluidaEm ? ` · serviço finalizado em ${formatarDataHora(new Date(ordem.concluidaEm))}` : ''}
-                {ordem.canceladaEm ? ` · ${ordem.motivoCancelamento}` : ''}
-              </div>
-              <h1 className="page-title">{ordem.estadoProducao === 'orcamento' ? 'Orçamento' : 'Ordem de serviço'} nº {numero}</h1>
-              <div className="text-secondary">
-                {ordem.cliente ? <>{ordem.cliente.nome}{ordem.cliente.apelido ? ` · ${ordem.cliente.apelido}` : ''}{ordem.cliente.telefone ? ` · ${formatarTelefone(ordem.cliente.telefone.replace(/\D/g, ''))}` : ''}</> : 'Venda de balcão'}
-                {' · aberta em '}{formatarDataHora(new Date(ordem.abertaEm))}
-                {ordem.prometidaPara ? ` · entrega prometida ${formatarDataLonga(new Date(ordem.prometidaPara))}` : ''}
-              </div>
-            </div>
-            <div className="col-auto">
-              <Link href={`/ordens/${ordem.id}/impresso`} className="btn"><IconPrinter className="icon" /> Imprimir</Link>
-            </div>
-          </div>
-        </div>
-      </div>
+      <CabecalhoPagina
+        pretitulo="Atendimento"
+        titulo={`${ordem.estadoProducao === 'orcamento' ? 'Orçamento' : 'Ordem de serviço'} nº ${numero}`}
+        descricao={
+          <>
+            {/* Estado como selo, igual ao resto do sistema. Antes era texto cinza
+                em maiusculas aqui e selo colorido na lista: a mesma informacao
+                com duas caras. Cancelada nao recebe (o dominio recusa), entao
+                mostrar "Nao pago" ao lado seria promessa de cobranca. */}
+            <span className="d-flex flex-wrap align-items-center gap-2 mb-1">
+              <SeloEstado estado={ordem.estadoProducao} />
+              {ordem.estadoProducao === 'cancelada' ? null : <SeloPagamento estado={ordem.pagamento.estado} />}
+              {ordem.concluidaEm ? <span>serviço finalizado em {formatarDataHora(new Date(ordem.concluidaEm))}</span> : null}
+              {ordem.canceladaEm ? <span>{ordem.motivoCancelamento}</span> : null}
+            </span>
+            <span className="d-block">
+              {ordem.cliente ? <>{ordem.cliente.nome}{ordem.cliente.apelido ? ` · ${ordem.cliente.apelido}` : ''}{ordem.cliente.telefone ? ` · ${formatarTelefone(ordem.cliente.telefone.replace(/\D/g, ''))}` : ''}</> : 'Venda de balcão'}
+              {' · aberta em '}{formatarDataHora(new Date(ordem.abertaEm))}
+              {ordem.prometidaPara ? ` · entrega prometida ${formatarDataLonga(new Date(ordem.prometidaPara))}` : ''}
+            </span>
+          </>
+        }
+        acoes={
+          <Link href={`/ordens/${ordem.id}/impresso`} className="btn">
+            <IconPrinter className="icon" /> Imprimir
+          </Link>
+        }
+      />
 
-      <div className="page-body">
-        <div className="container-xl">
+      <CorpoPagina>
           <div className="row g-3">
             <div className="col-lg-8">
               <div className="card mb-3">
@@ -111,13 +115,6 @@ export default async function PaginaOrdem({ params }: { params: Promise<{ id: st
             </div>
 
             <div className="col-lg-4">
-              <div className="mb-3">
-                {/* key no saldo: item novo, acrescimo ou recebimento mudam o que falta, e o campo
-                    de valor volta a nascer do saldo de agora em vez do que estava na tela antes. */}
-                <PainelPagamento key={ordem.pagamento.saldo} ordemId={ordem.id} versao={ordem.versao} estadoProducao={ordem.estadoProducao} pagamento={ordem.pagamento}
-                  recebimentos={ordem.recebimentos} hoje={hojeCalendario(new Date())} podeConcluir={pode.concluir} podeReceber={pode.receber}
-                  administracao={usuario.papel === 'administracao'} />
-              </div>
               <div className="card">
                 <div className="card-body">
                   <dl className="row mb-0">
@@ -150,10 +147,19 @@ export default async function PaginaOrdem({ params }: { params: Promise<{ id: st
                 </div>
                 {pode.editarPreco ? (
                   <div className="card-body border-top">
-                    {/* key no preco: mudou o total (item novo, acrescimo), o campo do ajuste
-                        volta a mostrar o valor de agora em vez do que estava na tela antes. */}
-                    <FormAjuste key={ordem.precoFinal} ordemId={ordem.id} versao={ordem.versao} precoFinal={ordem.precoFinal} motivo={ordem.ajuste?.motivo ?? ''} />
-                    {ordem.ajuste && !ordem.ajuste.desatualizado ? <div className="mt-2"><BotaoMutacao acao={acao(removerAjusteAction)} rotulo="Remover ajuste" className="btn btn-link px-0" /></div> : null}
+                    {/* Dobrado, e aberto quando ja existe ajuste. Ajustar preco e
+                        excecao, nao o caminho normal -- e o formulario aberto punha
+                        um campo "Preco final" a 60px do total "Preco final", com
+                        sentidos diferentes: um le, o outro escreve. */}
+                    <details open={Boolean(ordem.ajuste)}>
+                      <summary className="fw-medium">Ajustar o preço</summary>
+                      <div className="mt-3">
+                        {/* key no preco: mudou o total (item novo, acrescimo), o campo do ajuste
+                            volta a mostrar o valor de agora em vez do que estava na tela antes. */}
+                        <FormAjuste key={ordem.precoFinal} ordemId={ordem.id} versao={ordem.versao} precoFinal={ordem.precoFinal} motivo={ordem.ajuste?.motivo ?? ''} />
+                        {ordem.ajuste && !ordem.ajuste.desatualizado ? <div className="mt-2"><BotaoMutacao acao={acao(removerAjusteAction)} rotulo="Remover ajuste" className="btn btn-link px-0" /></div> : null}
+                      </div>
+                    </details>
                   </div>
                 ) : null}
                 <div className="card-body border-top d-flex flex-column gap-2">
@@ -162,10 +168,16 @@ export default async function PaginaOrdem({ params }: { params: Promise<{ id: st
                   {ordem.prometidaPara ? <div className="small text-secondary">Entrega prometida para {formatarDataCalendario(new Date(ordem.prometidaPara))}</div> : null}
                 </div>
               </div>
+              <div className="mt-3">
+                {/* key no saldo: item novo, acrescimo ou recebimento mudam o que falta, e o campo
+                    de valor volta a nascer do saldo de agora em vez do que estava na tela antes. */}
+                <PainelPagamento key={ordem.pagamento.saldo} ordemId={ordem.id} versao={ordem.versao} estadoProducao={ordem.estadoProducao} pagamento={ordem.pagamento}
+                  recebimentos={ordem.recebimentos} hoje={hojeCalendario(new Date())} podeConcluir={pode.concluir} podeReceber={pode.receber}
+                  administracao={usuario.papel === 'administracao'} />
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+      </CorpoPagina>
     </>
   )
 }

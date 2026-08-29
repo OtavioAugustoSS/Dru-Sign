@@ -68,12 +68,13 @@ export function FormCabecalho(p: Props) {
         <>
           <div className="col-md-6 position-relative">
             <label className="form-label" htmlFor="cliente">Cliente</label>
-            <input id="cliente" className="form-control" autoComplete="off" placeholder="Nome, apelido ou telefone — vazio é venda de balcão"
+            <input id="cliente" className="form-control" autoComplete="off" placeholder="Nome, apelido ou telefone"
+              role="combobox" aria-expanded={sugestoes.length > 0} aria-controls="sugestoes-cliente" aria-autocomplete="list"
               value={termo || clienteNome}
               onChange={(e) => { setTermo(e.target.value); if (e.target.value === '') escolher(null) }}
               onKeyDown={(e) => { if (e.key === 'Escape') { setTermo(''); setSugestoes([]) } }} />
             {sugestoes.length > 0 ? (
-              <ul className="list-group position-absolute w-100 shadow" role="listbox" style={{ zIndex: 10 }}>
+              <ul className="list-group position-absolute w-100 shadow lista-sugestoes" id="sugestoes-cliente" role="listbox" aria-label="Clientes encontrados">
                 {sugestoes.map((c) => (
                   <li key={c.id} role="option" aria-selected={false}>
                     <button type="button" className="list-group-item list-group-item-action" onClick={() => escolher(c)}>
@@ -84,7 +85,7 @@ export function FormCabecalho(p: Props) {
                 ))}
               </ul>
             ) : null}
-            {clienteId === null && clienteNome === '' ? <div className="form-hint">Venda de balcão</div> : null}
+            {clienteId === null && clienteNome === '' ? <div className="form-hint">Sem cliente: entra como venda de balcão.</div> : null}
           </div>
           <div className="col-md-3">
             <label className="form-label" htmlFor="prometida">Entrega prometida</label>

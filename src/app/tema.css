@@ -127,6 +127,12 @@
   --tblr-btn-disabled-border-color: #1A7F37;
 }
 
+/* A lista de clientes que aparece enquanto se digita precisa passar por cima do
+ * que vem depois no formulario. Era estilo inline no JSX. */
+.lista-sugestoes {
+  z-index: 10;
+}
+
 /* A producao usa o sistema de pe, as vezes de luva: o alvo de toque nao pode
  * depender do tamanho da fonte (spec, tela 8). */
 .botao-producao {

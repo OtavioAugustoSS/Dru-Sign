@@ -36,14 +36,14 @@ export function FormAjuste({ ordemId, versao, precoFinal, motivo }: { ordemId: s
       }}
       className="d-flex flex-column gap-2"
     >
-      <label className="form-label mb-0" htmlFor="precoFinal">Preço final</label>
+      <label className="form-label mb-0" htmlFor="precoFinal">Novo preço final</label>
       <div className="input-group">
         <span className="input-group-text">R$</span>
         <input id="precoFinal" className="form-control numero" inputMode="decimal" value={preco} onChange={(e) => setPreco(e.target.value)} />
       </div>
       <label className="form-label mb-0" htmlFor="motivoAjuste">Motivo do ajuste</label>
       <input id="motivoAjuste" className="form-control" value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="arredondamento comercial, cliente antigo…" required />
-      <button type="submit" className="btn btn-primary" disabled={pendente}>{pendente ? SALVANDO : 'Ajustar preço'}</button>
+      <button type="submit" className="btn" disabled={pendente}>{pendente ? SALVANDO : 'Ajustar preço'}</button>
       {invalido ? <div className="text-danger small" role="alert">Preço inválido. Use 2528,00 ou 2528.</div> : null}
       {resposta && !resposta.ok && !resposta.conflito ? <div className="text-danger small" role="alert">{resposta.erro}</div> : null}
     </form>

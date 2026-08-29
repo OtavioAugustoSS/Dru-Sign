@@ -36,6 +36,13 @@ export function EntradaLinha({ ordemId, versao, catalogo }: Props) {
   /** Texto gravado com sucesso: o campo so limpa quando a transition (action + refresh) termina. */
   const enviado = useRef<string | null>(null)
 
+  // `preventScroll`: o campo fica abaixo da dobra, e focar sem isto joga a pagina
+  // para baixo sozinha no carregamento -- medido em 783px, e de forma
+  // intermitente, que e pior. O foco ainda vai para ca; a tela e que fica quieta.
+  useEffect(() => {
+    campo.current?.focus({ preventScroll: true })
+  }, [])
+
   useEffect(() => {
     if (pendente || enviado.current === null) return
     const texto = enviado.current
@@ -43,7 +50,7 @@ export function EntradaLinha({ ordemId, versao, catalogo }: Props) {
     // Se a pessoa ja comecou a digitar a proxima linha durante o "Gravando…", nao apaga o que ela escreveu.
     setTexto((atual) => (atual === texto ? '' : atual))
     setUnidadeEscolhida(undefined); setMostrarPendencia(false)
-    campo.current?.focus()
+    campo.current?.focus({ preventScroll: true })
   }, [pendente])
 
   const resolvido = useMemo(
@@ -102,7 +109,7 @@ export function EntradaLinha({ ordemId, versao, catalogo }: Props) {
       ) : null}
       <label className="form-label" htmlFor="linha">Lançar item ou acréscimo</label>
       <input
-        ref={campo} id="linha" className="form-control form-control-lg" autoComplete="off" autoFocus
+        ref={campo} id="linha" className="form-control form-control-lg" autoComplete="off"
         placeholder="12 placas ACM 61x40 61,00 — ou +instalacao 280"
         value={texto} onKeyDown={aoTeclar}
         onChange={(e) => { setTexto(e.target.value); setUnidadeEscolhida(undefined); setMostrarPendencia(false); if (erro) setResposta(null) }}
