@@ -20,7 +20,7 @@ export function FilaDeTrabalho({ fila }: { fila: Fila }) {
           <div className="row g-2 align-items-center">
             <div className="col">
               <div className="page-pretitle">Atendimento</div>
-              <h2 className="page-title">Fila de trabalho</h2>
+              <h1 className="page-title">Fila de trabalho</h1>
             </div>
             <div className="col-auto"><Link href="/ordens/nova" className="btn btn-primary">Nova ordem</Link></div>
           </div>
@@ -38,7 +38,7 @@ export function FilaDeTrabalho({ fila }: { fila: Fila }) {
           <div className="row g-3">
             <div className="col-lg-6">
               <div className="card">
-                <div className="card-header"><h3 className="card-title">Abertas há mais de uma semana</h3><span className="badge bg-secondary-lt ms-auto">{fila.paradas.length}</span></div>
+                <div className="card-header"><h2 className="card-title">Abertas há mais de uma semana</h2><span className="badge bg-secondary-lt ms-auto">{fila.paradas.length}</span></div>
                 {fila.paradas.length === 0 ? (
                   <div className="card-body text-secondary">Nenhuma ordem parada. É assim que deve ficar.</div>
                 ) : (
@@ -58,7 +58,7 @@ export function FilaDeTrabalho({ fila }: { fila: Fila }) {
             </div>
             <div className="col-lg-6">
               <div className="card">
-                <div className="card-header"><h3 className="card-title">Concluídas e não pagas</h3><span className="ms-auto fw-bold numero" data-testid="total-a-cobrar">{formatarMoeda(dinheiro(fila.totalACobrar))}</span></div>
+                <div className="card-header"><h2 className="card-title">Concluídas e não pagas</h2><span className="ms-auto fw-bold numero" data-testid="total-a-cobrar">{formatarMoeda(dinheiro(fila.totalACobrar))}</span></div>
                 {fila.aCobrar.length === 0 ? (
                   <div className="card-body text-secondary">Nada a cobrar. Todo serviço finalizado já foi recebido.</div>
                 ) : (

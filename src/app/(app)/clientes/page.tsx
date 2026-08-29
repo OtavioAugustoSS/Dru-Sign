@@ -25,7 +25,7 @@ export default async function PaginaClientes({
           <div className="row g-2 align-items-center">
             <div className="col">
               <div className="page-pretitle">Atendimento</div>
-              <h2 className="page-title">Clientes</h2>
+              <h1 className="page-title">Clientes</h1>
             </div>
             <div className="col-auto">
               <Link href="/clientes/carteira" className="btn me-2">Carteira</Link>

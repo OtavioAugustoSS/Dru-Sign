@@ -25,7 +25,7 @@ export function CabecalhoPagina({ titulo, pretitulo, descricao, acoes }: Props) 
         <div className="row g-2 align-items-center">
           <div className="col">
             {pretitulo ? <div className="page-pretitle">{pretitulo}</div> : null}
-            <h2 className="page-title">{titulo}</h2>
+            <h1 className="page-title">{titulo}</h1>
             {descricao ? <div className="text-secondary">{descricao}</div> : null}
           </div>
           {acoes ? <div className="col-auto d-flex gap-2">{acoes}</div> : null}

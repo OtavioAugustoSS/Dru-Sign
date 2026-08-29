@@ -6,7 +6,7 @@ export default function Erro({ error, reset }: { error: Error & { digest?: strin
     <div className="page-body">
       <div className="container-xl">
         <div className="empty">
-          <p className="empty-title">Não foi possível concluir</p>
+          <h1 className="empty-title">Não foi possível concluir</h1>
           <p className="empty-subtitle text-secondary">
             Algo falhou ao gravar ou ler os dados. O que você digitou não foi salvo. Tente de novo; se continuar,
             avise a administração e informe este código: <code>{error.digest ?? 'sem código'}</code>.

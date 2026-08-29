@@ -56,7 +56,7 @@ export default async function PaginaOrdem({ params }: { params: Promise<{ id: st
                 {ordem.concluidaEm ? ` · serviço finalizado em ${formatarDataHora(new Date(ordem.concluidaEm))}` : ''}
                 {ordem.canceladaEm ? ` · ${ordem.motivoCancelamento}` : ''}
               </div>
-              <h2 className="page-title">{ordem.estadoProducao === 'orcamento' ? 'Orçamento' : 'Ordem de serviço'} nº {numero}</h2>
+              <h1 className="page-title">{ordem.estadoProducao === 'orcamento' ? 'Orçamento' : 'Ordem de serviço'} nº {numero}</h1>
               <div className="text-secondary">
                 {ordem.cliente ? <>{ordem.cliente.nome}{ordem.cliente.apelido ? ` · ${ordem.cliente.apelido}` : ''}{ordem.cliente.telefone ? ` · ${formatarTelefone(ordem.cliente.telefone.replace(/\D/g, ''))}` : ''}</> : 'Venda de balcão'}
                 {' · aberta em '}{formatarDataHora(new Date(ordem.abertaEm))}

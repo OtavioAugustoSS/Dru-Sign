@@ -21,6 +21,11 @@ export default async function LayoutApp({ children }: { children: React.ReactNod
 
   return (
     <div className="page">
+      {/* Primeiro elemento focavel da pagina: sem ele, quem navega por teclado
+          atravessa 13 links de menu em toda tela para chegar ao conteudo. */}
+      <a className="visually-hidden-focusable btn btn-primary pular-conteudo" href="#conteudo">
+        Pular para o conteúdo
+      </a>
       <CascaLateral
         itens={navegacaoPara(usuario.papel)}
         menuUsuario={
@@ -35,7 +40,9 @@ export default async function LayoutApp({ children }: { children: React.ReactNod
         }
       />
 
-      <div className="page-wrapper">{children}</div>
+      <main className="page-wrapper" id="conteudo" tabIndex={-1}>
+        {children}
+      </main>
     </div>
   )
 }

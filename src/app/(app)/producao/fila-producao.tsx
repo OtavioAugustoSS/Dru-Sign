@@ -15,7 +15,7 @@ export function FilaDeProducao({ fila }: { fila: FilaProducao }) {
           <div className="row g-2 align-items-center">
             <div className="col">
               <div className="page-pretitle">Produção</div>
-              <h2 className="page-title fs-1">Fila de produção</h2>
+              <h1 className="page-title fs-1">Fila de produção</h1>
             </div>
             <div className="col-auto fs-3">
               {fila.total === 0 ? null : <>{fila.total} em produção{fila.atrasadas > 0 ? <span className="text-danger ms-2">· {fila.atrasadas} atrasada{fila.atrasadas > 1 ? 's' : ''}</span> : null}</>}
@@ -32,7 +32,7 @@ export function FilaDeProducao({ fila }: { fila: FilaProducao }) {
             </div></div></div>
           ) : fila.grupos.map((g) => (
             <section key={g.grupo} className="mb-4">
-              <h3 className={`fs-2 mb-3 ${TEXTO_URGENCIA[g.grupo]}`}>{ROTULO_URGENCIA[g.grupo]} <span className="text-secondary">({g.ordens.length})</span></h3>
+              <h2 className={`fs-2 mb-3 ${TEXTO_URGENCIA[g.grupo]}`}>{ROTULO_URGENCIA[g.grupo]} <span className="text-secondary">({g.ordens.length})</span></h2>
               <div className="row g-3">
                 {g.ordens.map((o) => <Cartao key={o.id} ordem={o} />)}
               </div>

@@ -26,7 +26,7 @@ export default async function PaginaOrdens({ searchParams }: { searchParams: Pro
           <div className="row g-2 align-items-center">
             <div className="col">
               <div className="page-pretitle">Atendimento</div>
-              <h2 className="page-title">Ordens</h2>
+              <h1 className="page-title">Ordens</h1>
             </div>
             <div className="col-auto">
               <Link href="/ordens/nova" className="btn btn-primary"><IconPlus className="icon" /> Nova ordem</Link>

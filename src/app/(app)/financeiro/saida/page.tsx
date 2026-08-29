@@ -11,7 +11,7 @@ export default async function PaginaSaida() {
   const contas = (await listarContas(usuario.empresaId)).filter((c) => c.tipo === 'despesa')
   return (
     <>
-      <div className="page-header d-print-none"><div className="container-xl"><div className="page-pretitle">Financeiro</div><h2 className="page-title">Nova saída</h2></div></div>
+      <div className="page-header d-print-none"><div className="container-xl"><div className="page-pretitle">Financeiro</div><h1 className="page-title">Nova saída</h1></div></div>
       <div className="page-body"><div className="container-xl">
         {contas.length === 0 ? (
           <div className="alert alert-warning" role="alert">Nenhuma conta de despesa ativa. Cadastre uma no plano de contas antes de lançar saídas.</div>

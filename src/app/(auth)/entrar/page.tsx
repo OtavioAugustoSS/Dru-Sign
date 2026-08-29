@@ -17,17 +17,17 @@ export default async function PaginaEntrar({
 
   return (
     <div className="page page-center">
-      <div className="container container-tight py-4">
+      <main className="container container-tight py-4">
         <div className="text-center mb-4">
           <span className="navbar-brand navbar-brand-autodark h1">DruSign</span>
         </div>
         <div className="card card-md">
           <div className="card-body">
-            <h2 className="h2 text-center mb-4">Entrar</h2>
+            <h1 className="h2 text-center mb-4">Entrar</h1>
             <FormEntrar proximo={destino} />
           </div>
         </div>
-      </div>
+      </main>
     </div>
   )
 }

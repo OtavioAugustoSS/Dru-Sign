@@ -14,7 +14,7 @@ export const metadata: Metadata = { title: 'Relatório para o contador' }
 function Tabela({ titulo, contas, total, rotulo }: { titulo: string; contas: ContaDoRelatorio[]; total: string; rotulo: string }) {
   return (
     <div className="card mb-3">
-      <div className="card-header"><h3 className="card-title">{titulo}</h3><span className="ms-auto numero fw-bold" data-testid={rotulo}>{valorEmReais(total)}</span></div>
+      <div className="card-header"><h2 className="card-title">{titulo}</h2><span className="ms-auto numero fw-bold" data-testid={rotulo}>{valorEmReais(total)}</span></div>
       {contas.length === 0 ? <div className="card-body text-secondary">Nenhum lançamento no período.</div> : (
         <div className="table-responsive"><table className="table table-vcenter card-table" aria-label={titulo}>
           <thead><tr><th className="w-1">Código</th><th>Conta</th><th className="text-end">Lançamentos</th><th className="text-end">Total</th></tr></thead>
@@ -49,7 +49,7 @@ export default async function PaginaContador({ searchParams }: { searchParams: P
     <>
       <div className="page-header d-print-none"><div className="container-xl">
         <div className="row g-2 align-items-center">
-          <div className="col"><div className="page-pretitle">Financeiro</div><h2 className="page-title">Relatório para o contador</h2></div>
+          <div className="col"><div className="page-pretitle">Financeiro</div><h1 className="page-title">Relatório para o contador</h1></div>
           <div className="col-auto">
             <a className="btn btn-primary" href={`/financeiro/contador/csv?de=${periodo.de}&ate=${periodo.ate}`}><IconDownload className="icon" /> Baixar CSV</a>
           </div>

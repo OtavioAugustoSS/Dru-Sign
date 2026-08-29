@@ -17,7 +17,7 @@ export default async function PaginaEditarMaterial({ params }: { params: Promise
       <div className="page-header d-print-none">
         <div className="container-xl">
           <div className="page-pretitle">Materiais e preços</div>
-          <h2 className="page-title">Editar {m.nome}</h2>
+          <h1 className="page-title">Editar {m.nome}</h1>
         </div>
       </div>
       <div className="page-body">

@@ -13,7 +13,7 @@ export default async function PaginaEmpresa() {
     <>
       <div className="page-header d-print-none"><div className="container-xl">
         <div className="page-pretitle">Administração</div>
-        <h2 className="page-title">Dados da empresa</h2>
+        <h1 className="page-title">Dados da empresa</h1>
       </div></div>
       <div className="page-body"><div className="container-xl">
         <FormEmpresa empresa={empresa} />

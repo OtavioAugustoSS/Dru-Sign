@@ -30,11 +30,11 @@ export default async function PaginaFichaCliente({ params }: { params: Promise<{
           <div className="row g-2 align-items-center">
             <div className="col">
               <div className="page-pretitle">Cliente</div>
-              <h2 className="page-title">
+              <h1 className="page-title">
                 {c.nome}
                 <SeloApelido apelido={c.apelido} />
                 {c.arquivadoEm ? <span className="badge bg-secondary-lt ms-2">arquivado</span> : null}
-              </h2>
+              </h1>
             </div>
             <div className="col-auto d-flex gap-2">
               <Link href={`/clientes/${c.id}/editar`} className="btn">Editar</Link>
@@ -53,7 +53,7 @@ export default async function PaginaFichaCliente({ params }: { params: Promise<{
           <div className="row g-3">
             <div className="col-md-6">
               <div className="card h-100">
-                <div className="card-header"><h3 className="card-title">Contato</h3></div>
+                <div className="card-header"><h2 className="card-title">Contato</h2></div>
                 <div className="card-body">
                   <dl className="row">
                     <dt className="col-4">Telefones</dt>
@@ -83,7 +83,7 @@ export default async function PaginaFichaCliente({ params }: { params: Promise<{
             </div>
             <div className="col-md-6">
               <div className="card h-100">
-                <div className="card-header"><h3 className="card-title">No sistema antigo</h3>{antigas.length > 0 ? <span className="ms-auto text-secondary">{antigas.length} ordens até 2026</span> : null}</div>
+                <div className="card-header"><h2 className="card-title">No sistema antigo</h2>{antigas.length > 0 ? <span className="ms-auto text-secondary">{antigas.length} ordens até 2026</span> : null}</div>
                 {antigas.length === 0 ? (
                   <div className="card-body">
                     <div className="empty">

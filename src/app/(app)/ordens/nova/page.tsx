@@ -14,7 +14,7 @@ export default async function PaginaNovaOrdem() {
       <div className="page-header d-print-none">
         <div className="container-xl">
           <div className="page-pretitle">Atendimento</div>
-          <h2 className="page-title">Nova ordem</h2>
+          <h1 className="page-title">Nova ordem</h1>
         </div>
       </div>
       <div className="page-body">

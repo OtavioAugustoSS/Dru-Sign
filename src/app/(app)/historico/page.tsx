@@ -28,7 +28,7 @@ export default async function PaginaHistorico({ searchParams }: { searchParams: 
     <>
       <div className="page-header d-print-none"><div className="container-xl">
         <div className="page-pretitle">Arquivo</div>
-        <h2 className="page-title">Histórico do sistema antigo</h2>
+        <h1 className="page-title">Histórico do sistema antigo</h1>
         <div className="text-secondary">Somente leitura. É o que a loja fez de 2012 a 2026, com o texto exatamente como foi digitado.</div>
       </div></div>
       <div className="page-body"><div className="container-xl">

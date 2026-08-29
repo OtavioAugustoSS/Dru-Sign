@@ -39,7 +39,7 @@ export default async function PaginaOperacao({ searchParams }: { searchParams: P
     <>
       <div className="page-header d-print-none"><div className="container-xl">
         <div className="page-pretitle">Administração</div>
-        <h2 className="page-title">Indicadores</h2>
+        <h1 className="page-title">Indicadores</h1>
       </div></div>
       <div className="page-body"><div className="container-xl">
         <form method="get" className="card mb-3">
@@ -62,7 +62,7 @@ export default async function PaginaOperacao({ searchParams }: { searchParams: P
         </div>
 
         <div className="card">
-          <div className="card-header"><h3 className="card-title">Ano a ano</h3></div>
+          <div className="card-header"><h2 className="card-title">Ano a ano</h2></div>
           {anos.length === 0 ? (
             <div className="card-body text-secondary">Nenhuma ordem ainda.</div>
           ) : (

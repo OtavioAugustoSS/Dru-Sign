@@ -11,7 +11,7 @@ export default async function PaginaNovoCliente() {
       <div className="page-header d-print-none">
         <div className="container-xl">
           <div className="page-pretitle">Clientes</div>
-          <h2 className="page-title">Novo cliente</h2>
+          <h1 className="page-title">Novo cliente</h1>
         </div>
       </div>
       <div className="page-body">

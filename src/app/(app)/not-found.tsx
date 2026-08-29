@@ -5,7 +5,7 @@ export default function NaoEncontrado() {
     <div className="page-body">
       <div className="container-xl">
         <div className="empty">
-          <p className="empty-title">Não encontramos esse cadastro</p>
+          <h1 className="empty-title">Não encontramos esse cadastro</h1>
           <p className="empty-subtitle text-secondary">
             O endereço pode estar errado, ou o registro não existe mais nesta empresa.
           </p>

@@ -232,9 +232,30 @@ sozinho. Marcar `[x]` só depois do commit.
   O botão "Nova ordem" e o total do cartão, que a vistoria pegou cortados na
   borda, cabem inteiros agora.
 
-- [ ] **C3. Estrutura da página.** `<main>` de verdade, um `<h1>` por tela, e link
-  de pular para o conteúdo — hoje são 11 links de menu antes do conteúdo em toda
-  navegação por teclado.
+- [x] **C3. Estrutura da página.** ✅ Feito. O conteúdo virou `<main id="conteudo">`
+  de verdade — antes os únicos marcos da página eram a barra lateral e o menu, e
+  o conteúdo não era nada. O título de cada tela virou `<h1>` (eram todos `h2`) e o
+  título de cartão subiu de `h3` para `h2`. **Nenhuma mudança visual**: `.page-title`
+  e `.card-title` já fixam o próprio tamanho no Tabler, então a tag não decide nada
+  de aparência.
+
+  Link "Pular para o conteúdo" como primeiro elemento focável: invisível até o
+  primeiro Tab, quando aparece como botão no canto. Sem ele, quem navega por
+  teclado atravessava os 13 links do menu **em toda tela**. Verificado de ponta a
+  ponta: Tab foca o link, Enter leva o foco para `MAIN#conteudo`.
+
+  Conferido em 17 telas: exatamente **1 `<h1>`, 1 `<main>` e nenhum salto de
+  nível** em cada uma, mais o impresso.
+
+  **Dois buracos que a verificação pegou:**
+  - `/producao` ficou sem `h1` porque o `className` era `"page-title fs-1"` e minha
+    busca exigia a aspa logo após `page-title`. Só apareceu porque medi todas as
+    telas em vez de conferir uma.
+  - URL inexistente caía no 404 padrão do Next, **sem `<main>` e sem a nossa cara**:
+    o `not-found` que existia só responde a `notFound()` dentro do app. Criado
+    `src/app/not-found.tsx`, que traz a própria casca e não consulta o banco — nesse
+    ponto nem sabemos se há alguém logado.
+
 - [ ] **C4. Estados de carregamento.** `loading.tsx` nas rotas que consultam o
   banco, com esqueleto no formato do conteúdo, não roda-roda no meio da tela.
 - [ ] **C5. Dois avisos do console.** `/favicon.ico` dá 404 em toda página: o

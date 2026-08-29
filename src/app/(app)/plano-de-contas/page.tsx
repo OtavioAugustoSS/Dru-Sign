@@ -16,7 +16,7 @@ export default async function PaginaPlano({ searchParams }: { searchParams: Prom
 
   return (
     <>
-      <div className="page-header d-print-none"><div className="container-xl"><div className="page-pretitle">Administração</div><h2 className="page-title">Plano de contas</h2></div></div>
+      <div className="page-header d-print-none"><div className="container-xl"><div className="page-pretitle">Administração</div><h1 className="page-title">Plano de contas</h1></div></div>
       <div className="page-body">
         <div className="container-xl">
           {semVendas ? <div className="alert alert-warning" role="alert">Nenhuma conta recebe as vendas. Escolha uma conta de receita e clique em "Usar para recebimentos" — sem isso, receber é recusado.</div> : null}
@@ -32,7 +32,7 @@ export default async function PaginaPlano({ searchParams }: { searchParams: Prom
             </div></div></div>
           ) : grupos.map((g) => (
             <div className="card mb-3" key={g}>
-              <div className="card-header"><h3 className="card-title">{g}</h3></div>
+              <div className="card-header"><h2 className="card-title">{g}</h2></div>
               <div className="table-responsive"><table className="table table-vcenter card-table" aria-label={`Contas de ${g}`}>
                 <thead><tr><th className="w-1">Código</th><th>Conta</th><th>Tipo</th><th className="w-1"></th></tr></thead>
                 <tbody>

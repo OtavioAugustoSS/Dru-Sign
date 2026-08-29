@@ -23,7 +23,7 @@ export default async function PaginaMateriais() {
       <CabecalhoPagina pretitulo="Administração" titulo="Materiais e preços" />
       <CorpoPagina>
         <div className="card mb-3">
-          <div className="card-header"><h3 className="card-title">Novo material</h3></div>
+          <div className="card-header"><h2 className="card-title">Novo material</h2></div>
           <div className="card-body"><FormMaterial /></div>
         </div>
 

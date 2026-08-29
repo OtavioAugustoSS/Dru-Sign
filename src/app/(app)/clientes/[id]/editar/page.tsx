@@ -17,7 +17,7 @@ export default async function PaginaEditarCliente({ params }: { params: Promise<
       <div className="page-header d-print-none">
         <div className="container-xl">
           <div className="page-pretitle">Cliente</div>
-          <h2 className="page-title">Editar {c.nome}</h2>
+          <h1 className="page-title">Editar {c.nome}</h1>
         </div>
       </div>
       <div className="page-body">

@@ -100,6 +100,16 @@
   border-color: var(--tblr-primary);
 }
 
+/* O link de pular o menu so aparece quando recebe foco pelo teclado. Precisa
+ * sair do fluxo, senao empurra a pagina inteira para baixo no momento em que
+ * aparece -- e quem esta navegando por teclado perde a referencia de onde estava. */
+.pular-conteudo:focus {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 1080; /* acima da gaveta do menu no celular */
+}
+
 /* Numeros alinhados a direita, com digitos tabulares (spec, secao 7) */
 .numero {
   font-variant-numeric: tabular-nums;

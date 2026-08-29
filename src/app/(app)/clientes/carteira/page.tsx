@@ -33,7 +33,7 @@ export default async function PaginaCarteira() {
     <>
       <div className="page-header d-print-none"><div className="container-xl">
         <div className="row g-2 align-items-center">
-          <div className="col"><div className="page-pretitle">Administração</div><h2 className="page-title">Carteira de clientes</h2></div>
+          <div className="col"><div className="page-pretitle">Administração</div><h1 className="page-title">Carteira de clientes</h1></div>
           <div className="col-auto"><Link href="/clientes" className="btn">Todos os cadastros</Link></div>
         </div>
       </div></div>
@@ -54,7 +54,7 @@ export default async function PaginaCarteira() {
 
             {carteira.paraReativar.length > 0 ? (
               <div className="card mb-3">
-                <div className="card-header"><h3 className="card-title">Para reativar</h3><span className="ms-auto text-secondary">{carteira.paraReativar.length} nomes, do maior faturamento para o menor</span></div>
+                <div className="card-header"><h2 className="card-title">Para reativar</h2><span className="ms-auto text-secondary">{carteira.paraReativar.length} nomes, do maior faturamento para o menor</span></div>
                 <div className="table-responsive"><table className="table table-vcenter card-table" aria-label="Para reativar">
                   <thead><tr><th>Cliente</th><th>Última ordem</th><th className="text-end">Já faturou</th></tr></thead>
                   <tbody>
@@ -71,7 +71,7 @@ export default async function PaginaCarteira() {
             ) : null}
 
             <div className="card">
-              <div className="card-header"><h3 className="card-title">Concentração de receita</h3></div>
+              <div className="card-header"><h2 className="card-title">Concentração de receita</h2></div>
               <div className="table-responsive"><table className="table table-vcenter card-table" aria-label="Concentração de receita">
                 <thead><tr><th>Cliente</th><th>Situação</th><th className="text-end">Ordens</th><th className="text-end">Faturado</th><th className="text-end">Fatia</th></tr></thead>
                 <tbody>
