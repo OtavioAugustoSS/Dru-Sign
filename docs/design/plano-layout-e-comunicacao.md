@@ -257,8 +257,28 @@ sozinho. Marcar `[x]` só depois do commit.
     `src/app/not-found.tsx`, que traz a própria casca e não consulta o banco — nesse
     ponto nem sabemos se há alguém logado.
 
-- [ ] **C4. Estados de carregamento.** `loading.tsx` nas rotas que consultam o
-  banco, com esqueleto no formato do conteúdo, não roda-roda no meio da tela.
+- [x] **C4. Estados de carregamento.** ✅ Feito. Um `loading.tsx` para o app
+  inteiro, com o contorno do que vai chegar (cabeçalho, filtro e a tabela dentro
+  do cartão) em vez de roda-roda no meio da tela. `role="status"` com "Carregando…"
+  para leitor de tela, e as barras marcadas `aria-hidden` para não serem lidas
+  como conteúdo.
+
+  **Comecei errado e o teste corrigiu.** Escrevi cinco `loading.tsx` por rota, com
+  formatos próprios (cartões para produção, indicadores para `/operacao`). Ao tentar
+  fotografar, descobri que **nenhum deles chegava a ser desenhado**:
+
+  - no carregamento de uma URL, o layout do grupo também é assíncrono (lê sessão e
+    tema), então o limite do grupo é o primeiro a ficar pendente e é o dele que
+    aparece — provado: `/operacao` mostrava o esqueleto genérico, com botão de
+    ação que o dela nem pedia;
+  - na navegação pelo menu, o Next já pré-carregou a rota e **não há espera nenhuma**.
+
+  Os cinco arquivos foram apagados em vez de ficarem como enfeite. Cartão+tabela
+  é a forma de 11 das 14 telas, então o genérico não mente na maioria.
+
+  Medido com a rede estrangulada: o esqueleto fica em cena de **1,2s a 3,5s** no
+  histórico, que é a espera mais longa do sistema, e some quando o conteúdo chega.
+
 - [ ] **C5. Dois avisos do console.** `/favicon.ico` dá 404 em toda página: o
   sistema não tem ícone nenhum na aba do navegador. E o Next avisa que o Tabler põe
   `scroll-behavior: smooth` no `<html>`, o que atrapalha a troca de rota — resolver
