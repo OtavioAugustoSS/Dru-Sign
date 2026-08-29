@@ -1356,7 +1356,7 @@ de seis linhas do teste de usuarios conta como seis testes, entao sao 56 + 7 + 1
 - Consumes: tudo da Task 3; `exigirUsuario`, `exigirPapel`; `gerarChave`, `chaveValida`; `formatarMoeda`, `dinheiro`, `formatarDataCalendario`, `formatarDataHora`, `formatarDataLonga`, `hojeCalendario`, `mesCalendario`; `formatarNumeroOs`; `formatarTelefone`, `formatarDocumento`; `ROTULO_URGENCIA`, `ROTULO_RECENCIA`; `RespostaSimples` (`src/app/(app)/financeiro/actions.ts`); `RespostaDinheiro` e `concluirOrdemAction` (`src/app/(app)/ordens/[id]/actions.ts`).
 - Produces: rotas `/producao`, `/operacao?de=&ate=`, `/clientes/carteira`, `/usuarios`, `/empresa`; `finalizarServicoAction(ordemId, versao, chave): Promise<RespostaDinheiro>`; `criarUsuarioAction`, `alterarUsuarioAction`, `alterarAtivoUsuarioAction`, `trocarSenhaAction`, `salvarEmpresaAction` → `RespostaSimples`.
 
-- [ ] **Step 1: Navegação**
+- [x] **Step 1: Navegação**
 
 Em `navegacao.ts`: o tipo `icone` ganha `'producao' | 'operacao' | 'usuarios' | 'empresa'` e a lista fica:
 ```ts
@@ -1383,7 +1383,7 @@ Em `layout.tsx`: acrescentar `IconTools, IconChartBar, IconUserCog, IconBuilding
   empresa: <IconBuildingStore className="icon" />,
 ```
 
-- [ ] **Step 2: A tela inicial decide por papel**
+- [x] **Step 2: A tela inicial decide por papel**
 
 Mover o corpo atual de `src/app/(app)/page.tsx` (a fila de trabalho da Fase 4) para `src/app/(app)/fila-trabalho.tsx`, trocando a assinatura para receber a `Fila` pronta e sem `exigirUsuario` (quem chama já autenticou):
 ```tsx
@@ -1436,7 +1436,7 @@ export default async function PaginaInicial() {
 }
 ```
 
-- [ ] **Step 3: A fila de produção**
+- [x] **Step 3: A fila de produção**
 
 `src/app/(app)/producao/actions.ts`:
 ```ts
@@ -1593,7 +1593,7 @@ export default async function PaginaProducao() {
 }
 ```
 
-- [ ] **Step 4: A tela de operação**
+- [x] **Step 4: A tela de operação**
 
 `src/app/(app)/operacao/page.tsx`:
 ```tsx
@@ -1692,7 +1692,7 @@ export default async function PaginaOperacao({ searchParams }: { searchParams: P
 }
 ```
 
-- [ ] **Step 5: A carteira de clientes**
+- [x] **Step 5: A carteira de clientes**
 
 `src/app/(app)/clientes/carteira/page.tsx`:
 ```tsx
@@ -1799,7 +1799,7 @@ Em `src/app/(app)/clientes/page.tsx`, no `col-auto` do cabeçalho, antes do bot�
               <Link href="/clientes/carteira" className="btn me-2">Carteira</Link>
 ```
 
-- [ ] **Step 6: Usuários**
+- [x] **Step 6: Usuários**
 
 `src/app/(app)/usuarios/actions.ts`:
 ```ts
@@ -2010,7 +2010,7 @@ export default async function PaginaUsuarios() {
 }
 ```
 
-- [ ] **Step 7: Dados da empresa**
+- [x] **Step 7: Dados da empresa**
 
 `src/app/(app)/empresa/actions.ts`:
 ```ts
@@ -2135,16 +2135,22 @@ export default async function PaginaEmpresa() {
 }
 ```
 
-- [ ] **Step 8: Typecheck, testes, build e fumaça**
+- [x] **Step 8: Typecheck, testes, build e fumaça**
 
 Run: `npm run typecheck` → sem erros. Run: `npm test` → PASS (`use-client` continua verde). Run: `npm run build` → rotas `ƒ /producao`, `ƒ /operacao`, `ƒ /clientes/carteira`, `ƒ /usuarios`, `ƒ /empresa`. Fumaça com `next start`: `curl -s -o /dev/null -w "%{http_code} %{redirect_url}\n" http://localhost:3000/usuarios` → `307 …/entrar?proximo=%2Fusuarios`.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add "src/app/(app)/"
 git commit -m "feat: fila de producao lida de longe, tela de operacao, carteira de clientes, usuarios e dados da empresa"
 ```
+
+**Executado (29/08/2026).** typecheck limpo, 295 unitarios verdes com o `use-client` incluso,
+`npm run build` compilou em 21,9s e listou `ƒ /producao`, `ƒ /operacao`, `ƒ /clientes/carteira`,
+`ƒ /usuarios` e `ƒ /empresa`. Fumaca com `next start`: as seis rotas devolvem
+`307 .../entrar?proximo=...`. O JSX da fila de trabalho foi movido recortando o corpo do `return`
+do `page.tsx` antigo, sem alterar uma linha (66 linhas). Sem desvios.
 
 ---
 

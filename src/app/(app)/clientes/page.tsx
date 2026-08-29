@@ -27,6 +27,7 @@ export default async function PaginaClientes({
               <h2 className="page-title">Clientes</h2>
             </div>
             <div className="col-auto">
+              <Link href="/clientes/carteira" className="btn me-2">Carteira</Link>
               <Link href="/clientes/novo" className="btn btn-primary">
                 <IconPlus className="icon" /> Novo cliente
               </Link>
