@@ -127,6 +127,12 @@
   --tblr-btn-disabled-border-color: #1A7F37;
 }
 
+/* Texto do sistema antigo, mostrado como foi digitado: as quebras de linha
+ * originais fazem parte do registro. Era estilo inline em duas telas. */
+.texto-original {
+  white-space: pre-line;
+}
+
 /* A lista de clientes que aparece enquanto se digita precisa passar por cima do
  * que vem depois no formulario. Era estilo inline no JSX. */
 .lista-sugestoes {

@@ -411,7 +411,28 @@ Ordem por tráfego e por gravidade do que foi encontrado.
     nenhuma tela convertida até então passava `titulo`. Corrigido para `h2`.
     Conferido nesta tela: H1 H2 H2, sem salto.
 
-- [ ] **T5. `/historico`.** 18.854px sem paginação, na tela cujo propósito é buscar.
+- [x] **T5. `/historico`.** ✅ Feito. **De 18.854px para 5.407px.** Duas causas, e a
+  segunda era a maior.
+
+  1. **Sem paginação:** despejava até 100 linhas de uma vez. Agora 50 por página,
+     369 páginas, e a busca sobrevive ao virar: `?q=placa&pagina=2` mostra 51 a 100
+     de 4.538. A soma e a contagem continuam sendo do **filtro inteiro**, não da
+     página — R$ 5.654.432,03 nas 18.443.
+  2. **As linhas de ponto solitário.** Cada linha da tabela tinha ~190px, e quase
+     tudo era ponto. As ordens antigas guardavam a descrição em sete campos,
+     `OBS1..OBS7`, e campo sem uso não ficava em branco: ficava com um ponto. Ao
+     juntar os sete numa coluna, cada ordem virava duas linhas de conteúdo e cinco
+     de pontos. Agora a linha tem **100px** e há **zero** pontos soltos na tela.
+
+     Isto é só exibição, nada muda no banco. E é **mais** fiel, não menos: ponto
+     solitário não é o que a pessoa digitou, é como o banco antigo marcava "aqui
+     não tem nada". Mesmo assim o subtítulo da tela foi reescrito para dizer
+     exatamente o que faz, em vez de prometer "o texto exatamente como foi
+     digitado". Função pura com teste, em `texto-legado.ts`.
+
+  Junto: "18443" virou "18.443", o comando de terminal saiu do estado vazio, e o
+  `style={{ whiteSpace: 'pre-line' }}` virou classe.
+
 - [ ] **T6. `/clientes` + `/clientes/[id]` + `/clientes/novo` + editar.** Paginar
   (hoje diz "Mostrando os primeiros 50" sem controle nenhum). Unificar
   "Novo cliente" e "Cadastrar cliente". Acertar o pretítulo entre as quatro telas.

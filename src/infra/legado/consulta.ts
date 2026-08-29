@@ -29,6 +29,8 @@ export interface FiltrosHistorico {
   de?: string
   ate?: string
   limite?: number
+  /** 1 e a primeira. Junto com `limite`, decide o trecho que a tela mostra. */
+  pagina?: number
 }
 
 export interface Historico {
@@ -82,7 +84,13 @@ export async function buscarHistorico(empresaId: string, filtros: FiltrosHistori
       : { OR: [{ clienteNome: { contains: q, mode: 'insensitive' as const } }, { texto: { contains: q, mode: 'insensitive' as const } }] }),
   }
   const [linhas, encontradas, soma] = await Promise.all([
-    prisma.ordemLegado.findMany({ where, orderBy: [{ dataEntrada: 'desc' }, { numero: 'desc' }], take: filtros.limite ?? LIMITE_PADRAO, select: COLUNAS }),
+    prisma.ordemLegado.findMany({
+      where,
+      orderBy: [{ dataEntrada: 'desc' }, { numero: 'desc' }],
+      skip: filtros.pagina && filtros.pagina > 1 ? (filtros.pagina - 1) * (filtros.limite ?? LIMITE_PADRAO) : 0,
+      take: filtros.limite ?? LIMITE_PADRAO,
+      select: COLUNAS,
+    }),
     prisma.ordemLegado.count({ where }),
     prisma.ordemLegado.aggregate({ where, _sum: { total: true } }),
   ])
