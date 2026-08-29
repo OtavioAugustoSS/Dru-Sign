@@ -1,17 +1,34 @@
+/* Tema DruSign: a camada de marca sobre o Tabler.
+ *
+ * O Tabler 1.4.0 ja traz o tema escuro inteiro, acionado por [data-bs-theme=dark]
+ * no <html>. Cartao, tabela, dropdown, modal e navbar leem os tokens dele e mudam
+ * sozinhos. O que precisa de par aqui e so a marca.
+ *
+ * REGRA: todo token declarado no :root PRECISA ter par no bloco escuro. O :root
+ * casa nos dois temas; sem o par, o valor claro vaza para o escuro. Era esse o
+ * defeito da versao anterior deste arquivo.
+ *
+ * Os contrastes abaixo foram calculados (WCAG 2.1 relative luminance), nao
+ * estimados. Minimo 4,5:1 para texto e 3:1 para componente.
+ */
+
 :root {
   /* Fonte: Geist, injetada pelo next/font como --font-geist-sans no <html> */
   --tblr-font-sans-serif: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
   --tblr-font-monospace: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  /* Cor primaria DruSign (spec, secao 8): #0E7C93 tem 4,86:1 sobre branco */
+  /* Primaria DruSign (spec, secao 8).
+   * #0E7C93 sobre branco ........ 4,86:1  texto OK
+   * branco sobre #0E7C93 ........ 4,86:1  botao OK
+   * #0E7C93 sobre o corpo ....... 4,57:1  texto OK  */
   --tblr-primary: #0E7C93;
   --tblr-primary-rgb: 14, 124, 147;
   --tblr-primary-fg: #ffffff;
-  --tblr-primary-darken: #0A6478;          /* hover/active de .btn-primary */
-  --tblr-primary-lt: #E4F2F6;              /* .bg-primary-lt, badges, avatares */
+  --tblr-primary-darken: #0A6478;          /* branco sobre ele: 6,76:1 */
+  --tblr-primary-lt: #E4F2F6;              /* fundo de selo e avatar */
   --tblr-primary-lt-rgb: 228, 242, 246;
   --tblr-primary-200: rgba(14, 124, 147, 0.2);
-  --tblr-primary-text-emphasis: #0A6478;
+  --tblr-primary-text-emphasis: #0A6478;   /* sobre --primary-lt: 5,90:1 */
   --tblr-primary-bg-subtle: #E4F2F6;
   --tblr-primary-border-subtle: #9FD0DB;
 
@@ -25,11 +42,52 @@
   --tblr-focus-ring-color: rgba(14, 124, 147, 0.25);
 }
 
-/* O Tabler 1.4.0 fixa a borda de foco em azul; alinhar a primaria */
+/* Tema escuro.
+ *
+ * A primaria clara nao serve aqui: #0E7C93 sobre o corpo #111827 da 3,65:1, que
+ * passa como componente e reprova como texto. Quem serve e o ciano da logo,
+ * #5FC4D8 -- justamente a cor que foi PROIBIDA como botao no claro por ter so
+ * 2,02:1 sobre branco. No escuro ela da 8,76:1. A marca finalmente aparece
+ * inteira em algum lugar.
+ *
+ * Mesma especificidade do :root (0,1,0), declarado depois: este bloco vence.
+ */
+[data-bs-theme='dark'] {
+  /* #5FC4D8 sobre o corpo #111827 ..... 8,76:1  texto OK
+   * #5FC4D8 sobre superficie #1F2937 ... 7,25:1  texto OK
+   * #111827 sobre #5FC4D8 (botao) ...... 8,76:1  botao OK  */
+  --tblr-primary: #5FC4D8;
+  --tblr-primary-rgb: 95, 196, 216;
+  --tblr-primary-fg: #111827;              /* tinta escura sobre botao claro */
+  --tblr-primary-darken: #45B3C9;          /* #111827 sobre ele: 7,22:1 */
+  --tblr-primary-lt: #294251;              /* a primaria a 16% sobre a superficie */
+  --tblr-primary-lt-rgb: 41, 66, 81;
+  --tblr-primary-200: rgba(95, 196, 216, 0.28);
+  --tblr-primary-text-emphasis: #8FD7E5;   /* sobre --primary-lt: 6,53:1 */
+  --tblr-primary-bg-subtle: #0B2A33;
+  --tblr-primary-border-subtle: #2A6B7D;
+
+  --tblr-link-color: #5FC4D8;
+  --tblr-link-color-rgb: 95, 196, 216;
+  --tblr-link-hover-color: #8FD7E5;        /* sobre o corpo: 11,00:1 */
+  --tblr-link-hover-color-rgb: 143, 215, 229;
+
+  --tblr-focus-ring-color: rgba(95, 196, 216, 0.35);
+}
+
+/* O Tabler pinta o texto do selo com a propria --tblr-primary. No claro isso da
+ * 4,24:1 sobre o fundo do selo, abaixo do minimo de 4,5:1 para texto pequeno --
+ * e selo e sempre texto pequeno. A cor de enfase resolve nos dois temas:
+ * 5,90:1 no claro, 6,53:1 no escuro. */
+.bg-primary-lt {
+  color: var(--tblr-primary-text-emphasis) !important;
+}
+
+/* O Tabler 1.4.0 fixa a borda de foco em azul; alinhar a primaria do tema */
 .form-control:focus,
 .form-select:focus,
 .form-check-input:focus {
-  border-color: #0E7C93;
+  border-color: var(--tblr-primary);
 }
 
 /* Numeros alinhados a direita, com digitos tabulares (spec, secao 7) */
