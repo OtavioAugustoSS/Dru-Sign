@@ -1,0 +1,51 @@
+@page { size: A4 portrait; margin: 12mm 12mm 14mm; }
+
+.impresso-raiz {
+  --papel: 210mm; --tinta: #111; --fraca: #555; --linha: #999; --faixa: #f0f0f0;
+  font-family: var(--font-geist-sans), 'Segoe UI', Arial, sans-serif;
+  font-variant-numeric: tabular-nums; color: var(--tinta); background: #e9ecef; min-height: 100vh; padding: 16px 0 48px;
+}
+.impresso-acoes { max-width: var(--papel); margin: 0 auto 12px; display: flex; gap: 8px; align-items: center; }
+.via { box-sizing: border-box; width: var(--papel); min-height: 297mm; margin: 0 auto 16px; padding: 12mm 12mm 14mm; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.15); font-size: 11pt; line-height: 1.35; display: flex; flex-direction: column; }
+.bloco { margin-bottom: 5mm; break-inside: avoid; }
+.bloco + .bloco { border-top: 1px solid var(--linha); padding-top: 3mm; }
+.cabecalho-empresa { display: grid; grid-template-columns: 1fr auto; gap: 4mm; align-items: center; }
+.cabecalho-empresa .nome { font-size: 18pt; font-weight: 700; letter-spacing: -0.01em; }
+.cabecalho-empresa .razao, .cabecalho-empresa .contato { font-size: 9.5pt; color: var(--fraca); }
+.cabecalho-empresa .contato { text-align: right; white-space: nowrap; }
+.identificacao { display: flex; justify-content: space-between; align-items: baseline; }
+.identificacao .titulo { font-size: 14pt; font-weight: 600; text-transform: uppercase; letter-spacing: .02em; }
+.identificacao .numero-os { font-size: 20pt; font-weight: 700; }
+.identificacao .datas { text-align: right; font-size: 10pt; }
+.identificacao .datas dt { display: inline; color: var(--fraca); }
+.identificacao .datas dd { display: inline; margin: 0 0 0 4px; font-weight: 600; }
+.via-rotulo { font-size: 8.5pt; color: var(--fraca); text-transform: uppercase; letter-spacing: .06em; }
+.cliente dl { display: grid; grid-template-columns: auto 1fr; gap: 1mm 4mm; margin: 0; }
+.cliente dt { color: var(--fraca); font-weight: 400; }
+.cliente dd { margin: 0; font-weight: 500; }
+.itens { width: 100%; border-collapse: collapse; }
+.itens th, .itens td { padding: 1.6mm 2mm; vertical-align: top; }
+.itens thead th { border-bottom: 1px solid var(--tinta); font-size: 9pt; text-transform: uppercase; letter-spacing: .04em; text-align: left; }
+.itens tbody tr { break-inside: avoid; }
+.itens tbody td { border-bottom: 1px solid #ddd; }
+.itens .cobranca { display: block; font-size: 9pt; color: var(--fraca); }
+.itens .numero, .valores .numero { text-align: right; white-space: nowrap; }
+.observacoes { white-space: pre-line; font-size: 10pt; margin-top: 2mm; }
+.rodape { display: grid; grid-template-columns: 1fr 78mm; gap: 6mm; margin-top: auto; }
+.valores { border-collapse: collapse; width: 100%; }
+.valores td { padding: 1.2mm 2mm; }
+.valores .motivo { font-size: 9pt; color: var(--fraca); }
+.valores .total td { font-size: 13pt; font-weight: 700; border-top: 2px solid var(--tinta); background: var(--faixa); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.assinatura { display: flex; flex-direction: column; justify-content: flex-end; font-size: 10pt; }
+.assinatura .linha { border-top: 1px solid var(--tinta); margin-top: 14mm; padding-top: 1mm; }
+.garantia { font-size: 9.5pt; font-weight: 600; margin-top: 3mm; }
+.agradecimento { font-size: 9pt; color: var(--fraca); text-align: center; margin-top: 3mm; }
+
+@media print {
+  .impresso-raiz { background: #fff; padding: 0; min-height: auto; }
+  .impresso-acoes { display: none !important; }
+  .via { width: auto; min-height: auto; margin: 0; padding: 0; box-shadow: none; break-after: page; }
+  .via:last-child { break-after: auto; }
+  .itens thead { display: table-header-group; }
+  a { color: inherit; text-decoration: none; }
+}

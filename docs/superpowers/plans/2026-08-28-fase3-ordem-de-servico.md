@@ -2519,7 +2519,7 @@ git commit -m "feat: tela da ordem de servico com entrada assistida, acrescimos,
 **Interfaces:**
 - Produces: `obterImpresso(empresaId, ordemId): { empresa: DadosEmpresaImpresso; ordem: OrdemImpressa } | null`; rota `/ordens/[id]/impresso` (uma via; `?vias=2` = via do cliente + via da loja)
 
-- [ ] **Step 1: Leitura para o impresso**
+- [x] **Step 1: Leitura para o impresso**
 
 `src/infra/ordens/impresso.ts` — nada é recalculado: lê `preco_calculado`/`preco_final` persistidos.
 ```ts
@@ -2585,7 +2585,7 @@ export async function obterImpresso(empresaId: string, ordemId: string): Promise
 }
 ```
 
-- [ ] **Step 2: Route group `(impresso)` sem sidebar, CSS A4 e a página**
+- [x] **Step 2: Route group `(impresso)` sem sidebar, CSS A4 e a página**
 
 `src/app/(impresso)/layout.tsx`:
 ```tsx
@@ -2774,7 +2774,7 @@ function Via({ rotulo, empresa, ordem }: { rotulo: string; empresa: DadosEmpresa
 }
 ```
 
-- [ ] **Step 3: Verificação e commit**
+- [x] **Step 3: Verificação e commit**
 
 Run: `npm run typecheck` → sem erros. Run: `npm run build` → rota `ƒ /ordens/[id]/impresso`.
 
@@ -2782,6 +2782,8 @@ Run: `npm run typecheck` → sem erros. Run: `npm run build` → rota `ƒ /orden
 git add src/infra/ordens/impresso.ts "src/app/(impresso)/"
 git commit -m "feat: impresso da ordem em A4 com uma ou duas vias"
 ```
+
+**Execução (2026-08-29):** `npm run typecheck` sem erros (`server-only` já estava instalado). `npm run build`: `ƒ /ordens/[id]/impresso` na lista de rotas.
 
 ---
 
