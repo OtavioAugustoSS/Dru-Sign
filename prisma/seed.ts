@@ -35,6 +35,14 @@ async function main(): Promise<void> {
   })
   console.log(`empresa "${empresa.razaoSocial}" pronta`)
 
+  // A numeracao continua de onde o legado parou: a proxima OS e a 18461.
+  await prisma.contadorEmpresa.upsert({
+    where: { empresaId: empresa.id },
+    update: {},
+    create: { empresaId: empresa.id, proximaOs: 18461 },
+  })
+  console.log('contador de OS pronto (proxima: 18461)')
+
   await garantirUsuario(empresa.id, loginAdmin, 'Administrador', 'administracao', senhaAdmin)
 
   // Usuario de operacao (producao), opcional: existe para testar que ele NAO entra na administracao.

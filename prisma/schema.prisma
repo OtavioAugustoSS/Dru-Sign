@@ -30,6 +30,8 @@ model Empresa {
   usuarios  Usuario[]
   clientes  Cliente[]
   materiais Material[]
+  ordens    OrdemServico[]
+  contador  ContadorEmpresa?
 
   @@map("empresa")
 }
@@ -46,7 +48,9 @@ model Usuario {
   criadoEm     DateTime @default(now()) @map("criado_em") @db.Timestamptz(3)
   atualizadoEm DateTime @updatedAt @map("atualizado_em") @db.Timestamptz(3)
 
-  sessoes Sessao[]
+  sessoes           Sessao[]
+  ordensResponsavel OrdemServico[] @relation("ordem_responsavel")
+  ordensAjustadas   OrdemServico[] @relation("ordem_ajustada_por")
 
   @@index([empresaId])
   @@map("usuario")
@@ -98,6 +102,7 @@ model Cliente {
   arquivadoEm  DateTime? @map("arquivado_em") @db.Timestamptz(3)
 
   telefones TelefoneCliente[]
+  ordens    OrdemServico[]
 
   @@index([empresaId, nome])
   @@index([empresaId, apelido])
@@ -139,6 +144,155 @@ model Material {
   criadoEm        DateTime        @default(now()) @map("criado_em") @db.Timestamptz(3)
   atualizadoEm    DateTime        @updatedAt @map("atualizado_em") @db.Timestamptz(3)
 
+  itens ItemOrdem[]
+
   @@unique([empresaId, nome])
   @@map("material")
+}
+
+/// Eixo de producao (spec, secao 6). Pagamento e derivado, nao mora aqui.
+enum EstadoProducao {
+  orcamento
+  aberta
+  concluida
+  cancelada
+
+  @@map("estado_producao")
+}
+
+/// Calculado sobre o total, nao cadastrado como material (spec, secao 4).
+enum TipoAcrescimo {
+  instalacao
+  deslocamento
+  frete
+  imposto
+
+  @@map("tipo_acrescimo")
+}
+
+/// Numeracao por empresa, sem buraco: `update { increment }` dentro da transacao que cria a OS.
+/// Nao e sequence: o TRUNCATE dos testes e o rollback nao mexem aqui. A DruSign continua em 18461 (seed).
+model ContadorEmpresa {
+  empresaId String  @id @map("empresa_id") @db.Uuid
+  empresa   Empresa @relation(fields: [empresaId], references: [id])
+  proximaOs Int     @map("proxima_os")
+
+  @@map("contador_empresa")
+}
+
+/// Orcamento e estado, nao modulo. Cancelada preserva tudo.
+model OrdemServico {
+  id             String         @id @default(uuid(7)) @db.Uuid
+  empresaId      String         @map("empresa_id") @db.Uuid
+  empresa        Empresa        @relation(fields: [empresaId], references: [id])
+  numero         Int
+  estadoProducao EstadoProducao @map("estado_producao")
+
+  clienteId       String?  @map("cliente_id") @db.Uuid
+  cliente         Cliente? @relation(fields: [clienteId], references: [id])
+  /// Snapshot na criacao/troca de cliente: impresso e historico nao mudam quando o cadastro muda.
+  clienteNome     String?  @map("cliente_nome") @db.VarChar(120)
+  clienteApelido  String?  @map("cliente_apelido") @db.VarChar(60)
+  clienteTelefone String?  @map("cliente_telefone") @db.VarChar(20)
+
+  responsavelId String  @map("responsavel_id") @db.Uuid
+  responsavel   Usuario @relation("ordem_responsavel", fields: [responsavelId], references: [id])
+  observacoes   String?
+
+  /// Derivados, mas persistidos: preco congelado no historico (spec, secao 5).
+  subtotalItens      Decimal @default(0) @map("subtotal_itens") @db.Decimal(12, 4)
+  subtotalAcrescimos Decimal @default(0) @map("subtotal_acrescimos") @db.Decimal(12, 4)
+  precoCalculado     Decimal @default(0) @map("preco_calculado") @db.Decimal(12, 4)
+  precoFinal         Decimal @default(0) @map("preco_final") @db.Decimal(12, 4)
+
+  /// Ajuste manual: os quatro andam juntos. Com ajustadoPorId, precoFinal nao e sobrescrito;
+  /// o aviso de divergencia e precoCalculado != precoCalculadoNoAjuste.
+  motivoAjuste           String?   @map("motivo_ajuste") @db.VarChar(160)
+  ajustadoPorId          String?   @map("ajustado_por_id") @db.Uuid
+  ajustadoPor            Usuario?  @relation("ordem_ajustada_por", fields: [ajustadoPorId], references: [id])
+  ajustadoEm             DateTime? @map("ajustado_em") @db.Timestamptz(3)
+  precoCalculadoNoAjuste Decimal?  @map("preco_calculado_no_ajuste") @db.Decimal(12, 4)
+
+  /// Aprovar orcamento trava o preco: guarda o que foi aprovado, sem virar ajuste.
+  aprovadoEm    DateTime? @map("aprovado_em") @db.Timestamptz(3)
+  precoAprovado Decimal?  @map("preco_aprovado") @db.Decimal(12, 4)
+
+  abertaEm           DateTime  @default(now()) @map("aberta_em") @db.Timestamptz(3)
+  prometidaPara      DateTime? @map("prometida_para") @db.Date
+  concluidaEm        DateTime? @map("concluida_em") @db.Timestamptz(3)
+  canceladaEm        DateTime? @map("cancelada_em") @db.Timestamptz(3)
+  motivoCancelamento String?   @map("motivo_cancelamento") @db.VarChar(160)
+
+  /// Trava otimista (spec, secao 9): toda gravacao vai com a versao lida.
+  versao       Int      @default(1)
+  criadoEm     DateTime @default(now()) @map("criado_em") @db.Timestamptz(3)
+  atualizadoEm DateTime @updatedAt @map("atualizado_em") @db.Timestamptz(3)
+
+  itens      ItemOrdem[]
+  acrescimos AcrescimoOrdem[]
+
+  @@unique([empresaId, numero])
+  @@index([empresaId, estadoProducao, abertaEm])
+  @@index([empresaId, clienteId])
+  @@map("ordem_servico")
+}
+
+/// Uma ordem mistura as tres formas de cobranca. altura/largura em metros, so descricao quando por unidade.
+model ItemOrdem {
+  id              String          @id @default(uuid(7)) @db.Uuid
+  empresaId       String          @map("empresa_id") @db.Uuid
+  ordemId         String          @map("ordem_id") @db.Uuid
+  ordem           OrdemServico    @relation(fields: [ordemId], references: [id])
+  descricao       String          @db.VarChar(160)
+  materialId      String?         @map("material_id") @db.Uuid
+  material        Material?       @relation(fields: [materialId], references: [id])
+  quantidade      Int
+  altura          Decimal?        @db.Decimal(8, 4)
+  largura         Decimal?        @db.Decimal(8, 4)
+  unidadeCobranca UnidadeCobranca @map("unidade_cobranca")
+  valorUnitario   Decimal         @map("valor_unitario") @db.Decimal(12, 4)
+  /// Resultado de calcularItem, gravado na mesma transacao: preco congelado.
+  total           Decimal         @db.Decimal(12, 4)
+  ordemExibicao   Int             @map("ordem_exibicao")
+  /// Removido em edicao fica marcado, nunca apagado.
+  removidoEm      DateTime?       @map("removido_em") @db.Timestamptz(3)
+  removidoPorId   String?         @map("removido_por_id") @db.Uuid
+  criadoEm        DateTime        @default(now()) @map("criado_em") @db.Timestamptz(3)
+
+  @@index([ordemId, ordemExibicao])
+  @@index([empresaId, materialId])
+  @@map("item_ordem")
+}
+
+model AcrescimoOrdem {
+  id            String        @id @default(uuid(7)) @db.Uuid
+  empresaId     String        @map("empresa_id") @db.Uuid
+  ordemId       String        @map("ordem_id") @db.Uuid
+  ordem         OrdemServico  @relation(fields: [ordemId], references: [id])
+  tipo          TipoAcrescimo
+  /// "Deslocamento · 34 km": o detalhe fica aqui, o valor e digitado.
+  descricao     String        @db.VarChar(120)
+  valor         Decimal       @db.Decimal(12, 4)
+  removidoEm    DateTime?     @map("removido_em") @db.Timestamptz(3)
+  removidoPorId String?       @map("removido_por_id") @db.Uuid
+  criadoEm      DateTime      @default(now()) @map("criado_em") @db.Timestamptz(3)
+
+  @@index([ordemId])
+  @@map("acrescimo_ordem")
+}
+
+/// Chave de idempotencia (spec, secao 9): o retry depois de um commit sem resposta recebe o
+/// mesmo resultado e nao duplica. A chave nasce no cliente (crypto.randomUUID()), uma por tentativa.
+model Mutacao {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  empresaId String   @map("empresa_id") @db.Uuid
+  chave     String   @db.VarChar(64)
+  acao      String   @db.VarChar(60)
+  usuarioId String   @map("usuario_id") @db.Uuid
+  /// O que a action devolveu na primeira execucao (JSON puro). null enquanto executa.
+  resposta  Json?
+  criadaEm  DateTime @default(now()) @map("criada_em") @db.Timestamptz(3)
+
+  @@unique([empresaId, chave])
+  @@map("mutacao")
 }

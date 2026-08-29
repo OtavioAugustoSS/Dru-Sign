@@ -727,7 +727,7 @@ git commit -m "feat: resolucao da linha digitada, permissoes por estado e format
 - Modify: `prisma/schema.prisma`, `prisma/seed.ts`
 - Create: `prisma/migrations/<carimbo>_ordens/` (gerada por `db:migrar`)
 
-- [ ] **Step 1: Acrescentar ao `prisma/schema.prisma`**
+- [x] **Step 1: Acrescentar ao `prisma/schema.prisma`**
 
 Relações inversas: em `Empresa` acrescentar `ordens OrdemServico[]` e `contador ContadorEmpresa?`; em `Usuario` acrescentar `ordensResponsavel OrdemServico[] @relation("ordem_responsavel")` e `ordensAjustadas OrdemServico[] @relation("ordem_ajustada_por")`; em `Cliente` acrescentar `ordens OrdemServico[]`; em `Material` acrescentar `itens ItemOrdem[]`.
 
@@ -881,12 +881,12 @@ model Mutacao {
 }
 ```
 
-- [ ] **Step 2: Migrar e gerar**
+- [x] **Step 2: Migrar e gerar**
 
 Nenhum `next dev` aberto. Run: `npm run db:migrar -- ordens`
 Expected: `migracao escrita em prisma/migrations/<carimbo>_ordens`, aplicada no banco `drusign`, client regenerado. Conferir no SQL: `CREATE TYPE "estado_producao"`, `CREATE TYPE "tipo_acrescimo"`, tabelas `contador_empresa`, `ordem_servico`, `item_ordem`, `acrescimo_ordem`, `mutacao`, `"altura" DECIMAL(8,4)`, índice único `ordem_servico_empresa_id_numero_key` e `mutacao_empresa_id_chave_key`.
 
-- [ ] **Step 3: Seed do contador**
+- [x] **Step 3: Seed do contador**
 
 Em `prisma/seed.ts`, depois do upsert da empresa:
 ```ts
@@ -901,7 +901,7 @@ Em `prisma/seed.ts`, depois do upsert da empresa:
 
 Run: `npm run db:seed` → mostra `contador de OS pronto (proxima: 18461)`.
 
-- [ ] **Step 4: Verificação e commit**
+- [x] **Step 4: Verificação e commit**
 
 Run: `npm run typecheck` → sem erros. Run: `npm run test:int` → PASS — 21 passed (o banco de teste recebe a migração no `globalSetup`).
 
