@@ -307,11 +307,34 @@ sozinho. Marcar `[x]` só depois do commit.
 
 Ordem por tráfego e por gravidade do que foi encontrado.
 
-- [ ] **T1. `/producao` — Fila de produção.** A pior da vistoria: 13.045px, ~100
-  cartões idênticos, o botão verde maior que o número da OS. Inverter a hierarquia
-  (número e prazo primeiro, ação depois), tirar a data repetida em dois formatos,
-  paginar ou limitar por grupo, e fazer o item lançado aparecer — é o que a bancada
-  precisa ler. O verde deixa de ser o padrão e passa a marcar só o que é urgente.
+- [x] **T1. `/producao` — Fila de produção.** ✅ Feito. Era a pior tela da vistoria.
+
+  **A altura caiu de 13.045px para 1.383px.** Cada grupo virou uma seção que abre
+  e fecha: os com prazo nascem abertos, e "Sem data combinada" (87 ordens) nasce
+  fechado, com a contagem à vista. Aquilo não é fila: é pendência de combinar
+  prazo, e ocupava 90% da tela.
+
+  Na hierarquia do cartão: o **item lançado virou o maior bloco** — é o que a
+  bancada precisa ler para trabalhar, e estava em letra miúda com marcador,
+  **depois** do nome do cliente. A data aparece uma vez, não duas ("Entrega 4 de
+  setembro" + "04/09/2026" era a mesma informação repetida). Três cartões por
+  linha em tela larga, contra dois.
+
+  **Defeito grave encontrado ao medir, que não estava na vistoria:** o botão verde
+  "Serviço finalizado" — o que a produção aperta o dia inteiro, de pé e às vezes
+  contra a luz da bancada — estava em **2,63:1**, muito abaixo dos 4,5:1 que texto
+  de botão exige. O verde do Tabler (#2FB344) com texto branco simplesmente não
+  dá. Trocado por #1A7F37: **4,86:1**, medido. De quebra resolve metade da queixa
+  de "cem botões verdes": um verde escuro lê como ação, o neon lía como alarme.
+
+  O `style={{ minHeight: 56 }}` do botão virou a classe `.botao-producao` — um dos
+  quatro estilos inline que a vistoria apontou.
+
+  **Ressalva honesta:** nas capturas o verde ainda pesa bastante no cartão, porque
+  **todas as ordens de teste estão sem item lançado** e o corpo do cartão fica
+  quase vazio. Com item de verdade, o bloco de trabalho ocupa o espaço e o botão
+  passa a ser o rodapé que ele é. Vale reconferir com dados reais.
+
 - [ ] **T2. `/ordens[/…]` — lista.** Paginação de verdade. Resolver o confete de
   dois selos pastel por linha. Linha inteira clicável.
 - [ ] **T3. `/ordens/[id]` — a mais densa.** Subir o preço final para a primeira

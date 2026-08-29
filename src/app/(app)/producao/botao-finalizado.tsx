@@ -15,7 +15,7 @@ export function BotaoFinalizado({ ordemId, versao }: { ordemId: string; versao: 
 
   return (
     <>
-      <button type="button" className="btn btn-success w-100 py-3 fs-3" style={{ minHeight: 56 }} disabled={pendente}
+      <button type="button" className="btn btn-success w-100 py-3 fs-3 botao-producao" disabled={pendente}
         onClick={() => {
           if (pendente) return
           iniciar(async () => {

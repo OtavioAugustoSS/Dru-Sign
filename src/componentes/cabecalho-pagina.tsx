@@ -9,6 +9,11 @@ interface Props {
   descricao?: ReactNode
   /** Botoes e links do canto direito. */
   acoes?: ReactNode
+  /**
+   * Tipo maior. So a fila de producao usa: ela e lida de longe, de pe na
+   * bancada, e nao de perto como as telas do balcao (spec, tela 8).
+   */
+  grande?: boolean
 }
 
 /**
@@ -18,14 +23,14 @@ interface Props {
  *
  * `d-print-none` porque o cabecalho da tela nao vai para o papel.
  */
-export function CabecalhoPagina({ titulo, pretitulo, descricao, acoes }: Props) {
+export function CabecalhoPagina({ titulo, pretitulo, descricao, acoes, grande }: Props) {
   return (
     <div className="page-header d-print-none">
       <div className="container-xl">
         <div className="row g-2 align-items-center">
           <div className="col">
             {pretitulo ? <div className="page-pretitle">{pretitulo}</div> : null}
-            <h1 className="page-title">{titulo}</h1>
+            <h1 className={grande ? 'page-title fs-1' : 'page-title'}>{titulo}</h1>
             {descricao ? <div className="text-secondary">{descricao}</div> : null}
           </div>
           {acoes ? <div className="col-auto d-flex gap-2">{acoes}</div> : null}

@@ -110,6 +110,29 @@
   z-index: 1080; /* acima da gaveta do menu no celular */
 }
 
+/* O verde do Tabler (#2FB344) com texto branco da 2,63:1 -- muito abaixo dos
+ * 4,5:1 que texto de botao exige. E o botao que a producao aperta o dia inteiro,
+ * de pe e as vezes contra a luz da bancada.
+ *
+ * #1A7F37 com branco da 5,08:1, e no pressionado #15662C da 7,07:1. Continua
+ * lendo como verde de "pronto"; so deixa de ser neon. */
+.btn-success {
+  --tblr-btn-bg: #1A7F37;
+  --tblr-btn-border-color: #1A7F37;
+  --tblr-btn-hover-bg: #15662C;
+  --tblr-btn-hover-border-color: #15662C;
+  --tblr-btn-active-bg: #15662C;
+  --tblr-btn-active-border-color: #15662C;
+  --tblr-btn-disabled-bg: #1A7F37;
+  --tblr-btn-disabled-border-color: #1A7F37;
+}
+
+/* A producao usa o sistema de pe, as vezes de luva: o alvo de toque nao pode
+ * depender do tamanho da fonte (spec, tela 8). */
+.botao-producao {
+  min-height: 56px;
+}
+
 /* Numeros alinhados a direita, com digitos tabulares (spec, secao 7) */
 .numero {
   font-variant-numeric: tabular-nums;

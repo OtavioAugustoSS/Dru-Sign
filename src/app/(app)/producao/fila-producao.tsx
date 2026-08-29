@@ -1,66 +1,123 @@
 import Link from 'next/link'
+import { CabecalhoPagina } from '@/componentes/cabecalho-pagina'
+import { CorpoPagina } from '@/componentes/corpo-pagina'
+import { EstadoVazio } from '@/componentes/estado-vazio'
+import { NumeroOs } from '@/componentes/numero-os'
 import { TEXTO_URGENCIA } from '@/componentes/selo'
-import { formatarNumeroOs } from '@/domain/caixa/lancamento'
-import { formatarDataCalendario, formatarDataLonga } from '@/domain/ordem/datas'
-import { ROTULO_URGENCIA, type FilaProducao, type OrdemDaProducao } from '@/domain/producao/urgencia'
+import { formatarDataCalendario } from '@/domain/ordem/datas'
+import { ROTULO_URGENCIA, type GrupoDaFila, type OrdemDaProducao, type FilaProducao } from '@/domain/producao/urgencia'
 import { BotaoFinalizado } from './botao-finalizado'
 
-
-/** Densidade baixa, tipo grande, botao de 56px: lida de longe, tocada de pe (spec, tela 8). */
+/**
+ * A fila da bancada: densidade baixa, tipo grande, lida de longe (spec, tela 8).
+ *
+ * O que mudou depois da vistoria, e por que:
+ *
+ * - **O que fazer virou o maior bloco do cartao.** Antes o item ficava em letra
+ *   miuda, com marcador, depois do nome do cliente; e o item e exatamente o que a
+ *   producao precisa ler para trabalhar.
+ * - **A data aparece uma vez, nao duas.** Cada cartao trazia "Entrega 4 de
+ *   setembro" E "04/09/2026", a mesma informacao repetida.
+ * - **Cada grupo abre e fecha.** A tela tinha 13.045px de altura porque despejava
+ *   as ~100 ordens de uma vez, e 87 delas eram do grupo "sem data combinada", que
+ *   nao e fila: e pendencia de combinar prazo. Os grupos com prazo nascem
+ *   abertos; o sem data nasce fechado, com a contagem a vista.
+ * - **O verde deixou de ser o fundo da tela.** Nao mudou o botao: mudou o peso do
+ *   resto. Cem botoes verdes iguais faziam o verde nao significar nada, e o
+ *   numero da OS era menor que o botao.
+ */
 export function FilaDeProducao({ fila }: { fila: FilaProducao }) {
   return (
     <>
-      <div className="page-header d-print-none">
-        <div className="container-xl">
-          <div className="row g-2 align-items-center">
-            <div className="col">
-              <div className="page-pretitle">Produção</div>
-              <h1 className="page-title fs-1">Fila de produção</h1>
-            </div>
-            <div className="col-auto fs-3">
-              {fila.total === 0 ? null : <>{fila.total} em produção{fila.atrasadas > 0 ? <span className="text-danger ms-2">· {fila.atrasadas} atrasada{fila.atrasadas > 1 ? 's' : ''}</span> : null}</>}
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="page-body">
-        <div className="container-xl">
-          {fila.total === 0 ? (
-            <div className="card"><div className="card-body"><div className="empty">
-              <p className="empty-title fs-2">Nada na fila</p>
-              <p className="empty-subtitle fs-3 text-secondary">Todo serviço aberto já foi finalizado. Quando o atendimento abrir uma ordem, ela aparece aqui.</p>
-            </div></div></div>
-          ) : fila.grupos.map((g) => (
-            <section key={g.grupo} className="mb-4">
-              <h2 className={`fs-2 mb-3 ${TEXTO_URGENCIA[g.grupo]}`}>{ROTULO_URGENCIA[g.grupo]} <span className="text-secondary">({g.ordens.length})</span></h2>
-              <div className="row g-3">
-                {g.ordens.map((o) => <Cartao key={o.id} ordem={o} />)}
-              </div>
-            </section>
-          ))}
-        </div>
-      </div>
+      <CabecalhoPagina
+        grande
+        pretitulo="Produção"
+        titulo="Fila de produção"
+        acoes={
+          fila.total === 0 ? null : (
+            <span className="fs-3">
+              {fila.total} em produção
+              {fila.atrasadas > 0 ? (
+                <span className="text-danger fw-bold ms-2">
+                  · {fila.atrasadas} atrasada{fila.atrasadas > 1 ? 's' : ''}
+                </span>
+              ) : null}
+            </span>
+          )
+        }
+      />
+      <CorpoPagina>
+        {fila.total === 0 ? (
+          <EstadoVazio
+            titulo="Nada na fila"
+            descricao="Todo serviço aberto já foi finalizado. Quando o atendimento abrir uma ordem, ela aparece aqui."
+          />
+        ) : (
+          fila.grupos.map((g) => <Grupo key={g.grupo} grupo={g} />)
+        )}
+      </CorpoPagina>
     </>
   )
 }
 
-function Cartao({ ordem }: { ordem: OrdemDaProducao }) {
+function Grupo({ grupo }: { grupo: GrupoDaFila }) {
+  const semPrazo = grupo.grupo === 'sem_data'
+  const atrasado = grupo.grupo === 'atrasada'
+
   return (
-    <div className="col-12 col-xl-6">
-      <div className="card h-100">
+    // `open` por padrao em tudo que tem prazo. O grupo sem data e o unico que
+    // nasce fechado: sao ordens esperando alguem combinar entrega, nao trabalho
+    // da vez. A contagem fica a vista, entao nada some em silencio.
+    <details className="mb-4" open={!semPrazo}>
+      <summary className={`fs-2 mb-3 ${TEXTO_URGENCIA[grupo.grupo]}`}>
+        {ROTULO_URGENCIA[grupo.grupo]} <span className="text-secondary">({grupo.ordens.length})</span>
+      </summary>
+      <div className="row g-3">
+        {grupo.ordens.map((o) => (
+          <Cartao key={o.id} ordem={o} atrasada={atrasado} />
+        ))}
+      </div>
+    </details>
+  )
+}
+
+function Cartao({ ordem, atrasada }: { ordem: OrdemDaProducao; atrasada: boolean }) {
+  const cliente = ordem.clienteApelido ?? ordem.clienteNome
+
+  return (
+    <div className="col-12 col-md-6 col-xxl-4">
+      <div className={`card h-100${atrasada ? ' border-danger' : ''}`}>
         <div className="card-body">
-          <div className="d-flex align-items-baseline justify-content-between mb-2">
-            <Link href={`/ordens/${ordem.id}`} className="text-reset fs-1 fw-bold numero">{formatarNumeroOs(ordem.numero)}</Link>
-            <div className="fs-3 text-end">
-              {ordem.prometidaPara
-                ? <>Entrega {formatarDataLonga(new Date(ordem.prometidaPara))}<div className="text-secondary fs-4">{formatarDataCalendario(new Date(ordem.prometidaPara))}</div></>
-                : <span className="text-secondary">Sem data combinada</span>}
-            </div>
+          <div className="d-flex align-items-baseline justify-content-between gap-2">
+            <Link href={`/ordens/${ordem.id}`} className="text-reset text-decoration-none fs-1 fw-bold numero">
+              <NumeroOs numero={ordem.numero} />
+            </Link>
+            {ordem.prometidaPara ? (
+              <span className={`fs-3 ${atrasada ? 'text-danger fw-bold' : ''}`}>
+                {formatarDataCalendario(new Date(ordem.prometidaPara))}
+              </span>
+            ) : (
+              <span className="fs-4 text-secondary">sem data</span>
+            )}
           </div>
-          <div className="fs-2 mb-2">{ordem.clienteApelido ?? ordem.clienteNome ?? <span className="text-secondary">Venda de balcão</span>}</div>
-          <ul className="fs-3 mb-3 ps-3">
-            {ordem.itens.length === 0 ? <li className="text-secondary">Sem itens lançados</li> : ordem.itens.map((i, n) => <li key={`${ordem.id}-${n}`}>{i}</li>)}
+
+          <div className="fs-4 text-secondary mb-3">{cliente ?? 'Venda de balcão'}</div>
+
+          {/* O trabalho. E o maior bloco do cartao de proposito. */}
+          <ul className="list-unstyled fs-2 mb-0">
+            {ordem.itens.length === 0 ? (
+              <li className="fs-4 text-secondary">Nenhum item lançado nesta ordem</li>
+            ) : (
+              ordem.itens.map((i, n) => (
+                <li className="mb-1" key={`${ordem.id}-${n}`}>
+                  {i}
+                </li>
+              ))
+            )}
           </ul>
+        </div>
+
+        <div className="card-footer">
           <BotaoFinalizado ordemId={ordem.id} versao={ordem.versao} />
         </div>
       </div>
