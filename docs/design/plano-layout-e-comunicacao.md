@@ -391,8 +391,26 @@ Ordem por tráfego e por gravidade do que foi encontrado.
   - O `style={{ zIndex: 10 }}` da lista virou classe — mais um dos quatro estilos
     inline que a vistoria apontou (restam dois, ambos `whiteSpace: pre-line`).
 
-- [ ] **T4. `/` — Fila de trabalho.** Os dois cartões de altura desigual, o campo de
-  busca superdimensionado, e "Venda de balcão" repetido 14 vezes em coluna.
+- [x] **T4. `/` — Fila de trabalho.** ✅ Feito.
+
+  - **Os dois cartões deixaram de ficar lado a lado.** Um vazio e curto, o outro
+    com catorze linhas: sobrava meia tela em branco à esquerda. Empilhados, cada
+    um tem a altura que precisa (251px e 722px) e as tabelas ganharam a largura
+    inteira — **"Venda de balcão" parou de quebrar em duas linhas**, que era o que
+    inchava as catorze linhas.
+  - **A busca cabia a tela toda**: 1170px de campo para digitar seis dígitos. Agora
+    561px. Continua sendo a ação principal, só que com tamanho de campo.
+  - Estado vazio passou a usar o mesmo tratamento do resto do sistema.
+
+  **Duas coisas que a conversão obrigou a arrumar nos componentes:**
+  - `CartaoTabela` ganhou `vazio`: um cartão com cabeçalho próprio não pode
+    embrulhar outro cartão só para dizer que está vazio. `EstadoVazio` foi
+    dividido em `BlocoVazio` (o miolo) e o embrulho.
+  - `CartaoTabela` ainda gerava `h3` no título do cartão. A C3 trocou os arquivos
+    de tela e **esqueceu o componente**; só não apareceu na verificação porque
+    nenhuma tela convertida até então passava `titulo`. Corrigido para `h2`.
+    Conferido nesta tela: H1 H2 H2, sem salto.
+
 - [ ] **T5. `/historico`.** 18.854px sem paginação, na tela cujo propósito é buscar.
 - [ ] **T6. `/clientes` + `/clientes/[id]` + `/clientes/novo` + editar.** Paginar
   (hoje diz "Mostrando os primeiros 50" sem controle nenhum). Unificar

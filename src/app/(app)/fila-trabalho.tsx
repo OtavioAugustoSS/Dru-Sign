@@ -1,84 +1,142 @@
 import Link from 'next/link'
-import { SeloApelido } from '@/componentes/selo'
 import { IconSearch } from '@tabler/icons-react'
-import { formatarMoeda } from '@/domain/precificacao/moeda'
-import { dinheiro } from '@/domain/precificacao/dinheiro'
-import { formatarNumeroOs } from '@/domain/caixa/lancamento'
+import { CabecalhoPagina } from '@/componentes/cabecalho-pagina'
+import { CorpoPagina } from '@/componentes/corpo-pagina'
+import { CartaoTabela } from '@/componentes/cartao-tabela'
+import { BlocoVazio } from '@/componentes/estado-vazio'
+import { Dinheiro } from '@/componentes/dinheiro'
+import { NumeroOs } from '@/componentes/numero-os'
+import { Selo, SeloApelido } from '@/componentes/selo'
 import { formatarDataCalendario, formatarDataHora } from '@/domain/ordem/datas'
 import type { Fila, OrdemDaFila } from '@/domain/caixa/fila'
 
 function Cliente({ o }: { o: OrdemDaFila }) {
-  return <>{o.clienteNome ?? <span className="text-secondary">Venda de balcão</span>}<SeloApelido apelido={o.clienteApelido} /></>
+  return (
+    <>
+      {o.clienteNome ?? <span className="text-secondary">Venda de balcão</span>}
+      <SeloApelido apelido={o.clienteApelido} />
+    </>
+  )
 }
 
-/** A tela 1 da spec, movida da rota para ca quando `/` passou a decidir por papel. */
+/**
+ * A tela 1 da spec, movida da rota para ca quando `/` passou a decidir por papel.
+ *
+ * O que a vistoria pegou e o que mudou:
+ *
+ * - **Os dois cartoes ficavam lado a lado e desalinhados.** Um vazio e curto, o
+ *   outro com catorze linhas: sobrava meia tela em branco a esquerda. Empilhados,
+ *   cada um tem a altura que precisa, e as tabelas ganham a largura inteira -- o
+ *   nome do cliente parou de quebrar em duas linhas.
+ * - **A busca ocupava a largura toda**, 1170px de campo para digitar seis digitos.
+ *   Continua sendo a acao principal da tela, so que com tamanho de campo.
+ */
 export function FilaDeTrabalho({ fila }: { fila: Fila }) {
   return (
     <>
-      <div className="page-header d-print-none">
-        <div className="container-xl">
-          <div className="row g-2 align-items-center">
-            <div className="col">
-              <div className="page-pretitle">Atendimento</div>
-              <h1 className="page-title">Fila de trabalho</h1>
-            </div>
-            <div className="col-auto"><Link href="/ordens/nova" className="btn btn-primary">Nova ordem</Link></div>
-          </div>
-        </div>
-      </div>
-      <div className="page-body">
-        <div className="container-xl">
-          <form method="get" action="/ordens" className="mb-3" role="search">
+      <CabecalhoPagina
+        pretitulo="Atendimento"
+        titulo="Fila de trabalho"
+        acoes={
+          <Link href="/ordens/nova" className="btn btn-primary">
+            Nova ordem
+          </Link>
+        }
+      />
+      <CorpoPagina>
+        <form method="get" action="/ordens" className="row mb-3" role="search">
+          <div className="col-12 col-lg-6">
             <div className="input-icon">
-              <span className="input-icon-addon"><IconSearch className="icon" /></span>
-              <input type="search" name="q" className="form-control form-control-lg" placeholder="Número da OS, cliente ou apelido" aria-label="Buscar ordem" autoFocus />
-            </div>
-          </form>
-
-          <div className="row g-3">
-            <div className="col-lg-6">
-              <div className="card">
-                <div className="card-header"><h2 className="card-title">Abertas há mais de uma semana</h2><span className="badge bg-secondary-lt ms-auto">{fila.paradas.length}</span></div>
-                {fila.paradas.length === 0 ? (
-                  <div className="card-body text-secondary">Nenhuma ordem parada. É assim que deve ficar.</div>
-                ) : (
-                  <div className="table-responsive"><table className="table table-vcenter card-table" aria-label="Ordens paradas">
-                    <thead><tr><th>Nº</th><th>Cliente</th><th>Aberta em</th><th>Entrega</th></tr></thead>
-                    <tbody>{fila.paradas.map((o) => (
-                      <tr key={o.id}>
-                        <td><Link href={`/ordens/${o.id}`} className="text-reset fw-medium">{formatarNumeroOs(o.numero)}</Link></td>
-                        <td><Cliente o={o} /></td>
-                        <td className="text-secondary">{formatarDataHora(new Date(o.abertaEm))}</td>
-                        <td className="text-secondary">{o.prometidaPara ? formatarDataCalendario(new Date(o.prometidaPara)) : '—'}</td>
-                      </tr>
-                    ))}</tbody>
-                  </table></div>
-                )}
-              </div>
-            </div>
-            <div className="col-lg-6">
-              <div className="card">
-                <div className="card-header"><h2 className="card-title">Concluídas e não pagas</h2><span className="ms-auto fw-bold numero" data-testid="total-a-cobrar">{formatarMoeda(dinheiro(fila.totalACobrar))}</span></div>
-                {fila.aCobrar.length === 0 ? (
-                  <div className="card-body text-secondary">Nada a cobrar. Todo serviço finalizado já foi recebido.</div>
-                ) : (
-                  <div className="table-responsive"><table className="table table-vcenter card-table" aria-label="Ordens a cobrar">
-                    <thead><tr><th>Nº</th><th>Cliente</th><th>Finalizada em</th><th className="text-end">Falta</th></tr></thead>
-                    <tbody>{fila.aCobrar.map((o) => (
-                      <tr key={o.id}>
-                        <td><Link href={`/ordens/${o.id}`} className="text-reset fw-medium">{formatarNumeroOs(o.numero)}</Link></td>
-                        <td><Cliente o={o} /></td>
-                        <td className="text-secondary">{o.concluidaEm ? formatarDataHora(new Date(o.concluidaEm)) : '—'}</td>
-                        <td className="numero">{formatarMoeda(dinheiro(o.saldo))}</td>
-                      </tr>
-                    ))}</tbody>
-                  </table></div>
-                )}
-              </div>
+              <span className="input-icon-addon">
+                <IconSearch className="icon" />
+              </span>
+              <input
+                type="search"
+                name="q"
+                className="form-control form-control-lg"
+                placeholder="Número da OS, cliente ou apelido"
+                aria-label="Buscar ordem"
+                autoFocus
+              />
             </div>
           </div>
-        </div>
-      </div>
+        </form>
+
+        <CartaoTabela
+          className="mb-3"
+          rotulo="Ordens paradas"
+          titulo="Abertas há mais de uma semana"
+          aoLado={<Selo tom="neutro">{fila.paradas.length}</Selo>}
+          vazio={
+            fila.paradas.length === 0 ? (
+              <BlocoVazio
+                titulo="Nenhuma ordem parada"
+                descricao="É assim que deve ficar: nada aberto há mais de uma semana."
+              />
+            ) : null
+          }
+          colunas={
+            <>
+              <th>Nº</th>
+              <th>Cliente</th>
+              <th>Aberta em</th>
+              <th>Entrega</th>
+            </>
+          }
+        >
+          {fila.paradas.map((o) => (
+            <tr key={o.id}>
+              <td>
+                <Link href={`/ordens/${o.id}`} className="text-reset fw-medium">
+                  <NumeroOs numero={o.numero} />
+                </Link>
+              </td>
+              <td><Cliente o={o} /></td>
+              <td className="text-secondary">{formatarDataHora(new Date(o.abertaEm))}</td>
+              <td className="text-secondary">{o.prometidaPara ? formatarDataCalendario(new Date(o.prometidaPara)) : '—'}</td>
+            </tr>
+          ))}
+        </CartaoTabela>
+
+        <CartaoTabela
+          rotulo="Ordens a cobrar"
+          titulo="Concluídas e não pagas"
+          aoLado={
+            <span className="fw-bold numero" data-testid="total-a-cobrar">
+              <Dinheiro valor={fila.totalACobrar} />
+            </span>
+          }
+          vazio={
+            fila.aCobrar.length === 0 ? (
+              <BlocoVazio
+                titulo="Nada a cobrar"
+                descricao="Todo serviço finalizado já foi recebido."
+              />
+            ) : null
+          }
+          colunas={
+            <>
+              <th>Nº</th>
+              <th>Cliente</th>
+              <th>Finalizada em</th>
+              <th className="text-end">Falta</th>
+            </>
+          }
+        >
+          {fila.aCobrar.map((o) => (
+            <tr key={o.id}>
+              <td>
+                <Link href={`/ordens/${o.id}`} className="text-reset fw-medium">
+                  <NumeroOs numero={o.numero} />
+                </Link>
+              </td>
+              <td><Cliente o={o} /></td>
+              <td className="text-secondary">{o.concluidaEm ? formatarDataHora(new Date(o.concluidaEm)) : '—'}</td>
+              <td className="numero"><Dinheiro valor={o.saldo} /></td>
+            </tr>
+          ))}
+        </CartaoTabela>
+      </CorpoPagina>
     </>
   )
 }
