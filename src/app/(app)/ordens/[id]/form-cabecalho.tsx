@@ -50,7 +50,7 @@ export function FormCabecalho(p: Props) {
         ? { observacoes }
         : { clienteId, prometidaPara: prometida || null, responsavelId, observacoes })
       setResposta(r)
-      if (r.ok) chave.current = gerarChave()
+      if (r.ok) { chave.current = gerarChave(); iniciar(() => router.refresh()) }
       else if (r.conflito) router.refresh()
       else chave.current = gerarChave()
     })

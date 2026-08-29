@@ -21,7 +21,7 @@ export function FormAjuste({ ordemId, versao, precoFinal, motivo }: { ordemId: s
         iniciar(async () => {
           const r = await ajustarPrecoAction(ordemId, versao, chave.current, preco.replace(/\./g, '').replace(',', '.'), texto)
           setResposta(r)
-          if (r.ok) chave.current = gerarChave()
+          if (r.ok) { chave.current = gerarChave(); iniciar(() => router.refresh()) }
           else if (r.conflito) router.refresh()
           else chave.current = gerarChave()
         })

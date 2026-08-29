@@ -12,6 +12,11 @@ export interface Env {
   readonly DATABASE_URL: string
   /** Conexao direta usada so pelo Prisma CLI (migrate). Opcional em runtime. */
   readonly DIRECT_URL: string | undefined
+  /**
+   * Teto do pool de conexoes do adapter pg. Ausente = padrao do pg (10).
+   * Existe por causa do `prisma dev` local (PGlite), que aceita poucas conexoes simultaneas.
+   */
+  readonly DATABASE_POOL_MAX: number | undefined
 }
 
 const AMBIENTES: readonly string[] = ['development', 'production', 'test']
@@ -39,6 +44,13 @@ export function validarEnv(fonte: Record<string, string | undefined> = process.e
     erros.push('DIRECT_URL nao e uma URL postgresql://')
   }
 
+  const poolBruto = fonte.DATABASE_POOL_MAX || undefined
+  let DATABASE_POOL_MAX: number | undefined
+  if (poolBruto !== undefined) {
+    if (!/^[1-9]\d*$/.test(poolBruto)) erros.push(`DATABASE_POOL_MAX invalido: "${poolBruto}" (inteiro maior que zero)`)
+    else DATABASE_POOL_MAX = Number(poolBruto)
+  }
+
   if (erros.length > 0) {
     throw new Error(
       `Configuracao de ambiente invalida:\n  - ${erros.join('\n  - ')}\n` +
@@ -46,7 +58,7 @@ export function validarEnv(fonte: Record<string, string | undefined> = process.e
     )
   }
 
-  return Object.freeze({ NODE_ENV, DATABASE_URL, DIRECT_URL })
+  return Object.freeze({ NODE_ENV, DATABASE_URL, DIRECT_URL, DATABASE_POOL_MAX })
 }
 
 let cache: Env | undefined

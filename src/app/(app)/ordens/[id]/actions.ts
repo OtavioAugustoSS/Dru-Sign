@@ -19,7 +19,9 @@ async function executar(ordemId: string, chave: string, corpo: (ctx: Contexto) =
   if (!chaveValida(chave)) return { ok: false, erro: 'Chave de idempotência inválida.' }
   try {
     const totais = await corpo({ empresaId: usuario.empresaId, usuarioId: usuario.id, chave })
-    // Sem redirect: a resposta desta action ja traz a rota re-renderizada (tabela e painel).
+    // revalidatePath limpa o cache do router (voltar com o botao do navegador ja mostra o estado novo);
+    // quem chamou ainda faz router.refresh() na mesma transition, entao a proxima acao so parte
+    // depois que a versao nova chegou nos props (ressalva do plano).
     revalidatePath(`/ordens/${ordemId}`)
     return { ok: true, totais }
   } catch (e) {

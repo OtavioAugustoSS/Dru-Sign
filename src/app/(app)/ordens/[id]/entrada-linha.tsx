@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useRef, useState, useTransition, type KeyboardEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, useTransition, type KeyboardEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { resolverLinha, descreverLinha, proximaUnidade, type MaterialCatalogo } from '@/domain/precificacao/resolucao'
 import type { UnidadeCobranca } from '@/domain/precificacao/tipos'
@@ -32,6 +32,18 @@ export function EntradaLinha({ ordemId, versao, catalogo }: Props) {
   const [pendente, iniciar] = useTransition()
   const campo = useRef<HTMLInputElement>(null)
   const chave = useRef(gerarChave())
+  /** Texto gravado com sucesso: o campo so limpa quando a transition (action + refresh) termina. */
+  const enviado = useRef<string | null>(null)
+
+  useEffect(() => {
+    if (pendente || enviado.current === null) return
+    const texto = enviado.current
+    enviado.current = null
+    // Se a pessoa ja comecou a digitar a proxima linha durante o "Gravando…", nao apaga o que ela escreveu.
+    setTexto((atual) => (atual === texto ? '' : atual))
+    setUnidadeEscolhida(undefined); setMostrarPendencia(false)
+    campo.current?.focus()
+  }, [pendente])
 
   const resolvido = useMemo(
     () => (texto.trim() === '' ? null : resolverLinha(texto, catalogo, { unidadeEscolhida })),
@@ -48,6 +60,7 @@ export function EntradaLinha({ ordemId, versao, catalogo }: Props) {
     if (!resolvido || pendente) return
     if (resolvido.pendencias.length > 0) { setMostrarPendencia(true); return }
     const base = [ordemId, versao, chave.current] as const
+    const textoEnviado = texto
     iniciar(async () => {
       const r = resolvido.tipo === 'acrescimo'
         ? await adicionarAcrescimoAction(...base, { tipo: resolvido.tipoAcrescimo!, descricao: resolvido.descricao, valor: resolvido.valor!.toFixed(2) })
@@ -62,9 +75,10 @@ export function EntradaLinha({ ordemId, versao, catalogo }: Props) {
           })
       setResposta(r)
       // A chave so muda depois que o servidor respondeu; no conflito ela fica (a intencao e a mesma).
-      if (r.ok) { chave.current = gerarChave(); setTexto(''); setUnidadeEscolhida(undefined); setMostrarPendencia(false) }
-      else if (!r.conflito) chave.current = gerarChave()
-      campo.current?.focus()
+      // O refresh entra na mesma transition: `pendente` so cai quando a versao nova ja esta nos props,
+      // e um Enter dado no meio do caminho e ignorado em vez de partir com versao velha.
+      if (r.ok) { chave.current = gerarChave(); enviado.current = textoEnviado; iniciar(() => router.refresh()) }
+      else if (!r.conflito) { chave.current = gerarChave(); campo.current?.focus() }
     })
   }
 

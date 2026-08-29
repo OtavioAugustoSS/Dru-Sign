@@ -25,7 +25,7 @@ export function BotaoMutacao({ acao, rotulo, className = 'btn', confirmar }: Pro
           if (confirmar && !window.confirm(confirmar)) return
           iniciar(async () => {
             const r = await acao(chave.current)
-            if (r.ok) { chave.current = gerarChave(); setErro(null) }
+            if (r.ok) { chave.current = gerarChave(); setErro(null); iniciar(() => router.refresh()) }
             else if (r.conflito) { setErro('A ordem mudou. Recarregando…'); router.refresh() }
             else { chave.current = gerarChave(); setErro(r.erro) }
           })
