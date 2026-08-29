@@ -2354,11 +2354,11 @@ esses campos eram sempre null e ninguem tinha visto. Passa a usar `formatarDocum
 
 ### Task 6: Verificação final da fase
 
-- [ ] **Step 1: Tudo verde**
+- [x] **Step 1: Tudo verde**
 
 Run: `npm run check` → typecheck, unitários e integração (**68**) verdes. Run: `npm run build` → verde. Run: `npm run e2e` → 30 passed.
 
-- [ ] **Step 2: Marcar o plano e a memória**
+- [x] **Step 2: Marcar o plano e a memória**
 
 Marcar todos os passos e os critérios de conclusão abaixo; anotar no plano os desvios que a execução exigiu (mesmo formato das notas da Fase 4). Atualizar `drusign-sistema-novo.md`: Fase 5 concluída, commit, contagens.
 
@@ -2367,20 +2367,24 @@ git add docs/superpowers/plans/2026-08-29-fase5-producao-administracao.md
 git commit -m "docs: plano da Fase 5 executado"
 ```
 
+**Executado (29/08/2026).** `npm run typecheck` limpo · **295 unitarios** · **73 de integracao** ·
+`npm run build` compilado · `npm run e2e` **30 passed**. A contagem de 68 do Step 1 estava baixa
+pelo mesmo motivo da Task 3: o `it.each` de seis linhas do teste de usuarios conta como seis.
+
 ---
 
 ## Critério de conclusão da Fase 5
 
 Verificação da spec (seção 13): *"Fila de produção, dashboard de operação, visão administrativa de clientes, configurações."*
 
-- [ ] `producao.int.test.ts` verde: a fila traz só ordens abertas, agrupadas por urgência, com os itens e a versão que serve para concluir; orçamento, concluída e cancelada ficam de fora
-- [ ] a fila de produção não mostra nenhum valor — provado no e2e (`R$` não aparece na tela)
-- [ ] quem é da operação entra e cai na fila de produção, sem nenhum item de menu de administração
-- [ ] a tela de operação mostra os cinco indicadores da spec (seção 11) com o alvo de cada um ao lado, e o ano a ano
-- [ ] a carteira agrupa os cadastros do mesmo documento (a Prefeitura de Unaí é um cliente, não 18) e separa a faixa adormecida como lista de reativação
-- [ ] `usuarios/repositorio.int.test.ts` verde: cria com Argon2, login único, desativa sem apagar, e não deixa a última administração ativa se desativar nem alguém se desativar
-- [ ] os dados da empresa saem no cabeçalho do impresso — provado no e2e
-- [ ] `npm run check` e `npm run build` verdes
+- [x] `producao.int.test.ts` verde: a fila traz só ordens abertas, agrupadas por urgência, com os itens e a versão que serve para concluir; orçamento, concluída e cancelada ficam de fora
+- [x] a fila de produção não mostra nenhum valor — provado no e2e (`R$` não aparece na tela)
+- [x] quem é da operação entra e cai na fila de produção, sem nenhum item de menu de administração
+- [x] a tela de operação mostra os cinco indicadores da spec (seção 11) com o alvo de cada um ao lado, e o ano a ano
+- [x] a carteira agrupa os cadastros do mesmo documento (a Prefeitura de Unaí é um cliente, não 18) e separa a faixa adormecida como lista de reativação
+- [x] `usuarios/repositorio.int.test.ts` verde: cria com Argon2, login único, desativa sem apagar, e não deixa a última administração ativa se desativar nem alguém se desativar
+- [x] os dados da empresa saem no cabeçalho do impresso — provado no e2e
+- [x] `npm run check` e `npm run build` verdes
 
 Feito isso, a Fase 6 (importação das 18.443 ordens legadas como arquivo, anexo de arte no R2, relatório para o contador, estados vazios refinados) ganha seu próprio plano — e é a última.
 
