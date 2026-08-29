@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="DruSign">
+  <!--
+    Monograma "D" em circulo, como a marca esta descrita em
+    design/prompt-claude-design.md: ciano #5FC4D8, geometria firme, alto
+    contraste, vocabulario de sinalizacao.
+
+    O "D" e desenhado como caminho, e nao como texto: fonte em favicon nao se
+    pode garantir, e em 16px a letra tem de ser a mesma em qualquer maquina.
+
+    A tinta escura sobre o ciano da 8,76:1, entao o simbolo continua legivel na
+    aba clara e na escura do navegador. A aba nao segue o tema do sistema.
+
+    PROVISORIO: e o desenho da marca conforme descrita, nao o arquivo oficial.
+    Quando a logo de verdade existir (ela entra junto com o anexo de arte),
+    trocar este arquivo.
+  -->
+  <circle cx="16" cy="16" r="16" fill="#5FC4D8" />
+  <path
+    fill="#111827"
+    fill-rule="evenodd"
+    d="M7 6 H15 A10 10 0 0 1 15 26 H7 Z M12 11 H14.5 A5 5 0 0 1 14.5 21 H12 Z"
+  />
+</svg>

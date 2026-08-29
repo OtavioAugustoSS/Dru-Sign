@@ -39,6 +39,10 @@ export default async function LayoutRaiz({ children }: { children: React.ReactNo
       lang="pt-BR"
       className={`${GeistSans.variable} ${GeistMono.variable}`}
       data-bs-theme={atributo ?? undefined}
+      // O Tabler poe `scroll-behavior: smooth` no <html>. Sem este atributo o
+      // Next avisa que a rolagem suave atrapalha a troca de rota: ao navegar,
+      // em vez de comecar no topo, a pagina desliza ate la.
+      data-scroll-behavior="smooth"
       // O script abaixo escreve `data-bs-theme` antes da hidratacao, entao o
       // <html> que o React renderizou de proposito nao bate com o que esta na
       // tela. E o caso exato para o qual isto existe.

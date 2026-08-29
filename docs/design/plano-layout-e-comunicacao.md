@@ -279,10 +279,29 @@ sozinho. Marcar `[x]` só depois do commit.
   Medido com a rede estrangulada: o esqueleto fica em cena de **1,2s a 3,5s** no
   histórico, que é a espera mais longa do sistema, e some quando o conteúdo chega.
 
-- [ ] **C5. Dois avisos do console.** `/favicon.ico` dá 404 em toda página: o
-  sistema não tem ícone nenhum na aba do navegador. E o Next avisa que o Tabler põe
-  `scroll-behavior: smooth` no `<html>`, o que atrapalha a troca de rota — resolver
-  com `data-scroll-behavior="smooth"` no `<html>`.
+- [x] **C5. Dois avisos do console.** ✅ Feito. Console e rede **limpos**: nem o 404
+  do favicon, nem o aviso do Next sobre rolagem suave.
+
+  `data-scroll-behavior="smooth"` no `<html>`: o Tabler põe `scroll-behavior:
+  smooth`, e sem o atributo a troca de rota desliza até o topo em vez de começar
+  nele.
+
+  Ícone da aba em `src/app/icon.svg`: monograma "D" em círculo, **como a marca já
+  está descrita** em `design/prompt-claude-design.md` ("ciano #5FC4D8, monograma D
+  dentro de um círculo, geometria firme, alto contraste"). O "D" é caminho vetorial
+  e não texto, porque fonte em favicon não se garante e em 16px a letra tem de ser
+  a mesma em qualquer máquina. Conferido em 16, 32 e 96px sobre fundo claro e
+  escuro: a aba do navegador não segue o tema do sistema, então precisa funcionar
+  nos dois.
+
+  **É provisório e está escrito dentro do arquivo:** é o desenho da marca conforme
+  descrita, não o arquivo oficial. Quando a logo de verdade existir (ela entra
+  junto com o anexo de arte), trocar o arquivo.
+
+  **Erro que a verificação pegou:** escrevi `--` dentro de um comentário XML, o que
+  é ilegal. O arquivo baixava com 200 e content-type certo, mas o navegador não
+  conseguia interpretá-lo como imagem — as seis amostras vinham quebradas. Só
+  apareceu porque fui olhar o ícone renderizado em vez de confiar no 200.
 
 ### Telas
 
