@@ -2674,11 +2674,11 @@ uma rodada so. Com o desligamento limpo a suite passou de 4,4min para 2,3min, se
 
 ### Task 6: Verificação final da fase
 
-- [ ] **Step 1: Tudo verde**
+- [x] **Step 1: Tudo verde**
 
 Run: `npm run check` → typecheck, unitários (217 + os novos) e integração (**51**) verdes. Run: `npm run build` → verde. Run: `npm run e2e` → 22 passed.
 
-- [ ] **Step 2: Marcar o plano e a memória**
+- [x] **Step 2: Marcar o plano e a memória**
 
 Marcar todos os passos e os critérios de conclusão abaixo; anotar no plano os desvios que a execução exigiu (mesmo formato das notas de execução da Fase 3). Atualizar a memória do projeto (`drusign-sistema-novo.md`): Fase 4 concluída, commit, contagens.
 
@@ -2687,17 +2687,23 @@ git add docs/superpowers/plans/2026-08-29-fase4-dinheiro.md
 git commit -m "docs: plano da Fase 4 executado"
 ```
 
+**Executado (29/08/2026).** Numeros finais, todos conferidos nesta ordem:
+`npm run typecheck` limpo · **265 unitarios** · **56 de integracao** · `npm run build` compilado ·
+`npm run e2e` **24 passed**. As contagens do Step 1 (217 unitarios, 51 de integracao, 22 e2e) eram
+estimativas escritas antes das correcoes da revisao da Fase 3, que ja tinham somado 7 unitarios,
+4 de integracao e 1 e2e a base.
+
 ---
 
 ## Critério de conclusão da Fase 4
 
 Verificação da spec (seção 13): *"concluir e receber grava os três registros ou nenhum; a fila mostra corretamente 'concluídas e não pagas'. É o marco em que o legado pode ser desligado."*
 
-- [ ] `dinheiro.int.test.ts` verde: "Concluir e receber" grava ordem concluída + recebimento + lançamento de entrada numa transação; com dois recebimentos concorrentes na mesma versão, um grava os três e o outro desfaz tudo (inclusive a chave); sem conta de vendas, nada é gravado
-- [ ] eixo de pagamento derivado (`resumirPagamento`): parcial, pago com tolerância de um centavo, saldo nunca negativo, estorno volta a não pago — provado no domínio e no banco
-- [ ] `plano-legado.int.test.ts` verde: as 48 contas como estão, em 6 grupos, VENDAS DIVERSAS recebendo as vendas
-- [ ] `npm run check` e `npm run build` verdes
-- [ ] `npm run e2e` verde: balcão (concluir e receber → livro), parcial (fila mostra o que falta e some quando paga), recusa acima do saldo, estorno riscado, filtros da lista, saída parcelada e estorno no livro, operação sem acesso ao financeiro, plano de contas do legado
+- [x] `dinheiro.int.test.ts` verde: "Concluir e receber" grava ordem concluída + recebimento + lançamento de entrada numa transação; com dois recebimentos concorrentes na mesma versão, um grava os três e o outro desfaz tudo (inclusive a chave); sem conta de vendas, nada é gravado
+- [x] eixo de pagamento derivado (`resumirPagamento`): parcial, pago com tolerância de um centavo, saldo nunca negativo, estorno volta a não pago — provado no domínio e no banco
+- [x] `plano-legado.int.test.ts` verde: as 48 contas como estão, em 6 grupos, VENDAS DIVERSAS recebendo as vendas
+- [x] `npm run check` e `npm run build` verdes
+- [x] `npm run e2e` verde: balcão (concluir e receber → livro), parcial (fila mostra o que falta e some quando paga), recusa acima do saldo, estorno riscado, filtros da lista, saída parcelada e estorno no livro, operação sem acesso ao financeiro, plano de contas do legado
 
 Feito isso, a Fase 5 (fila de produção, dashboard de operação, visão administrativa de clientes, usuários e dados da empresa) ganha seu próprio plano.
 
