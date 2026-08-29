@@ -31,8 +31,18 @@ async function main(): Promise<void> {
   const empresa = await prisma.empresa.upsert({
     where: { id: EMPRESA_ID },
     update: {},
-    create: { id: EMPRESA_ID, razaoSocial: 'DruSign Placas e Comunicacao Visual' },
+    // So o que se sabe com certeza. CNPJ, endereco e telefone o Otavio preenche em /empresa:
+    // deixar em branco e honesto; inventar dado que sai no impresso do cliente, nao.
+    create: { id: EMPRESA_ID, razaoSocial: 'DruSign Placas e Comunicacao Visual', nomeFantasia: 'DruSign', cidade: 'Unaí', uf: 'MG' },
   })
+  // Preenche so o que ainda esta em branco: o seed roda de novo em banco ja usado e nao pode
+  // sobrescrever o que o Otavio digitou em /empresa.
+  const emBranco = Object.fromEntries(
+    (['nomeFantasia', 'cidade', 'uf'] as const)
+      .filter((c) => empresa[c] === null)
+      .map((c) => [c, { nomeFantasia: 'DruSign', cidade: 'Unaí', uf: 'MG' }[c]]),
+  )
+  if (Object.keys(emBranco).length > 0) await prisma.empresa.update({ where: { id: empresa.id }, data: emBranco })
   console.log(`empresa "${empresa.razaoSocial}" pronta`)
 
   // A numeracao continua de onde o legado parou: a proxima OS e a 18461.

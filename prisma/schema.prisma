@@ -23,6 +23,18 @@ enum Papel {
 model Empresa {
   id           String    @id @default(uuid(7)) @db.Uuid
   razaoSocial  String    @map("razao_social") @db.VarChar(160)
+  /// O nome grande do cabecalho do impresso; a razao social vai embaixo, menor.
+  nomeFantasia String?   @map("nome_fantasia") @db.VarChar(80)
+  /// So digitos: 14. Sai no impresso quando existe.
+  cnpj         String?   @db.VarChar(14)
+  endereco     String?   @db.VarChar(160)
+  bairro       String?   @db.VarChar(60)
+  cidade       String?   @db.VarChar(60)
+  uf           String?   @db.VarChar(2)
+  cep          String?   @db.VarChar(9)
+  /// Normalizados (so digitos), como os do cliente. Ate dois: fixo e celular.
+  telefone1    String?   @map("telefone_1") @db.VarChar(11)
+  telefone2    String?   @map("telefone_2") @db.VarChar(11)
   criadoEm     DateTime  @default(now()) @map("criado_em") @db.Timestamptz(3)
   atualizadoEm DateTime  @updatedAt @map("atualizado_em") @db.Timestamptz(3)
   arquivadoEm  DateTime? @map("arquivado_em") @db.Timestamptz(3)

@@ -725,7 +725,7 @@ Dois ajustes que os testes exigiram, ja aplicados acima:
 - Consumes: nada novo.
 - Produces: colunas `empresa.nome_fantasia`, `cnpj`, `endereco`, `bairro`, `cidade`, `uf`, `cep`, `telefone1`, `telefone2`.
 
-- [ ] **Step 1: Campos novos em Empresa**
+- [x] **Step 1: Campos novos em Empresa**
 
 Em `prisma/schema.prisma`, no model `Empresa`, logo depois de `razaoSocial`:
 ```prisma
@@ -744,14 +744,14 @@ Em `prisma/schema.prisma`, no model `Empresa`, logo depois de `razaoSocial`:
 ```
 (O logo **não** entra aqui: precisa de armazenamento de arquivo e vai junto com o R2 do anexo de arte, na Fase 6.)
 
-- [ ] **Step 2: Migração**
+- [x] **Step 2: Migração**
 
 Run: `npm run db:migrar -- dados_da_empresa`
 Expected: `prisma/migrations/<timestamp>_dados_da_empresa/migration.sql` com um único `ALTER TABLE "empresa"` acrescentando as nove colunas, todas nullable e sem default; `migrate deploy` aplicado no `drusign`; `prisma generate` rodado. Conferir o SQL com o Read tool antes de seguir — se aparecer qualquer `DROP`, parar.
 
 Run: `npm run typecheck` → sem erros.
 
-- [ ] **Step 3: Seed preenche a DruSign**
+- [x] **Step 3: Seed preenche a DruSign**
 
 Em `prisma/seed.ts`, onde a empresa é criada/atualizada, acrescentar aos dados (mantendo o `upsert`/`create` que já existe):
 ```ts
@@ -767,12 +767,21 @@ node -e "const{Client}=require('pg');(async()=>{const c=new Client({connectionSt
 ```
 Expected: uma linha com `nome_fantasia: 'DruSign'`, `cidade: 'Unaí'`, `uf: 'MG'`.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add prisma/schema.prisma prisma/migrations prisma/seed.ts
 git commit -m "feat: dados da empresa no banco - nome fantasia, CNPJ, endereco e telefones do cabecalho do impresso"
 ```
+
+**Executado (29/08/2026).** A migracao `20260829182801_dados_da_empresa` traz um `ALTER TABLE
+"empresa"` com as nove colunas nullable e nenhum `DROP`, como previsto.
+
+Um desvio no Step 3: o `upsert` do seed tem `update: {}`, entao num banco que ja tinha a empresa
+o `create` nao roda e os campos ficavam em branco — a verificacao do plano nao fechava. O seed
+passa a preencher **so o que ainda esta null**, depois do upsert. Assim ele continua util num
+banco ja usado sem sobrescrever o que o Otavio digitar em `/empresa`, que era o motivo do
+`update: {}` vazio existir.
 
 ---
 
