@@ -189,9 +189,31 @@ sozinho. Marcar `[x]` só depois do commit.
 
 ### Casca
 
-- [ ] **C1. Menu lateral agrupado**, com o item ativo marcado (`usePathname` +
-  `aria-current="page"`; o Tabler já tem o estilo pronto e sem uso) e as três telas
-  hoje escondidas trazidas para o menu.
+- [x] **C1. Menu lateral agrupado.** ✅ Feito. Cinco grupos (Atendimento, Produção,
+  Financeiro, Arquivo, Configuração) com "Fila de trabalho" no topo, fora de
+  grupo. As três telas escondidas entraram: Carteira de clientes, Relatório do
+  contador e Plano de contas. O nome no menu virou o título da tela — "Financeiro"
+  virou "Livro-caixa", "Operação" virou "Indicadores" (a página também).
+
+  O item ativo acende com `aria-current="page"` e o trilho esquerdo que o Tabler
+  já desenhava e estava sem uso desde sempre. Regra: **vence o endereço mais
+  longo**, senão `/clientes/carteira` acenderia "Clientes" e `/financeiro/contador`
+  acenderia "Livro-caixa". Cada grupo é uma lista com nome próprio
+  (`aria-labelledby`), e grupo sem item visível não desenha cabeçalho.
+
+  **Desvio do combinado:** "Nova saída" **não** entrou no menu, ao contrário do que
+  a descrição da opção prometia. É uma ação, não um lugar; continua sendo o botão
+  da tela do livro-caixa, que é de onde ela faz sentido. O esboço que você
+  escolheu também não a mostrava.
+
+  **Buraco encontrado e fechado:** quem é da operação entra e cai em `/`, mas o
+  item apontava para `/producao` — então **nada acendia** e a pessoa não sabia onde
+  estava. `navegacaoPara` corrige o destino por papel, com teste.
+
+  **Dívida que a C2 paga:** com os cabeçalhos de grupo a lateral em 390px passou de
+  532px para **823px** de menu antes do conteúdo. Piorou de propósito, porque a C2
+  (menu em `offcanvas`) tira a lateral do fluxo e o número deixa de existir.
+
 - [ ] **C2. Celular.** Menu em `offcanvas` com botão de abrir, cabeçalhos de página
   que não vazam da tela em 390px, e tabelas que não espremem valor em duas linhas.
   Conferir em 390px, 768px e 1440px.

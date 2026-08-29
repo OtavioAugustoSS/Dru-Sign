@@ -5,7 +5,7 @@ import { emPercentual } from '@/componentes/percentual'
 import { carregarOperacao } from '@/infra/operacao/indicadores'
 import { ErroDeValidacao } from '@/domain/precificacao/erros'
 
-export const metadata: Metadata = { title: 'Operação' }
+export const metadata: Metadata = { title: 'Indicadores' }
 
 
 /** Cada cartao carrega o alvo da spec (secao 11): o numero sozinho nao diz se esta bom. */
@@ -39,7 +39,7 @@ export default async function PaginaOperacao({ searchParams }: { searchParams: P
     <>
       <div className="page-header d-print-none"><div className="container-xl">
         <div className="page-pretitle">Administração</div>
-        <h2 className="page-title">Operação</h2>
+        <h2 className="page-title">Indicadores</h2>
       </div></div>
       <div className="page-body"><div className="container-xl">
         <form method="get" className="card mb-3">
