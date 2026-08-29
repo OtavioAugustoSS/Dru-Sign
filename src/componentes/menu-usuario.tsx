@@ -2,16 +2,20 @@
 
 import Dropdown from 'react-bootstrap/Dropdown'
 import { IconLogout } from '@tabler/icons-react'
+import { SeletorTema } from './seletor-tema'
+import type { Tema } from '@/infra/tema/preferencia'
 
 interface Props {
   nome: string
   papel: string
   iniciais: string
+  tema: Tema
   sairAction: () => Promise<void>
+  escolherTemaAction: (valor: string) => Promise<void>
 }
 
 /** Unico ponto do shell que precisa de JS no navegador: o dropdown. Recebe so props serializaveis. */
-export function MenuUsuario({ nome, papel, iniciais, sairAction }: Props) {
+export function MenuUsuario({ nome, papel, iniciais, tema, sairAction, escolherTemaAction }: Props) {
   return (
     <Dropdown className="nav-item" drop="up" align="end">
       <Dropdown.Toggle
@@ -27,6 +31,8 @@ export function MenuUsuario({ nome, papel, iniciais, sairAction }: Props) {
         </div>
       </Dropdown.Toggle>
       <Dropdown.Menu className="dropdown-menu-arrow">
+        <SeletorTema inicial={tema} escolherAction={escolherTemaAction} />
+        <div className="dropdown-divider" />
         <form action={sairAction}>
           <button type="submit" className="dropdown-item">
             <IconLogout className="icon dropdown-item-icon" />

@@ -95,10 +95,16 @@ sozinho. Marcar `[x]` só depois do commit.
   ênfase. `viewport` com `colorScheme` e `themeColor` no layout raiz: sem isso o
   campo de data nativo ficava branco no meio da tela escura.
   Conferido no navegador nos dois temas, 1440px e 390px.
-- [ ] **F2. Troca de tema.** Cookie por usuário, leitura no servidor para pintar o
-  `<html data-bs-theme>` já na primeira resposta (sem piscar), opção "Sistema" que
-  segue o SO, e o controle no menu do usuário. Marcar a preferência com
-  `aria-pressed` ou equivalente.
+- [x] **F2. Troca de tema.** ✅ Feito. Três estados (Sistema, Claro, Escuro) no menu
+  do usuário, com `aria-pressed` e marca de conferido. Cookie de um ano, sem
+  `httpOnly` porque é o único que o navegador precisa ler. Escolha explícita vem
+  pintada do servidor — conferido na resposta crua: com o cookie, o HTML já sai
+  com `data-bs-theme="dark"` e sem script nenhum. "Sistema" é o único caso que usa
+  um script síncrono antes da pintura, porque o servidor não tem como saber o tema
+  do Windows de quem abriu; ele também escuta mudança do SO com a tela aberta.
+  `suppressHydrationWarning` no `<html>` porque o script escreve o atributo antes
+  da hidratação. Console limpo. Verificado que o impresso continua papel branco e
+  tinta preta mesmo com o tema escuro ligado.
 - [ ] **F3. Camada de componentes.** Criar em `src/componentes/`:
   `CabecalhoPagina` (título, pretítulo opcional, ações, e a variante com subtítulo),
   `CorpoPagina`, `CartaoTabela`, `EstadoVazio` (um só tratamento, aposentando os

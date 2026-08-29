@@ -3,6 +3,8 @@ import { IconListCheck, IconUsers, IconPackage, IconFileInvoice, IconCash, IconL
 import { exigirUsuario } from '@/infra/auth/usuario-atual'
 import { MenuUsuario } from '@/componentes/menu-usuario'
 import { sair } from '@/app/(auth)/entrar/actions'
+import { escolherTema } from '@/app/acoes-tema'
+import { lerTemaDoCookie } from '@/infra/tema/cookie'
 import { NAVEGACAO } from './navegacao'
 
 const ICONES = {
@@ -31,7 +33,7 @@ function iniciais(nome: string): string {
 }
 
 export default async function LayoutApp({ children }: { children: React.ReactNode }) {
-  const usuario = await exigirUsuario()
+  const [usuario, tema] = await Promise.all([exigirUsuario(), lerTemaDoCookie()])
 
   return (
     <div className="page">
@@ -59,7 +61,9 @@ export default async function LayoutApp({ children }: { children: React.ReactNod
               nome={usuario.nome}
               papel={PAPEL_LEGIVEL[usuario.papel]}
               iniciais={iniciais(usuario.nome)}
+              tema={tema}
               sairAction={sair}
+              escolherTemaAction={escolherTema}
             />
           </div>
         </div>
