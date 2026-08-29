@@ -27,7 +27,8 @@
     "check": "npm run typecheck && npm run test && npm run test:int",
     "db:migrar": "node scripts/migrar.mjs",
     "importar:clientes": "tsx scripts/importar-clientes.ts",
-    "importar:plano": "tsx scripts/importar-plano.ts"
+    "importar:plano": "tsx scripts/importar-plano.ts",
+    "importar:ordens": "tsx scripts/importar-ordens.ts"
   },
   "repository": {
     "type": "git",

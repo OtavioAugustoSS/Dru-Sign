@@ -107,14 +107,14 @@ describe('juntarObservacoes', () => {
 describe('converterOrdemLegado', () => {
   it('le a OS inteira, com dinheiro em string decimal', () => {
     const o = converterOrdemLegado(linha({
-      NUMERO: '18449', DATAENT: '20260820', DATASAI: '20260827', CODCLI: '1462',
+      NUMERO: '18449', DATAENT: '20260820', DATASAI: '20260827', CODCLI: '1949',
       CADASTRO: 'SANDRA HOFIG DE BARROS', TELEFONE: '(38)9874-3013', SITUACAO: 'Entrega direto para o cliente',
       OBS1: '06 PLACAS ACM 60X 80', OBS2: '01 PLACA ACM 50 X 50',
       VLRPROD: '2528.00', TOTAL: '2528.00', DESCONTO: '0.00',
       FORMA: 'Avista', RESPONSA: 'ODETE', USUARIO: 'ODETE',
     }))
     expect(o).toMatchObject({
-      numero: 18449, codigoClienteLegado: 1462, clienteNome: 'SANDRA HOFIG DE BARROS',
+      numero: 18449, codigoClienteLegado: 1949, clienteNome: 'SANDRA HOFIG DE BARROS',
       telefone: '(38)9874-3013', situacao: 'Entrega direto para o cliente',
       texto: '06 PLACAS ACM 60X 80\n01 PLACA ACM 50 X 50',
       total: '2528.00', valorProdutos: '2528.00', desconto: '0.00',
@@ -180,6 +180,15 @@ export const ANO_MAXIMO = 2027
 /** Nome que o cancelamento do legado destruiu, em 3.152 ordens (spec, secao 4). */
 const NOME_DESTRUIDO = 'C A N C E L A D O'
 
+/**
+ * O que o `lerDbf` entrega: campo N/F ja vem como numero, L como 'T'/'F', o resto como texto.
+ * Mesmo contrato de `converterContaLegado`.
+ */
+export type Valor = string | number | null | undefined
+export type LinhaDbf = Record<string, Valor>
+
+const txt = (v: Valor): string => (v === null || v === undefined ? '' : String(v).trim())
+
 /** 'AAAAMMDD' do DBF. Devolve null para vazio, malformado ou data impossivel. */
 export function lerDataDbf(texto: string): Date | null {
   const t = texto.trim()
@@ -193,9 +202,9 @@ export function lerDataDbf(texto: string): Date | null {
 }
 
 /** OBS8 fica de fora: e o texto fixo de garantia do impresso, igual nas 18.443. */
-export function juntarObservacoes(v: Record<string, string>): string {
+export function juntarObservacoes(v: LinhaDbf): string {
   return [1, 2, 3, 4, 5, 6, 7]
-    .map((n) => (v[`OBS${n}`] ?? '').trim())
+    .map((n) => txt(v[`OBS${n}`]))
     .filter((l) => l !== '')
     .join('\n')
 }
@@ -205,8 +214,8 @@ export function juntarObservacoes(v: Record<string, string>): string {
  * ("1.358,81"). `interpretarMoeda` ja resolve os dois: virgula manda, e ponto sozinho e decimal.
  * Ler isso na mao foi exatamente o defeito que o ajuste de preco teve na Fase 3.
  */
-function decimal(texto: string): string {
-  const t = (texto ?? '').trim()
+function decimal(valor: Valor): string {
+  const t = txt(valor)
   if (t === '') return '0.00'
   const negativo = t.startsWith('-')
   const d = interpretarMoeda(negativo ? t.slice(1) : t)
@@ -240,17 +249,17 @@ export interface OrdemLegadaConvertida {
   usuario: string
 }
 
-export function converterOrdemLegado(v: Record<string, string>): OrdemLegadaConvertida {
-  const numero = Number((v.NUMERO ?? '').trim())
+export function converterOrdemLegado(v: LinhaDbf): OrdemLegadaConvertida {
+  const numero = Number(txt(v.NUMERO))
   if (!Number.isInteger(numero) || numero <= 0) throw new ErroDeValidacao(`ordem sem numero: ${JSON.stringify(v.NUMERO)}`)
-  const dataEntrada = lerDataDbf(v.DATAENT ?? '')
+  const dataEntrada = lerDataDbf(txt(v.DATAENT))
   if (!dataEntrada) throw new ErroDeValidacao(`ordem ${numero} sem data de entrada valida: ${JSON.stringify(v.DATAENT)}`)
 
-  const brutoSaida = (v.DATASAI ?? '').trim()
+  const brutoSaida = txt(v.DATASAI)
   const dataSaida = lerDataDbf(brutoSaida)
-  const codigo = Number((v.CODCLI ?? '').trim())
-  const clienteNome = (v.CADASTRO ?? '').trim()
-  const texto = (s: string | undefined, tamanho: number) => (s ?? '').trim().slice(0, tamanho)
+  const codigo = Number(txt(v.CODCLI))
+  const clienteNome = txt(v.CADASTRO)
+  const texto = (s: Valor, tamanho: number) => txt(s).slice(0, tamanho)
 
   return {
     numero,
@@ -264,12 +273,12 @@ export function converterOrdemLegado(v: Record<string, string>): OrdemLegadaConv
     telefone: texto(v.TELEFONE, 20),
     situacao: texto(v.SITUACAO, 40),
     texto: juntarObservacoes(v),
-    valorProdutos: decimal(v.VLRPROD ?? ''),
-    valorServicos: decimal(v.VLRSERV ?? ''),
-    maoDeObra: decimal(v.MAO_OBRA ?? ''),
-    deslocamento: decimal(v.DESLOCA ?? ''),
-    desconto: decimal(v.DESCONTO ?? ''),
-    total: decimal(v.TOTAL ?? ''),
+    valorProdutos: decimal(v.VLRPROD),
+    valorServicos: decimal(v.VLRSERV),
+    maoDeObra: decimal(v.MAO_OBRA),
+    deslocamento: decimal(v.DESLOCA),
+    desconto: decimal(v.DESCONTO),
+    total: decimal(v.TOTAL),
     forma: texto(v.FORMA, 20),
     responsavel: texto(v.RESPONSA, 40),
     usuario: texto(v.USUARIO, 20),
@@ -365,7 +374,7 @@ com `CREATE TABLE`, os dois indices, o unico por empresa+numero e nenhum `DROP`.
 - Consumes: `lerDbf`, `converterOrdemLegado`, `prisma`, `paraBanco`.
 - Produces: `importarOrdensLegado(caminhoDbf, empresaId): Promise<ResultadoImportacaoOrdens>` com `{ total, importadas, jaExistiam, ligadasACliente, semCliente, comDataSaidaImpossivel, comSaidaAntesDaEntrada, comNomeDestruido, somaTotal }`; `npm run importar:ordens`.
 
-- [ ] **Step 1: O teste de integração**
+- [x] **Step 1: O teste de integração**
 
 `src/infra/importacao/ordens-legado.int.test.ts`:
 ```ts
@@ -381,12 +390,16 @@ const DBF = 'C:/legacy-drusign-dados/OSGRAFICA4.5A/DADOS/ORDEM.DBF'
 describe.skipIf(!existsSync(DBF))('importacao das ordens legadas', () => {
   it('importa as 18.443 como estao, liga ao cliente pelo codigo e nao repete', async () => {
     const empresa = await prisma.empresa.create({ data: { razaoSocial: 'Grafica de Teste' } })
-    // Um cliente com o codigo legado da OS 18449, para provar a ligacao.
-    const sandra = await prisma.cliente.create({ data: { empresaId: empresa.id, nome: 'Sandra Hofig de Barros', codigoLegado: 1462 } })
+    // O CODCLI real da OS 18449 no ORDEM.DBF e 1949 (conferido no arquivo), nao um numero qualquer.
+    const sandra = await prisma.cliente.create({ data: { empresaId: empresa.id, nome: 'Sandra Hofig de Barros', codigoLegado: 1949 } })
 
     const r = await importarOrdensLegado(DBF, empresa.id)
     expect(r).toMatchObject({ total: 18_443, importadas: 18_443, jaExistiam: 0 })
-    expect(r.comSaidaAntesDaEntrada).toBe(271)
+    // A spec fala em 271; medindo, 269 tem saida anterior a entrada com data plausivel e 2
+    // (OS 8966 '19170804' e OS 9905 '07060607') tem saida ilegivel — essas contam como impossivel,
+    // nao como suspeita, senao a tela prometeria uma data que nao existe.
+    expect(r.comSaidaAntesDaEntrada).toBe(269)
+    expect(r.comDataSaidaImpossivel).toBeGreaterThanOrEqual(2)
     expect(r.comNomeDestruido).toBe(3152)
     expect(r.somaTotal).toBe('5654432.03')
     expect(r.ligadasACliente).toBeGreaterThan(0)
@@ -416,7 +429,7 @@ describe.skipIf(!existsSync(DBF))('importacao das ordens legadas', () => {
 
 Run: `npm run test:int -- ordens-legado` → vermelho.
 
-- [ ] **Step 2: A importação (implementação)**
+- [x] **Step 2: A importação (implementação)**
 
 `src/infra/importacao/ordens-legado.ts`:
 ```ts
@@ -449,7 +462,7 @@ export async function importarOrdensLegado(caminhoDbf: string, empresaId: string
   if (jaExistiam > 0) return { ...vazio, jaExistiam }
 
   const linhas = lerDbf(caminhoDbf).registros.filter((r) => !r.apagado)
-  const ordens = linhas.map((r) => converterOrdemLegado(r.valores as Record<string, string>))
+  const ordens = linhas.map((r) => converterOrdemLegado(r.valores))
 
   // Uma consulta so para resolver os 3.219 codigos, em vez de 18.443 joins.
   const clientes = await prisma.cliente.findMany({
@@ -539,12 +552,34 @@ Em `package.json`, ao lado de `importar:plano`: `"importar:ordens": "tsx scripts
 
 Run: `npm run test:int -- ordens-legado` → PASS (1). Run: `npm run importar:ordens` no banco de desenvolvimento → `18443 ordens legadas importadas … (soma R$ 5654432.03)`.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/infra/importacao/ordens-legado.ts src/infra/importacao/ordens-legado.int.test.ts scripts/importar-ordens.ts package.json
 git commit -m "feat: importacao das 18.443 ordens legadas, ligadas ao cliente pelo codigo do legado"
 ```
+
+**Executado (29/08/2026).** A importacao real imprimiu:
+
+```
+18443 ordens legadas importadas para "DruSign Placas e Comunicacao Visual" (soma R$ 5654432.03)
+  ligadas a um cliente do cadastro: 18443 · sem cliente: 0
+  nome destruido pelo legado: 3152 · saida antes da entrada: 269 · data de saida impossivel: 10
+```
+
+Tres coisas que so a execucao mostrou:
+
+1. **`data de saida impossivel: 10`** — exatamente os "10 datas absurdas" da spec. A contagem de 21
+   que este plano trazia era de tres campos somados (`DATASAI`, `DTAPROVA`, `DTENTREGA`); so o
+   `DATASAI`, que e o que importa aqui, tem 10.
+2. **`ligadas a um cliente: 18443`, nenhuma orfa** — os 3.219 clientes da Fase 2 cobrem todos os
+   `CODCLI` do arquivo. O caminho de `clienteId` null existe e continua correto, mas nao foi usado.
+3. **269, nao 271** — ver a nota no teste: 2 das 271 tem saida ilegivel e contam como impossivel.
+
+Dois ajustes de codigo:
+- `converterOrdemLegado` recebia `Record<string, string>`, mas o `lerDbf` entrega campo N como
+  **numero**. Passa a usar o mesmo contrato de `converterContaLegado` (`string | number | null`).
+- O `CODCLI` da OS 18449 e **1949**, conferido no arquivo; o plano tinha chutado 1462.
 
 ---
 ### Task 3: A consulta do histórico
@@ -1336,7 +1371,7 @@ git commit -m "docs: plano da Fase 6 executado"
 
 Verificação da spec (seção 13): *"Importação das 18.443 ordens legadas como arquivo, anexo de arte, relatório para o contador, estados vazios refinados."*
 
-- [ ] `ordens-legado.int.test.ts` verde: as 18.443 entram com a soma de R$ 5.654.432,03, 271 com saída antes da entrada e 3.152 com o nome destruído, e rodar duas vezes não duplica
+- [ ] `ordens-legado.int.test.ts` verde: as 18.443 entram com a soma de R$ 5.654.432,03, 269 com saída antes da entrada (as outras 2 das 271 da spec têm saída ilegível) e 3.152 com o nome destruído, e rodar duas vezes não duplica
 - [ ] o texto de `OBS1..OBS7` está preservado como veio, sem nenhuma tentativa de estruturar
 - [ ] `consulta.int.test.ts` verde: busca por número, nome e texto; período; e o histórico do cliente pela ficha dele
 - [ ] `/historico` mostra o arquivo e a ficha do cliente mostra as ordens antigas dele

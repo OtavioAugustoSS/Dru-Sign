@@ -47,14 +47,14 @@ describe('juntarObservacoes', () => {
 describe('converterOrdemLegado', () => {
   it('le a OS inteira, com dinheiro em string decimal', () => {
     const o = converterOrdemLegado(linha({
-      NUMERO: '18449', DATAENT: '20260820', DATASAI: '20260827', CODCLI: '1462',
+      NUMERO: '18449', DATAENT: '20260820', DATASAI: '20260827', CODCLI: '1949',
       CADASTRO: 'SANDRA HOFIG DE BARROS', TELEFONE: '(38)9874-3013', SITUACAO: 'Entrega direto para o cliente',
       OBS1: '06 PLACAS ACM 60X 80', OBS2: '01 PLACA ACM 50 X 50',
       VLRPROD: '2528.00', TOTAL: '2528.00', DESCONTO: '0.00',
       FORMA: 'Avista', RESPONSA: 'ODETE', USUARIO: 'ODETE',
     }))
     expect(o).toMatchObject({
-      numero: 18449, codigoClienteLegado: 1462, clienteNome: 'SANDRA HOFIG DE BARROS',
+      numero: 18449, codigoClienteLegado: 1949, clienteNome: 'SANDRA HOFIG DE BARROS',
       telefone: '(38)9874-3013', situacao: 'Entrega direto para o cliente',
       texto: '06 PLACAS ACM 60X 80\n01 PLACA ACM 50 X 50',
       total: '2528.00', valorProdutos: '2528.00', desconto: '0.00',
