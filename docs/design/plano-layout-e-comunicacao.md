@@ -433,9 +433,35 @@ Ordem por tráfego e por gravidade do que foi encontrado.
   Junto: "18443" virou "18.443", o comando de terminal saiu do estado vazio, e o
   `style={{ whiteSpace: 'pre-line' }}` virou classe.
 
-- [ ] **T6. `/clientes` + `/clientes/[id]` + `/clientes/novo` + editar.** Paginar
-  (hoje diz "Mostrando os primeiros 50" sem controle nenhum). Unificar
-  "Novo cliente" e "Cadastrar cliente". Acertar o pretítulo entre as quatro telas.
+- [x] **T6. As quatro telas de cliente.** ✅ Feito.
+
+  - **Paginação de verdade.** A tela dizia "Mostrando os primeiros 50. Refine a
+    busca." e não havia como ver o resto — os outros 1.203 clientes eram
+    inalcançáveis pela lista. Agora são 26 páginas, com o filtro preservado.
+  - **"Novo cliente" e "Cadastrar cliente"** eram a mesma ação com dois nomes, na
+    mesma tela. Agora é um nome só.
+  - **Pretítulo consistente.** Era "Atendimento", "Clientes" e "Cliente" (singular)
+    entre as quatro. **Regra que passa a valer:** o pretítulo nomeia o pai na
+    navegação — o grupo da barra lateral quando a tela é o próprio item de menu,
+    e o item de menu quando a tela está abaixo dele. Daí `/clientes` →
+    "Atendimento" e as três filhas → "Clientes".
+  - A busca deixou de ocupar a largura toda, como na tela inicial.
+  - O texto do legado na ficha passou a usar a mesma limpeza da T5, e o `<h4>` de
+    "Observações" virou `h3` — pulava nível depois do `h2` do cartão.
+  - Sumiram os dois últimos `style={{ whiteSpace: 'pre-line' }}`: **os quatro
+    estilos inline que a vistoria apontou acabaram.**
+
+  **Fica registrado, sem conserto:** durante a verificação apareceram **dois avisos
+  de hidratação** nas rotas `[id]` e `editar`, logo depois de eu editar esses
+  arquivos. **Não reproduzem:** 24 navegações seguintes, com e sem troca de tema,
+  deram console limpo. A explicação mais provável é recompilação do servidor de
+  desenvolvimento no meio da hidratação. Vale reconferir na passada final (Z1) com
+  o servidor já aquecido; se voltar, é defeito de verdade.
+
+  **Não mexido de propósito:** o `toLocaleDateString` da ficha, único do app. Ele
+  escolhe UTC para cliente vindo do legado e São Paulo para cadastro novo, e essa
+  diferença é real — trocar por um formatador único mudaria a data mostrada.
+
 - [ ] **T7. `/clientes/carteira`.** Alinhar a fileira de indicadores (o primeiro
   cartão não tem legenda e desalinha os quatro). Resolver a meia tela vazia quando
   não há adormecidos. Corrigir `0.0%`.

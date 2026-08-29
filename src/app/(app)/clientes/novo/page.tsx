@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { exigirUsuario } from '@/infra/auth/usuario-atual'
+import { CabecalhoPagina } from '@/componentes/cabecalho-pagina'
+import { CorpoPagina } from '@/componentes/corpo-pagina'
 import { FormCliente } from '../form-cliente'
 
 export const metadata: Metadata = { title: 'Novo cliente' }
@@ -8,21 +10,14 @@ export default async function PaginaNovoCliente() {
   await exigirUsuario()
   return (
     <>
-      <div className="page-header d-print-none">
-        <div className="container-xl">
-          <div className="page-pretitle">Clientes</div>
-          <h1 className="page-title">Novo cliente</h1>
-        </div>
-      </div>
-      <div className="page-body">
-        <div className="container-xl">
-          <div className="card">
-            <div className="card-body">
-              <FormCliente />
-            </div>
+      <CabecalhoPagina pretitulo="Clientes" titulo="Novo cliente" />
+      <CorpoPagina>
+        <div className="card">
+          <div className="card-body">
+            <FormCliente />
           </div>
         </div>
-      </div>
+      </CorpoPagina>
     </>
   )
 }

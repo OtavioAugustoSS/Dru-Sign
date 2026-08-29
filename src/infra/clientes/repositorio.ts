@@ -171,14 +171,14 @@ export async function obterCliente(empresaId: string, id: string): Promise<Clien
 export interface OpcoesBusca {
   incluirArquivados?: boolean
   limite?: number
+  /** 1 e a primeira. Junto com `limite`, decide o trecho que a tela mostra. */
+  pagina?: number
 }
 
 /** Nome ou apelido (sem diferenciar caixa); com 4+ digitos no termo, tambem telefone e documento. */
-export async function buscarClientes(
-  empresaId: string,
-  termo: string,
-  opcoes: OpcoesBusca = {},
-): Promise<ClienteResumo[]> {
+
+/** O mesmo filtro para a busca e para a contagem: se divergirem, a paginacao mente. */
+function condicaoDeClientes(empresaId: string, termo: string, opcoes: OpcoesBusca) {
   const texto = termo.trim()
   const digitos = texto.replace(/\D/g, '')
   const filtroArquivo = opcoes.incluirArquivados ? {} : { arquivadoEm: null }
@@ -198,10 +198,30 @@ export async function buscarClientes(
     : []
   const ou = [...porTexto, ...porDigitos, ...porTelefoneCompleto]
 
+  return { empresaId, ...filtroArquivo, ...(ou.length > 0 ? { OR: ou } : {}) }
+}
+
+/**
+ * Quantos clientes a busca encontra, ignorando a pagina.
+ *
+ * Separado de `buscarClientes` porque aquela devolve um array e os testes de
+ * integracao dependem disso.
+ */
+export async function contarClientes(empresaId: string, termo: string, opcoes: OpcoesBusca = {}): Promise<number> {
+  return prisma.cliente.count({ where: condicaoDeClientes(empresaId, termo, opcoes) })
+}
+
+export async function buscarClientes(
+  empresaId: string,
+  termo: string,
+  opcoes: OpcoesBusca = {},
+): Promise<ClienteResumo[]> {
+  const limite = opcoes.limite ?? LIMITE_PADRAO
   return prisma.cliente.findMany({
-    where: { empresaId, ...filtroArquivo, ...(ou.length > 0 ? { OR: ou } : {}) },
+    where: condicaoDeClientes(empresaId, termo, opcoes),
     orderBy: { nome: 'asc' },
-    take: opcoes.limite ?? LIMITE_PADRAO,
+    skip: opcoes.pagina && opcoes.pagina > 1 ? (opcoes.pagina - 1) * limite : 0,
+    take: limite,
     select: SELECAO_RESUMO,
   })
 }

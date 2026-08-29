@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { exigirUsuario } from '@/infra/auth/usuario-atual'
 import { obterCliente } from '@/infra/clientes/repositorio'
+import { CabecalhoPagina } from '@/componentes/cabecalho-pagina'
+import { CorpoPagina } from '@/componentes/corpo-pagina'
 import { FormCliente } from '../../form-cliente'
 
 export const metadata: Metadata = { title: 'Editar cliente' }
@@ -14,14 +16,8 @@ export default async function PaginaEditarCliente({ params }: { params: Promise<
 
   return (
     <>
-      <div className="page-header d-print-none">
-        <div className="container-xl">
-          <div className="page-pretitle">Cliente</div>
-          <h1 className="page-title">Editar {c.nome}</h1>
-        </div>
-      </div>
-      <div className="page-body">
-        <div className="container-xl">
+      <CabecalhoPagina pretitulo="Clientes" titulo={`Editar ${c.nome}`} />
+      <CorpoPagina>
           <div className="card">
             <div className="card-body">
               <FormCliente
@@ -34,8 +30,7 @@ export default async function PaginaEditarCliente({ params }: { params: Promise<
               />
             </div>
           </div>
-        </div>
-      </div>
+      </CorpoPagina>
     </>
   )
 }

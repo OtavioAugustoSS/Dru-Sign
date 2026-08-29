@@ -2,7 +2,12 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { exigirUsuario } from '@/infra/auth/usuario-atual'
-import { SeloApelido } from '@/componentes/selo'
+import { Selo, SeloApelido } from '@/componentes/selo'
+import { CabecalhoPagina } from '@/componentes/cabecalho-pagina'
+import { CorpoPagina } from '@/componentes/corpo-pagina'
+import { Dinheiro } from '@/componentes/dinheiro'
+import { NumeroOs } from '@/componentes/numero-os'
+import { limparTextoLegado } from '@/componentes/texto-legado'
 import { obterCliente } from '@/infra/clientes/repositorio'
 import { formatarTelefone } from '@/domain/clientes/telefone'
 import { formatarDocumento } from '@/domain/clientes/documento'
@@ -25,31 +30,28 @@ export default async function PaginaFichaCliente({ params }: { params: Promise<{
 
   return (
     <>
-      <div className="page-header d-print-none">
-        <div className="container-xl">
-          <div className="row g-2 align-items-center">
-            <div className="col">
-              <div className="page-pretitle">Cliente</div>
-              <h1 className="page-title">
-                {c.nome}
-                <SeloApelido apelido={c.apelido} />
-                {c.arquivadoEm ? <span className="badge bg-secondary-lt ms-2">arquivado</span> : null}
-              </h1>
-            </div>
-            <div className="col-auto d-flex gap-2">
-              <Link href={`/clientes/${c.id}/editar`} className="btn">Editar</Link>
-              <form action={c.arquivadoEm ? reativar : arquivar}>
-                <input type="hidden" name="id" value={c.id} />
-                <button type="submit" className="btn btn-ghost-secondary">
-                  {c.arquivadoEm ? 'Reativar' : 'Arquivar'}
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="page-body">
-        <div className="container-xl">
+      <CabecalhoPagina
+        pretitulo="Clientes"
+        titulo={
+          <>
+            {c.nome}
+            <SeloApelido apelido={c.apelido} />
+            {c.arquivadoEm ? <Selo tom="neutro" className="ms-2">arquivado</Selo> : null}
+          </>
+        }
+        acoes={
+          <>
+            <Link href={`/clientes/${c.id}/editar`} className="btn">Editar</Link>
+            <form action={c.arquivadoEm ? reativar : arquivar}>
+              <input type="hidden" name="id" value={c.id} />
+              <button type="submit" className="btn btn-ghost-secondary">
+                {c.arquivadoEm ? 'Reativar' : 'Arquivar'}
+              </button>
+            </form>
+          </>
+        }
+      />
+      <CorpoPagina>
           <div className="row g-3">
             <div className="col-md-6">
               <div className="card h-100">
@@ -77,7 +79,7 @@ export default async function PaginaFichaCliente({ params }: { params: Promise<{
                       {c.codigoLegado !== null ? <small className="text-secondary ms-2">legado nº {c.codigoLegado}</small> : null}
                     </dd>
                   </dl>
-                  {c.observacoes ? <><h4>Observações</h4><p className="text-secondary" style={{ whiteSpace: 'pre-line' }}>{c.observacoes}</p></> : null}
+                  {c.observacoes ? <><h3 className="h4">Observações</h3><p className="text-secondary texto-original">{c.observacoes}</p></> : null}
                 </div>
               </div>
             </div>
@@ -100,10 +102,10 @@ export default async function PaginaFichaCliente({ params }: { params: Promise<{
                     <tbody>
                       {antigas.map((l) => (
                         <tr key={l.id}>
-                          <td className="numero">{formatarNumeroOs(l.numero)}</td>
+                          <td className="numero"><NumeroOs numero={l.numero} /></td>
                           <td className="text-secondary">{formatarDataCalendario(new Date(l.dataEntrada))}</td>
-                          <td><div style={{ whiteSpace: 'pre-line' }}>{l.texto}</div></td>
-                          <td className="numero">{formatarMoeda(dinheiro(l.total))}</td>
+                          <td><div className="texto-original">{limparTextoLegado(l.texto)}</div></td>
+                          <td className="numero"><Dinheiro valor={l.total} /></td>
                         </tr>
                       ))}
                     </tbody>
@@ -112,8 +114,7 @@ export default async function PaginaFichaCliente({ params }: { params: Promise<{
               </div>
             </div>
           </div>
-        </div>
-      </div>
+      </CorpoPagina>
     </>
   )
 }
