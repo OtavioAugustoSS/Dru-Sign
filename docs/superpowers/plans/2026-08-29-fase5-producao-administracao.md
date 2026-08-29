@@ -58,7 +58,7 @@
   - `interface Indicadores`, `interface AnoOperacao`, `resumirOperacao(ordens: OrdemMedida[]): Indicadores`, `porAno(ordens: OrdemMedida[]): AnoOperacao[]`
   - `type Recencia = 'ativo' | 'adormecido' | 'perdido'`, `ROTULO_RECENCIA`, `interface LinhaCarteira`, `agruparPorDocumento(linhas: LinhaCarteira[], agora: Date): Carteira`
 
-- [ ] **Step 1: Urgência da fila de produção (teste)**
+- [x] **Step 1: Urgência da fila de produção (teste)**
 
 `src/domain/producao/urgencia.test.ts`:
 ```ts
@@ -70,7 +70,7 @@ const dia = (s: string) => `${s}T00:00:00.000Z`
 
 function ordem(p: Partial<OrdemDaProducao> & { numero: number }): OrdemDaProducao {
   return {
-    id: `id-${p.numero}`, numero: p.numero, clienteNome: null, clienteApelido: null,
+    id: `id-${p.numero}`, clienteNome: null, clienteApelido: null,
     abertaEm: '2026-08-20T12:00:00.000Z', prometidaPara: null, versao: 1, itens: ['PLACA ACM'], ...p,
   }
 }
@@ -81,7 +81,7 @@ describe('classificarUrgencia', () => {
       ordem({ numero: 1, prometidaPara: dia('2026-09-10') }),
       ordem({ numero: 2, prometidaPara: dia('2026-08-28') }),
       ordem({ numero: 3, prometidaPara: dia('2026-08-29') }),
-      ordem({ numero: 4, prometidaPara: null }),
+      ordem({ numero: 4, prometidaPara: null, abertaEm: '2026-08-10T12:00:00.000Z' }), // aberta antes da 1
       ordem({ numero: 5, prometidaPara: dia('2026-09-02') }),
     ], agora)
     expect(f.grupos.map((g) => [g.grupo, g.ordens.map((o) => o.numero)])).toEqual([
@@ -142,7 +142,7 @@ describe('classificarUrgencia', () => {
 
 Run: `npm test -- src/domain/producao` → vermelho (`Cannot find module './urgencia'`).
 
-- [ ] **Step 2: Urgência (implementação)**
+- [x] **Step 2: Urgência (implementação)**
 
 `src/domain/producao/urgencia.ts`:
 ```ts
@@ -233,7 +233,7 @@ export function classificarUrgencia(ordens: OrdemDaProducao[], agora: Date): Fil
 
 Run: `npm test -- src/domain/producao` → PASS.
 
-- [ ] **Step 3: Indicadores de operação (teste)**
+- [x] **Step 3: Indicadores de operação (teste)**
 
 `src/domain/operacao/indicadores.test.ts`:
 ```ts
@@ -242,7 +242,7 @@ import { resumirOperacao, porAno, type OrdemMedida } from './indicadores'
 
 function ordem(p: Partial<OrdemMedida> & { id: string }): OrdemMedida {
   return {
-    id: p.id, estadoProducao: 'aberta', abertaEm: '2026-08-01T12:00:00.000Z', concluidaEm: null,
+    estadoProducao: 'aberta', abertaEm: '2026-08-01T12:00:00.000Z', concluidaEm: null,
     precoFinal: '100.00', totalRecebido: '0.00', temItem: true, responsavelId: 'u1', ...p,
   }
 }
@@ -254,7 +254,7 @@ describe('resumirOperacao', () => {
       ordem({ id: 'b', estadoProducao: 'concluida', concluidaEm: '2026-08-10T12:00:00.000Z' }),
       ordem({ id: 'c', estadoProducao: 'cancelada' }),
       ordem({ id: 'd', estadoProducao: 'orcamento' }),
-    ], agora)
+    ])
     expect(r).toMatchObject({ total: 4, abertas: 1, concluidas: 1, canceladas: 1, orcamentos: 1 })
   })
 
@@ -274,7 +274,7 @@ describe('resumirOperacao', () => {
       ordem({ id: 'c', estadoProducao: 'concluida', concluidaEm: '2026-08-10T12:00:00.000Z', precoFinal: '50.00', totalRecebido: '50.00' }),
       ordem({ id: 'd', estadoProducao: 'cancelada', precoFinal: '900.00' }),
       ordem({ id: 'e', estadoProducao: 'orcamento', precoFinal: '900.00' }),
-    ], agora)
+    ])
     expect(r.valorParado).toBe('2728.00')
   })
 
@@ -309,7 +309,7 @@ describe('resumirOperacao', () => {
       ordem({ id: 'a', precoFinal: '100.00', totalRecebido: '40.00' }),
       ordem({ id: 'b', precoFinal: '50.00', totalRecebido: '50.00' }),
       ordem({ id: 'c', estadoProducao: 'cancelada', precoFinal: '900.00', totalRecebido: '0.00' }),
-    ], agora)
+    ])
     expect(r).toMatchObject({ faturado: '150.00', recebido: '90.00' })
   })
 })
@@ -343,7 +343,7 @@ describe('porAno', () => {
 
 Run: `npm test -- src/domain/operacao` → vermelho.
 
-- [ ] **Step 4: Indicadores (implementação)**
+- [x] **Step 4: Indicadores (implementação)**
 
 `src/domain/operacao/indicadores.ts`:
 ```ts
@@ -482,7 +482,7 @@ export function porAno(ordens: OrdemMedida[]): AnoOperacao[] {
 
 Run: `npm test -- src/domain/operacao` → PASS.
 
-- [ ] **Step 5: Carteira de clientes (teste)**
+- [x] **Step 5: Carteira de clientes (teste)**
 
 `src/domain/clientes/carteira.test.ts`:
 ```ts
@@ -494,7 +494,7 @@ const mesesAtras = (n: number) => new Date(agora.getTime() - n * 30 * 86_400_000
 
 function linha(p: Partial<LinhaCarteira> & { id: string; nome: string }): LinhaCarteira {
   return {
-    id: p.id, nome: p.nome, apelido: null, documento: null,
+    apelido: null, documento: null,
     ordens: 1, faturado: '100.00', ultimaOrdemEm: mesesAtras(1), ...p,
   }
 }
@@ -576,7 +576,7 @@ describe('agruparPorDocumento', () => {
 
 Run: `npm test -- src/domain/clientes/carteira` → vermelho.
 
-- [ ] **Step 6: Carteira (implementação)**
+- [x] **Step 6: Carteira (implementação)**
 
 `src/domain/clientes/carteira.ts`:
 ```ts
@@ -698,12 +698,21 @@ export function agruparPorDocumento(linhas: LinhaCarteira[], agora: Date): Carte
 
 Run: `npm test -- src/domain/clientes/carteira` → PASS. Run: `npm test` → PASS, `pureza` incluso (nada em `src/domain/producao`, `src/domain/operacao` ou `carteira.ts` importa infra). Run: `npm run typecheck` → sem erros.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/domain/producao src/domain/operacao src/domain/clientes/carteira.ts src/domain/clientes/carteira.test.ts
 git commit -m "feat: dominio da producao e da administracao - urgencia da fila, indicadores de operacao e carteira de clientes por documento"
 ```
+
+**Executado (29/08/2026).** 295 unitarios verdes (eram 265), typecheck limpo, `pureza` passando.
+Dois ajustes que os testes exigiram, ja aplicados acima:
+
+1. O TS 7 recusa `{ id: p.id, ..., ...p }` com **TS2783** ("specified more than once"): a chave
+   repetida antes do spread sai das tres fabricas de teste — o `...p` ja a fornece.
+2. No primeiro teste de `classificarUrgencia`, as ordens 1 e 4 caiam as duas em `sem_data` com o
+   mesmo `abertaEm`, e a expectativa `[4, 1]` dependia da ordem de insercao. A ordem 4 passou a
+   ser aberta antes, para a asserção medir o criterio de verdade em vez do acaso do sort.
 
 ---
 ### Task 2: Schema — dados da empresa que saem no impresso
