@@ -49,6 +49,7 @@ model Empresa {
   ordens    OrdemServico[]
   contador  ContadorEmpresa?
   contas    ContaPlano[]
+  ordensLegadas OrdemLegado[]
 
   @@map("empresa")
 }
@@ -123,6 +124,7 @@ model Cliente {
 
   telefones TelefoneCliente[]
   ordens    OrdemServico[]
+  ordensLegadas OrdemLegado[]
 
   @@index([empresaId, nome])
   @@index([empresaId, apelido])
@@ -427,4 +429,51 @@ model Mutacao {
 
   @@unique([empresaId, chave])
   @@map("mutacao")
+}
+
+/// As 18.443 ordens de 14 anos, somente leitura (spec, secao 10). Separada de OrdemServico de
+/// proposito: um sinalizador obrigaria toda query do sistema a lembrar de excluir o passado.
+model OrdemLegado {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  empresaId String   @map("empresa_id") @db.Uuid
+  empresa   Empresa  @relation(fields: [empresaId], references: [id])
+  numero    Int
+
+  dataEntrada       DateTime  @map("data_entrada") @db.Date
+  dataSaida         DateTime? @map("data_saida") @db.Date
+  /// O bruto do DBF quando a data nao converteu: '07060607', '60180524'.
+  dataSaidaTexto    String?   @map("data_saida_texto") @db.VarChar(8)
+  /// Saida anterior a entrada: 271 ordens entram assim mesmo, marcadas.
+  dataSaidaSuspeita Boolean   @default(false) @map("data_saida_suspeita")
+
+  /// CODCLI do legado, resolvido para cliente na importacao. Sem correspondente, clienteId fica null.
+  codigoClienteLegado Int?     @map("codigo_cliente_legado")
+  clienteId           String?  @map("cliente_id") @db.Uuid
+  cliente             Cliente? @relation(fields: [clienteId], references: [id])
+  /// Como estava no DBF, inclusive "C A N C E L A D O" (3.152 ordens).
+  clienteNome         String   @map("cliente_nome") @db.VarChar(60)
+  nomeDestruido       Boolean  @default(false) @map("nome_destruido")
+  telefone            String   @db.VarChar(20)
+
+  situacao String @db.VarChar(40)
+  /// OBS1..OBS7 como vieram. Nunca estruturado.
+  texto    String
+
+  valorProdutos Decimal @map("valor_produtos") @db.Decimal(12, 4)
+  valorServicos Decimal @map("valor_servicos") @db.Decimal(12, 4)
+  maoDeObra     Decimal @map("mao_de_obra") @db.Decimal(12, 4)
+  deslocamento  Decimal @db.Decimal(12, 4)
+  desconto      Decimal @db.Decimal(12, 4)
+  total         Decimal @db.Decimal(12, 4)
+
+  forma       String @db.VarChar(20)
+  responsavel String @db.VarChar(40)
+  usuario     String @db.VarChar(20)
+
+  importadoEm DateTime @default(now()) @map("importado_em") @db.Timestamptz(3)
+
+  @@unique([empresaId, numero])
+  @@index([empresaId, dataEntrada])
+  @@index([empresaId, clienteId])
+  @@map("ordem_legado")
 }

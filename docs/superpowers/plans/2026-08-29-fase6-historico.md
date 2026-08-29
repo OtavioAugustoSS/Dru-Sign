@@ -54,7 +54,7 @@
 - Consumes: `dinheiro`, `arredondarCentavos`; `ErroDeValidacao`.
 - Produces: `interface OrdemLegadaConvertida`, `converterOrdemLegado(v: Record<string, string>): OrdemLegadaConvertida`, `juntarObservacoes(v): string`, `lerDataDbf(texto: string): Date | null`, `ANO_MINIMO`/`ANO_MAXIMO`; tabela `ordem_legado`.
 
-- [ ] **Step 1: A conversão (teste)**
+- [x] **Step 1: A conversão (teste)**
 
 `src/domain/legado/ordem.test.ts`:
 ```ts
@@ -67,7 +67,7 @@ const vazio: Record<string, string> = {
   VLRPROD: '', VLRSERV: '', MAO_OBRA: '', DESLOCA: '', DESCONTO: '', TOTAL: '',
   FORMA: '', RESPONSA: '', USUARIO: '',
 }
-const linha = (p: Partial<Record<string, string>>): Record<string, string> => ({ ...vazio, ...p })
+const linha = (p: Record<string, string>): Record<string, string> => ({ ...vazio, ...p })
 
 describe('lerDataDbf', () => {
   it.each([
@@ -165,11 +165,12 @@ describe('converterOrdemLegado', () => {
 
 Run: `npm test -- src/domain/legado` → vermelho.
 
-- [ ] **Step 2: A conversão (implementação)**
+- [x] **Step 2: A conversão (implementação)**
 
 `src/domain/legado/ordem.ts`:
 ```ts
-import { dinheiro, arredondarCentavos } from '../precificacao/dinheiro'
+import { arredondarCentavos } from '../precificacao/dinheiro'
+import { interpretarMoeda } from '../precificacao/moeda'
 import { ErroDeValidacao } from '../precificacao/erros'
 
 /** O legado comecou em 2012 e o sistema novo entra em 2026: fora disso e lixo de digitacao. */
@@ -199,11 +200,18 @@ export function juntarObservacoes(v: Record<string, string>): string {
     .join('\n')
 }
 
+/**
+ * Os campos N do DBF vem com ponto decimal ("2528.00"), mas ha texto digitado com virgula
+ * ("1.358,81"). `interpretarMoeda` ja resolve os dois: virgula manda, e ponto sozinho e decimal.
+ * Ler isso na mao foi exatamente o defeito que o ajuste de preco teve na Fase 3.
+ */
 function decimal(texto: string): string {
-  const t = (texto ?? '').trim().replace(/\./g, '').replace(',', '.')
+  const t = (texto ?? '').trim()
   if (t === '') return '0.00'
-  const d = dinheiro(/^-?\d+(\.\d+)?$/.test(t) ? t : '0')
-  return arredondarCentavos(d).toFixed(2)
+  const negativo = t.startsWith('-')
+  const d = interpretarMoeda(negativo ? t.slice(1) : t)
+  if (d === null) return '0.00'
+  return arredondarCentavos(negativo ? d.negated() : d).toFixed(2)
 }
 
 export interface OrdemLegadaConvertida {
@@ -271,7 +279,7 @@ export function converterOrdemLegado(v: Record<string, string>): OrdemLegadaConv
 
 Run: `npm test -- src/domain/legado` → PASS.
 
-- [ ] **Step 3: A tabela**
+- [x] **Step 3: A tabela**
 
 Em `prisma/schema.prisma`, no fim:
 ```prisma
@@ -327,12 +335,22 @@ Em `Empresa`, acrescentar às relações: `ordensLegadas OrdemLegado[]`. Em `Cli
 Run: `npm run db:migrar -- ordem_legado`
 Expected: `CREATE TABLE "ordem_legado"` com as colunas acima, `ordem_legado_empresa_id_numero_key` e os dois índices. Conferir o SQL antes de seguir — se houver `DROP`, parar. Run: `npm run typecheck` → sem erros.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/domain/legado prisma/schema.prisma prisma/migrations
 git commit -m "feat: tabela e conversao do arquivo de ordens legadas, com o texto preservado como veio"
 ```
+
+**Executado (29/08/2026).** 21 testes do dominio verdes, migracao `20260829190135_ordem_legado`
+com `CREATE TABLE`, os dois indices, o unico por empresa+numero e nenhum `DROP`. Dois ajustes:
+
+1. O `decimal()` do plano lia numero na mao (`replace('.','')`) e transformava `2528.00` — que e
+   como o campo N do DBF vem — em 252.800,00. Passa a usar `interpretarMoeda`, que ja distingue
+   ponto decimal de ponto de milhar. **E o mesmo defeito que o ajuste de preco teve na Fase 3**;
+   a licao e a mesma: ler moeda na mao sempre custa um zero.
+2. `Partial<Record<string, string>>` na fabrica de teste torna os valores `string | undefined` e
+   nao satisfaz `Record<string, string>` (TS2322). `Record<string, string>` direto resolve.
 
 ---
 
