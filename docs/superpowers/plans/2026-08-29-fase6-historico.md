@@ -1257,6 +1257,25 @@ quebrar nenhum chamador.
 Run: `node -e "const e=process.env;console.log(['R2_ACCOUNT_ID','R2_ACCESS_KEY_ID','R2_SECRET_ACCESS_KEY','R2_BUCKET'].map(k=>k+'='+(e[k]?'ok':'FALTA')).join(' '))"` com o `.env.local` carregado.
 Expected: quatro `ok`. Qualquer `FALTA` → **parar a tarefa**, anotar no plano e seguir para a Task 6.
 
+> **PARADO EM 29/08/2026 — falta a credencial.** A verificação rodou e devolveu:
+>
+> ```
+> R2_ACCOUNT_ID=FALTA
+> R2_ACCESS_KEY_ID=FALTA
+> R2_SECRET_ACCESS_KEY=FALTA
+> R2_BUCKET=FALTA
+> ```
+>
+> Os Steps 2 a 4 desta tarefa **não foram executados**. Nada de anexo existe no código: não há
+> model `Anexo`, migração, `@aws-sdk/client-s3` nem tela. O resto da Fase 6 seguiu e fechou sem ela.
+>
+> **Para desbloquear**, o Otavio precisa criar na Cloudflare uma conta R2 com um bucket (sugestão:
+> `drusign-anexos`, região automática) e um token de API com permissão de leitura e escrita **só
+> nesse bucket**, e pôr as quatro variáveis no `.env.local` (e depois nas variáveis da Vercel).
+> Com elas no lugar, esta tarefa roda do Step 2 em diante sem tocar em nada do que já está pronto —
+> ela só acrescenta tabela e tela.
+
+
 - [ ] **Step 2: O model, o env e a migração**
 
 Em `prisma/schema.prisma`:
