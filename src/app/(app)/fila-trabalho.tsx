@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { SeloApelido } from '@/componentes/selo'
 import { IconSearch } from '@tabler/icons-react'
 import { formatarMoeda } from '@/domain/precificacao/moeda'
 import { dinheiro } from '@/domain/precificacao/dinheiro'
@@ -7,7 +8,7 @@ import { formatarDataCalendario, formatarDataHora } from '@/domain/ordem/datas'
 import type { Fila, OrdemDaFila } from '@/domain/caixa/fila'
 
 function Cliente({ o }: { o: OrdemDaFila }) {
-  return <>{o.clienteNome ?? <span className="text-secondary">Venda de balcão</span>}{o.clienteApelido ? <span className="badge bg-primary-lt ms-2">{o.clienteApelido}</span> : null}</>
+  return <>{o.clienteNome ?? <span className="text-secondary">Venda de balcão</span>}<SeloApelido apelido={o.clienteApelido} /></>
 }
 
 /** A tela 1 da spec, movida da rota para ca quando `/` passou a decidir por papel. */

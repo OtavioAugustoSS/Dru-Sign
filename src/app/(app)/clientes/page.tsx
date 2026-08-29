@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { IconSearch, IconPlus } from '@tabler/icons-react'
 import { exigirUsuario } from '@/infra/auth/usuario-atual'
+import { SeloApelido } from '@/componentes/selo'
 import { buscarClientes } from '@/infra/clientes/repositorio'
 import { formatarTelefone } from '@/domain/clientes/telefone'
 import { formatarDocumento } from '@/domain/clientes/documento'
@@ -84,7 +85,7 @@ export default async function PaginaClientes({
                       <tr key={c.id}>
                         <td>
                           <Link href={`/clientes/${c.id}`} className="text-reset fw-medium">{c.nome}</Link>
-                          {c.apelido ? <span className="badge bg-primary-lt ms-2">{c.apelido}</span> : null}
+                          <SeloApelido apelido={c.apelido} />
                           {c.arquivadoEm ? <span className="badge bg-secondary-lt ms-2">arquivado</span> : null}
                         </td>
                         <td className="text-secondary">

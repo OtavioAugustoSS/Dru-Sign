@@ -124,25 +124,36 @@ sozinho. Marcar `[x]` só depois do commit.
 
   **As outras 19 telas são convertidas no item T de cada uma** — a conversão faz
   parte do trabalho da tela, não de um mutirão à parte.
-- [ ] **F4. Cor e rótulo semântico num lugar só.** Um módulo que mapeia estado de
-  produção, estado de pagamento, urgência, recência, tipo de lançamento e tipo de
-  conta para selo e cor. Apagar os sete mapas espalhados, inclusive o
-  `COR_PAGAMENTO` duplicado.
+- [x] **F4. Cor e rótulo semântico num lugar só.** ✅ Feito. `src/componentes/selo.tsx`
+  passa a ser o único lugar que decide cor de significado: cinco tons (`neutro`,
+  `marca`, `bom`, `atencao`, `ruim`) e um mapa por eixo do domínio. Apagados os
+  sete mapas espalhados, inclusive o `COR_PAGAMENTO` que estava duplicado byte a
+  byte, e as quatro decisões que eram ternário dentro do JSX. Treze pontos de
+  chamada convertidos. `SeloApelido` encerra o mesmo fragmento repetido em seis
+  telas. Teste fixa o significado: se alguém trocar "não pago" para verde, quebra.
 
-  **Medido no navegador durante a F1 — os selos semânticos reprovam contraste, e
-  isso já é verdade hoje, sem tema escuro nenhum:**
+  **Contraste dos selos, medido no navegador nos dois temas** (composição do alfa
+  feita pelo próprio navegador num canvas, sem interpretar texto de cor):
 
-  | Selo | Claro | Escuro |
-  |---|---|---|
-  | `bg-success-lt` ("Serviço finalizado", "Pago") | **2,49:1 reprova** | 4,60:1 OK |
-  | `bg-danger-lt` ("Não pago", "Cancelada") | 4,04:1 só texto grande | **2,95:1 reprova** |
+  | Selo | Claro antes | Claro depois | Escuro depois |
+  |---|---|---|---|
+  | marca | 4,24:1 ❌ | **5,90:1** | 6,53:1 |
+  | bom (`Serviço finalizado`, `Pago`) | 2,49:1 ❌ | **9,65:1** | 6,97:1 |
+  | ruim (`Não pago`, `Cancelada`) | 4,04:1 ❌ | **11,88:1** | 5,43:1 |
+  | atenção (`Parcial`) | — | 8,61:1 | 7,85:1 |
+  | neutro | — | 12,05:1 | 5,33:1 |
 
-  O Tabler pinta o texto do selo com a cor cheia e o fundo com a mesma cor a 10%
-  de alfa, então os dois andam juntos e o contraste nunca abre. A F1 resolveu
-  exatamente isso para a primária (4,24:1 → 5,90:1) trocando o texto pela cor de
-  ênfase em `.bg-primary-lt`. **Aplicar o mesmo padrão a success, danger, warning
-  e secondary, nos dois temas, é trabalho desta tarefa** — e é o que torna a lista
-  de ordens varrível, não só bonita.
+  A correção é uma linha por cor no `tema.css`: o texto do selo passa a vir da cor
+  de ênfase em vez da cor cheia. O Tabler pintava texto e fundo com a mesma cor, e
+  por isso o contraste nunca abria.
+
+  `text-orange` da fila de produção (única ocorrência no app inteiro) virou o
+  token semântico `text-warning`. "Esta semana" fica sem cor própria de propósito:
+  se tudo tem cor, nada tem.
+
+  Fora de escopo, para a T8: os limiares coloridos dos indicadores em `/operacao`
+  ainda são ternário inline.
+
 - [ ] **F5. Fim dos formatadores paralelos.** Apagar a implementação por regex em
   `painel-pagamento.tsx:27` e o atalho `R$` redeclarado nos seis arquivos; usar
   `formatarMoeda` em todos. Trocar os três `padStart(6,'0')` por `formatarNumeroOs`.

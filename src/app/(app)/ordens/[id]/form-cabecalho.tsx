@@ -1,4 +1,5 @@
 'use client'
+import { SeloApelido } from '@/componentes/selo'
 
 import { useEffect, useRef, useState, useTransition, type KeyboardEvent } from 'react'
 import { useRouter } from 'next/navigation'
@@ -75,7 +76,7 @@ export function FormCabecalho(p: Props) {
                 {sugestoes.map((c) => (
                   <li key={c.id} role="option" aria-selected={false}>
                     <button type="button" className="list-group-item list-group-item-action" onClick={() => escolher(c)}>
-                      {c.nome}{c.apelido ? <span className="badge bg-primary-lt ms-2">{c.apelido}</span> : null}
+                      {c.nome}<SeloApelido apelido={c.apelido} />
                       <span className="text-secondary ms-2">{c.telefones[0]?.normalizado ? formatarTelefone(c.telefones[0].normalizado) : ''}</span>
                     </button>
                   </li>

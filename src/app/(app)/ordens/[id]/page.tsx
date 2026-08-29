@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { IconPrinter } from '@tabler/icons-react'
 import { exigirUsuario } from '@/infra/auth/usuario-atual'
+import { Selo } from '@/componentes/selo'
 import { prisma } from '@/infra/db/prisma'
 import { obterOrdemParaTela } from '@/infra/ordens/repositorio'
 import { formatarMoeda } from '@/domain/precificacao/moeda'
@@ -128,7 +129,7 @@ export default async function PaginaOrdem({ params }: { params: Promise<{ id: st
                       </div>
                     ))}
                     <dt className="col-7">Calculado</dt><dd className="col-5 numero">{R$(ordem.precoCalculado)}</dd>
-                    <dt className="col-7">Preço final{ordem.ajuste ? <span className="badge bg-primary-lt ms-2">ajustado</span> : null}</dt>
+                    <dt className="col-7">Preço final{ordem.ajuste ? <Selo tom="marca" className="ms-2">ajustado</Selo> : null}</dt>
                     <dd className="col-5 numero fs-2 fw-bold" data-testid="preco-final">{R$(ordem.precoFinal)}</dd>
                   </dl>
                   {ordem.ajuste ? (

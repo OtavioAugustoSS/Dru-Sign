@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { exigirPapel } from '@/infra/auth/usuario-atual'
+import { Selo, SeloTipoConta } from '@/componentes/selo'
 import { listarContas } from '@/infra/caixa/plano'
-import { ROTULO_TIPO_CONTA } from '@/domain/caixa/lancamento'
 import { FormConta } from './form-conta'
 import { AcoesConta } from './acoes-conta'
 
@@ -39,8 +39,8 @@ export default async function PaginaPlano({ searchParams }: { searchParams: Prom
                   {contas.filter((c) => c.grupo === g).map((c) => (
                     <tr key={c.id} className={c.ativa ? '' : 'text-secondary'}>
                       <td className="numero">{c.codigo}</td>
-                      <td>{c.nome}{c.recebeVendas ? <span className="badge bg-success-lt ms-2">recebe as vendas</span> : null}{c.ativa ? null : <span className="badge bg-secondary-lt ms-2">desativada</span>}</td>
-                      <td><span className={`badge ${c.tipo === 'receita' ? 'bg-success-lt' : 'bg-danger-lt'}`}>{ROTULO_TIPO_CONTA[c.tipo]}</span></td>
+                      <td>{c.nome}{c.recebeVendas ? <Selo tom="bom" className="ms-2">recebe as vendas</Selo> : null}{c.ativa ? null : <Selo tom="neutro" className="ms-2">desativada</Selo>}</td>
+                      <td><SeloTipoConta tipo={c.tipo} /></td>
                       <td><AcoesConta contaId={c.id} ativa={c.ativa} receita={c.tipo === 'receita'} recebeVendas={c.recebeVendas} /></td>
                     </tr>
                   ))}

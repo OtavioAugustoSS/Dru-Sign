@@ -1,17 +1,17 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { exigirPapel } from '@/infra/auth/usuario-atual'
+import { SeloApelido, SeloRecencia } from '@/componentes/selo'
 import { carregarCarteira } from '@/infra/clientes/carteira'
 import { formatarMoeda } from '@/domain/precificacao/moeda'
 import { dinheiro } from '@/domain/precificacao/dinheiro'
 import { formatarDocumento } from '@/domain/clientes/documento'
 import { formatarDataCalendario } from '@/domain/ordem/datas'
-import { ROTULO_RECENCIA, type GrupoCarteira } from '@/domain/clientes/carteira'
+import type { GrupoCarteira } from '@/domain/clientes/carteira'
 
 export const metadata: Metadata = { title: 'Carteira de clientes' }
 
 const R$ = (v: string) => formatarMoeda(dinheiro(v))
-const COR_RECENCIA = { ativo: 'bg-success-lt', adormecido: 'bg-warning-lt', perdido: 'bg-secondary-lt' } as const
 
 function Nome({ g }: { g: GrupoCarteira }) {
   return (
@@ -19,7 +19,7 @@ function Nome({ g }: { g: GrupoCarteira }) {
       {g.clienteIds.length === 1 && g.clienteIds[0]
         ? <Link href={`/clientes/${g.clienteIds[0]}`} className="text-reset fw-medium">{g.nome}</Link>
         : <span className="fw-medium">{g.nome}</span>}
-      {g.apelido ? <span className="badge bg-primary-lt ms-2">{g.apelido}</span> : null}
+      <SeloApelido apelido={g.apelido} />
       {g.cadastros > 1 ? <div className="small text-secondary">{g.cadastros} cadastros com o mesmo documento</div> : null}
       {g.documento ? <div className="small text-secondary">{formatarDocumento(g.documento)}</div> : null}
     </>
@@ -79,7 +79,7 @@ export default async function PaginaCarteira() {
                   {carteira.grupos.map((g) => (
                     <tr key={g.documento ?? g.clienteIds[0]}>
                       <td><Nome g={g} /></td>
-                      <td><span className={`badge ${COR_RECENCIA[g.recencia]}`}>{ROTULO_RECENCIA[g.recencia]}</span></td>
+                      <td><SeloRecencia recencia={g.recencia} /></td>
                       <td className="numero">{g.ordens}</td>
                       <td className="numero">{R$(g.faturado)}</td>
                       <td className="numero">{g.fatiaPct}%</td>

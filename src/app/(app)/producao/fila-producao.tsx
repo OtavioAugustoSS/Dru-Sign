@@ -1,10 +1,10 @@
 import Link from 'next/link'
+import { TEXTO_URGENCIA } from '@/componentes/selo'
 import { formatarNumeroOs } from '@/domain/caixa/lancamento'
 import { formatarDataCalendario, formatarDataLonga } from '@/domain/ordem/datas'
 import { ROTULO_URGENCIA, type FilaProducao, type OrdemDaProducao } from '@/domain/producao/urgencia'
 import { BotaoFinalizado } from './botao-finalizado'
 
-const COR_GRUPO = { atrasada: 'text-danger', hoje: 'text-orange', semana: '', sem_data: 'text-secondary' } as const
 
 /** Densidade baixa, tipo grande, botao de 56px: lida de longe, tocada de pe (spec, tela 8). */
 export function FilaDeProducao({ fila }: { fila: FilaProducao }) {
@@ -32,7 +32,7 @@ export function FilaDeProducao({ fila }: { fila: FilaProducao }) {
             </div></div></div>
           ) : fila.grupos.map((g) => (
             <section key={g.grupo} className="mb-4">
-              <h3 className={`fs-2 mb-3 ${COR_GRUPO[g.grupo]}`}>{ROTULO_URGENCIA[g.grupo]} <span className="text-secondary">({g.ordens.length})</span></h3>
+              <h3 className={`fs-2 mb-3 ${TEXTO_URGENCIA[g.grupo]}`}>{ROTULO_URGENCIA[g.grupo]} <span className="text-secondary">({g.ordens.length})</span></h3>
               <div className="row g-3">
                 {g.ordens.map((o) => <Cartao key={o.id} ordem={o} />)}
               </div>

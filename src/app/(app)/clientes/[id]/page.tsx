@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { exigirUsuario } from '@/infra/auth/usuario-atual'
+import { SeloApelido } from '@/componentes/selo'
 import { obterCliente } from '@/infra/clientes/repositorio'
 import { formatarTelefone } from '@/domain/clientes/telefone'
 import { formatarDocumento } from '@/domain/clientes/documento'
@@ -31,7 +32,7 @@ export default async function PaginaFichaCliente({ params }: { params: Promise<{
               <div className="page-pretitle">Cliente</div>
               <h2 className="page-title">
                 {c.nome}
-                {c.apelido ? <span className="badge bg-primary-lt ms-2">{c.apelido}</span> : null}
+                <SeloApelido apelido={c.apelido} />
                 {c.arquivadoEm ? <span className="badge bg-secondary-lt ms-2">arquivado</span> : null}
               </h2>
             </div>

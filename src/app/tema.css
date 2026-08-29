@@ -75,13 +75,23 @@
   --tblr-focus-ring-color: rgba(95, 196, 216, 0.35);
 }
 
-/* O Tabler pinta o texto do selo com a propria --tblr-primary. No claro isso da
- * 4,24:1 sobre o fundo do selo, abaixo do minimo de 4,5:1 para texto pequeno --
- * e selo e sempre texto pequeno. A cor de enfase resolve nos dois temas:
- * 5,90:1 no claro, 6,53:1 no escuro. */
-.bg-primary-lt {
-  color: var(--tblr-primary-text-emphasis) !important;
-}
+/* Selos: o texto vem da cor de enfase, nao da cor cheia.
+ *
+ * O Tabler pinta o texto do selo com a cor cheia e o fundo com a MESMA cor a 10%
+ * de alfa. As duas andam juntas, entao o contraste nunca abre -- e selo e sempre
+ * texto pequeno, que precisa de 4,5:1. Medido antes da correcao:
+ *
+ *   primary   4,24:1 claro   reprovava
+ *   success   2,49:1 claro   reprovava feio ("Servico finalizado", "Pago")
+ *   danger    4,04:1 claro / 2,95:1 escuro   reprovava ("Nao pago", "Cancelada")
+ *
+ * A cor de enfase e uma versao escurecida no tema claro e clareada no escuro,
+ * entao ela abre o contraste nos dois sem mexer no fundo nem na leitura da cor. */
+.bg-primary-lt { color: var(--tblr-primary-text-emphasis) !important; }
+.bg-success-lt { color: var(--tblr-success-text-emphasis) !important; }
+.bg-danger-lt { color: var(--tblr-danger-text-emphasis) !important; }
+.bg-warning-lt { color: var(--tblr-warning-text-emphasis) !important; }
+.bg-secondary-lt { color: var(--tblr-secondary-text-emphasis) !important; }
 
 /* O Tabler 1.4.0 fixa a borda de foco em azul; alinhar a primaria do tema */
 .form-control:focus,

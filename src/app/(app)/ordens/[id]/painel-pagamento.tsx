@@ -1,9 +1,9 @@
 'use client'
+import { SeloPagamento } from '@/componentes/selo'
 
 import { useRef, useState, useTransition, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { FORMAS_PAGAMENTO, ROTULO_FORMA } from '@/domain/caixa/formas'
-import { ROTULO_PAGAMENTO } from '@/domain/caixa/pagamento'
 import type { EstadoPagamento, EstadoProducao } from '@/domain/ordem/estados'
 import { formatarDataCalendario } from '@/domain/ordem/datas'
 import type { RecebimentoTela } from '@/infra/ordens/repositorio'
@@ -23,7 +23,6 @@ interface Props {
   administracao: boolean
 }
 
-const COR_PAGAMENTO = { nao_pago: 'bg-danger-lt', parcial: 'bg-warning-lt', pago: 'bg-success-lt' } as const
 const moeda = (v: string) => `R$ ${v.replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`
 
 export function PainelPagamento(p: Props) {
@@ -78,7 +77,7 @@ export function PainelPagamento(p: Props) {
       <div className="card-body">
         <div className="d-flex align-items-center justify-content-between">
           <h3 className="card-title mb-0">Pagamento</h3>
-          <span className={`badge ${COR_PAGAMENTO[p.pagamento.estado]}`} data-testid="estado-pagamento">{ROTULO_PAGAMENTO[p.pagamento.estado]}</span>
+          <SeloPagamento estado={p.pagamento.estado} testId="estado-pagamento" />
         </div>
         <dl className="row mb-0 mt-2">
           <dt className="col-7">Recebido</dt><dd className="col-5 numero">{moeda(p.pagamento.totalRecebido)}</dd>

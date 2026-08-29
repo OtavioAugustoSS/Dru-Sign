@@ -5,8 +5,8 @@ import { exigirPapel } from '@/infra/auth/usuario-atual'
 import { listarLivro } from '@/infra/caixa/livro'
 import { ErroDeValidacao } from '@/domain/precificacao/erros'
 import { formatarDataCalendario, mesCalendario } from '@/domain/ordem/datas'
-import { ROTULO_TIPO_LANCAMENTO } from '@/domain/caixa/lancamento'
 import { CabecalhoPagina } from '@/componentes/cabecalho-pagina'
+import { SeloTipoLancamento } from '@/componentes/selo'
 import { CorpoPagina } from '@/componentes/corpo-pagina'
 import { CartaoTabela } from '@/componentes/cartao-tabela'
 import { EstadoVazio } from '@/componentes/estado-vazio'
@@ -84,7 +84,7 @@ export default async function PaginaFinanceiro({ searchParams }: { searchParams:
             {livro.linhas.map((l) => (
               <tr key={l.id} className={l.estornadoEm ? 'text-secondary' : ''}>
                 <td>{formatarDataCalendario(new Date(l.data))}</td>
-                <td><span className={`badge ${l.tipo === 'entrada' ? 'bg-success-lt' : 'bg-danger-lt'}`}>{ROTULO_TIPO_LANCAMENTO[l.tipo]}</span></td>
+                <td><SeloTipoLancamento tipo={l.tipo} /></td>
                 <td>
                   {l.ordemId ? <Link href={`/ordens/${l.ordemId}`} className="text-reset">{l.historico}</Link> : l.historico}
                   {l.fornecedor ? <div className="small text-secondary">{l.fornecedor}</div> : null}
