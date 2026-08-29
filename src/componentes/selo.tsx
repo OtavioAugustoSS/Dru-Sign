@@ -24,13 +24,20 @@ const FUNDO: Record<Tom, string> = {
   ruim: 'bg-danger-lt',
 }
 
-/** Para texto colorido fora de selo (titulo de grupo, valor de indicador). */
+/**
+ * Para texto colorido fora de selo (titulo de grupo, valor de indicador).
+ *
+ * Usa as versoes `-emphasis` em verde, ambar e vermelho: as cores cheias existem
+ * para preencher fundo, nao para escrever. `text-success` cheio da 2,74:1 sobre
+ * branco, muito abaixo dos 4,5:1 de texto. Primaria e secundaria ja passam
+ * inteiras, entao ficam como estao.
+ */
 export const TEXTO: Record<Tom, string> = {
   neutro: 'text-secondary',
   marca: 'text-primary',
-  bom: 'text-success',
-  atencao: 'text-warning',
-  ruim: 'text-danger',
+  bom: 'text-success-emphasis',
+  atencao: 'text-warning-emphasis',
+  ruim: 'text-danger-emphasis',
 }
 
 // ---------------------------------------------------------------------------

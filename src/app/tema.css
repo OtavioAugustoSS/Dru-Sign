@@ -145,6 +145,13 @@
   min-height: 56px;
 }
 
+/* Digitos de largura fixa SEM alinhar a direita: para valor de indicador, que
+ * fica embaixo do proprio rotulo e deve compartilhar a margem esquerda com ele.
+ * Alinhado a direita, o numero se afastava do nome que ele mede. */
+.digitos {
+  font-variant-numeric: tabular-nums;
+}
+
 /* Numeros alinhados a direita, com digitos tabulares (spec, secao 7) */
 .numero {
   font-variant-numeric: tabular-nums;

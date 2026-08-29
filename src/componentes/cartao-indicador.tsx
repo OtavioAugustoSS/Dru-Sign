@@ -28,7 +28,7 @@ export function CartaoIndicador({ rotulo, valor, nota, tom, testId }: Props) {
     <div className="card card-sm h-100">
       <div className="card-body">
         <div className="subheader">{rotulo}</div>
-        <div className={`h2 mb-0 numero${tom ? ` ${TEXTO[tom]}` : ''}`} data-testid={testId}>
+        <div className={`h2 mb-0 digitos${tom ? ` ${TEXTO[tom]}` : ''}`} data-testid={testId}>
           {valor}
         </div>
         {nota ? <div className="text-secondary small mt-1">{nota}</div> : null}

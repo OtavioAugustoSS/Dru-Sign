@@ -478,9 +478,36 @@ Ordem por tráfego e por gravidade do que foi encontrado.
   cor por limiar) e a T9 (`/financeiro`, três totais), que hoje desenham o mesmo
   bloco à mão e nenhuma igual.
 
-- [ ] **T8. `/operacao` → Indicadores.** Tirar título e número da mesma linha.
-  Aplicar cor de alerta a todo indicador fora do alvo, não só ao primeiro.
-  Corrigir `75.2%` e `82.4%`. Resolver "0 dias" no prazo de entrega.
+- [x] **T8. `/operacao` → Indicadores.** ✅ Feito. A tela que o dono abre para julgar
+  o próprio negócio passa a dizer o que está ruim.
+
+  - **Quatro dos seis indicadores agora se colorem contra o alvo**, contra dois
+    antes. O que ficava preto neutro incluía **"valor parado em ordens não
+    cobradas"** — o número que mais dói neste negócio, e o que motivou trocar de
+    sistema. Agora três números vermelhos dizem o problema de relance.
+  - **O valor desceu para debaixo do próprio rótulo.** Estava alinhado à direita
+    (`.numero`), longe do nome que ele mede; agora divide a margem esquerda com
+    ele. Nova classe `.digitos`: largura fixa de dígito **sem** forçar alinhamento
+    à direita, que é o que coluna de tabela quer e cartão de indicador não.
+  - **"0 dias" virou "no mesmo dia"**, no valor e na nota. Tecnicamente igual;
+    "0 dias" parecia campo vazio ou conta que deu errado.
+
+  **Corrigido no caminho, e valia para o sistema todo:** `TEXTO` mapeava para
+  `text-success` e `text-danger` cheios. Verde cheio dá **2,74:1** sobre branco.
+  Como eu ia colorir quatro números grandes, troquei pelos `-emphasis`: medido
+  **13,72:1** no claro e 5,76:1 no escuro. A fila de produção herda a correção.
+
+  **Sobre os avisos de hidratação (ver T6):** aconteceu de novo, e agora tem
+  assinatura clara. **Só no primeiro carregamento depois de editar a rota**; com o
+  servidor aquecido, **seis carregamentos seguidos deram zero**. Duas ocorrências
+  independentes, mesmo padrão. É recompilação do servidor de desenvolvimento, não
+  defeito do app — mas confirmar na Z1 com `npm run build`, que não tem
+  recompilação.
+
+  **Não uniformizei a altura das duas fileiras** de cartões (99px e 117px): dentro
+  de cada fileira eles se alinham, que é o que importa. Forçar as seis à altura da
+  maior só acrescentaria espaço vazio.
+
 - [ ] **T9. `/financeiro` + `/financeiro/saida` + `/financeiro/contador`.** Alinhar
   o título com o menu ("Livro-caixa" nos dois). Tirar "Ver o livro-caixa" de dentro
   do cartão de filtro.
