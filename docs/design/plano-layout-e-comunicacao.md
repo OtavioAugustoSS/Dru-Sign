@@ -105,12 +105,25 @@ sozinho. Marcar `[x]` só depois do commit.
   `suppressHydrationWarning` no `<html>` porque o script escreve o atributo antes
   da hidratação. Console limpo. Verificado que o impresso continua papel branco e
   tinta preta mesmo com o tema escuro ligado.
-- [ ] **F3. Camada de componentes.** Criar em `src/componentes/`:
-  `CabecalhoPagina` (título, pretítulo opcional, ações, e a variante com subtítulo),
-  `CorpoPagina`, `CartaoTabela`, `EstadoVazio` (um só tratamento, aposentando os
-  outros dois), `FiltroPeriodo`, `Dinheiro`, `NumeroOs`. Converter **todas** as 22
-  telas para eles nas voltas seguintes; nesta volta, criar e converter três telas
-  como prova.
+- [x] **F3. Camada de componentes.** ✅ Feito. Sete componentes em
+  `src/componentes/`: `CabecalhoPagina`, `CorpoPagina`, `CartaoTabela`,
+  `EstadoVazio`, `FiltroPeriodo`, `Dinheiro` (+ `valorEmReais`) e `NumeroOs`.
+  Convertidas como prova `/financeiro`, `/materiais` e `/usuarios`.
+
+  Decisões que ficam valendo para as conversões seguintes:
+  - `CartaoTabela` exige `rotulo` (o `aria-label`) — não dá para esquecer.
+    `/materiais` ganhou um que não tinha.
+  - Ações do cabeçalho usam `gap-2`, aposentando o `me-2` de algumas telas.
+  - `Dinheiro` devolve **só o texto**, de propósito: `.numero` alinha à direita e
+    `text-align` num `<span>` inline não alinha nada. A classe continua no `<td>`
+    ou na `<div>`. Embrulhar em span teria perdido em silêncio o alinhamento de
+    todas as colunas de dinheiro — pego na conversão e conferido depois no
+    navegador (50 células em `/financeiro`, nenhuma desalinhada).
+  - `FiltroPeriodo` usa `col-6 col-md-3` nas datas: no celular elas ficam lado a
+    lado em vez de empilhadas.
+
+  **As outras 19 telas são convertidas no item T de cada uma** — a conversão faz
+  parte do trabalho da tela, não de um mutirão à parte.
 - [ ] **F4. Cor e rótulo semântico num lugar só.** Um módulo que mapeia estado de
   produção, estado de pagamento, urgência, recência, tipo de lançamento e tipo de
   conta para selo e cor. Apagar os sete mapas espalhados, inclusive o
