@@ -79,7 +79,7 @@ export async function trocarSenha(empresaId: string, id: string, senha: string):
 export async function alterarAtivoUsuario(empresaId: string, id: string, ativo: boolean, usuarioAtualId: string): Promise<void> {
   const alvo = await exigirUsuarioDaEmpresa(empresaId, id)
   if (!ativo) {
-    if (id === usuarioAtualId) throw new ErroDeValidacao('você mesma não pode se desativar')
+    if (id === usuarioAtualId) throw new ErroDeValidacao('você não pode desativar o seu próprio acesso')
     if (alvo.papel === 'administracao') {
       const outras = await prisma.usuario.count({ where: { empresaId, papel: 'administracao', ativo: true, id: { not: id } } })
       if (outras === 0) throw new ErroDeValidacao('esta é a única administração ativa; promova outra pessoa antes')

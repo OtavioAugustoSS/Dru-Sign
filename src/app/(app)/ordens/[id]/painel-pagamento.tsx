@@ -1,4 +1,5 @@
 'use client'
+import { CONFLITO_ORDEM_RECARREGANDO, SALVANDO } from '@/componentes/rotulos'
 import { SeloPagamento } from '@/componentes/selo'
 import { valorEmReais } from '@/componentes/dinheiro'
 
@@ -82,7 +83,7 @@ export function PainelPagamento(p: Props) {
           <dt className="col-7">Recebido</dt><dd className="col-5 numero">{valorEmReais(p.pagamento.totalRecebido)}</dd>
           <dt className="col-7">Saldo a receber</dt><dd className="col-5 numero fw-bold" data-testid="saldo">{valorEmReais(p.pagamento.saldo)}</dd>
         </dl>
-        {conflito ? <div className="alert alert-warning mt-2 mb-0" role="alert">A ordem mudou. Recarregando…</div> : null}
+        {conflito ? <div className="alert alert-warning mt-2 mb-0" role="alert">{CONFLITO_ORDEM_RECARREGANDO}</div> : null}
       </div>
 
       {p.podeReceber && p.administracao && p.pagamento.estado !== 'pago' ? (
@@ -101,7 +102,7 @@ export function PainelPagamento(p: Props) {
           <input id="dataRecebimento" type="date" className="form-control" value={data} onChange={(e) => setData(e.target.value)} />
           <label className="form-label mb-0" htmlFor="observacaoRecebimento">Observação</label>
           <input id="observacaoRecebimento" className="form-control" value={observacao} onChange={(e) => setObservacao(e.target.value)} placeholder="opcional" />
-          <button type="submit" className="btn btn-primary" disabled={pendente}>{pendente ? 'Gravando…' : aberta ? 'Concluir e receber' : 'Receber'}</button>
+          <button type="submit" className="btn btn-primary" disabled={pendente}>{pendente ? SALVANDO : aberta ? 'Concluir e receber' : 'Receber'}</button>
           {aberta ? (
             <button type="button" className="btn btn-link px-0" disabled={pendente}
               onClick={(e) => receber(e as unknown as FormEvent<HTMLFormElement>, false)}>

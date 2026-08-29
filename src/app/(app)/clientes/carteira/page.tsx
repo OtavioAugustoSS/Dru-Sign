@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { exigirPapel } from '@/infra/auth/usuario-atual'
 import { valorEmReais } from '@/componentes/dinheiro'
+import { Percentual } from '@/componentes/percentual'
 import { SeloApelido, SeloRecencia } from '@/componentes/selo'
 import { carregarCarteira } from '@/infra/clientes/carteira'
 import { formatarDocumento } from '@/domain/clientes/documento'
@@ -80,7 +81,7 @@ export default async function PaginaCarteira() {
                       <td><SeloRecencia recencia={g.recencia} /></td>
                       <td className="numero">{g.ordens}</td>
                       <td className="numero">{valorEmReais(g.faturado)}</td>
-                      <td className="numero">{g.fatiaPct}%</td>
+                      <td className="numero"><Percentual valor={g.fatiaPct} /></td>
                     </tr>
                   ))}
                 </tbody>

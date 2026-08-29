@@ -1,4 +1,5 @@
 'use client'
+import { CONFLITO_ORDEM, SALVANDO } from '@/componentes/rotulos'
 
 import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
@@ -20,11 +21,11 @@ export function BotaoFinalizado({ ordemId, versao }: { ordemId: string; versao: 
           iniciar(async () => {
             const r = await finalizarServicoAction(ordemId, versao, chave.current)
             if (r.ok) { chave.current = gerarChave(); setErro(null); iniciar(() => router.refresh()) }
-            else if (r.conflito) { setErro('A ordem mudou. Confira e tente de novo.'); router.refresh() }
+            else if (r.conflito) { setErro(CONFLITO_ORDEM); router.refresh() }
             else { chave.current = gerarChave(); setErro(r.erro) }
           })
         }}>
-        {pendente ? 'Gravando…' : 'Serviço finalizado'}
+        {pendente ? SALVANDO : 'Serviço finalizado'}
       </button>
       {erro ? <div className="text-danger mt-2" role="alert">{erro}</div> : null}
     </>

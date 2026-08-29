@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { exigirPapel } from '@/infra/auth/usuario-atual'
 import { valorEmReais } from '@/componentes/dinheiro'
+import { emPercentual } from '@/componentes/percentual'
 import { carregarOperacao } from '@/infra/operacao/indicadores'
 import { ErroDeValidacao } from '@/domain/precificacao/erros'
 
@@ -52,9 +53,9 @@ export default async function PaginaOperacao({ searchParams }: { searchParams: P
         </form>
 
         <div className="row g-3 mb-3">
-          <Cartao titulo="Ordens que ainda não foram finalizadas" valor={`${i.naoFinalizadasPct}%`} alvo="Alvo: abaixo de 5%. No legado, 29,4% em 2025." testid="nao-finalizadas" cor={Number(i.naoFinalizadasPct) > 5 ? 'text-danger' : 'text-success'} />
+          <Cartao titulo="Ordens que ainda não foram finalizadas" valor={emPercentual(i.naoFinalizadasPct)} alvo="Alvo: abaixo de 5%. No legado, 29,4% em 2025." testid="nao-finalizadas" cor={Number(i.naoFinalizadasPct) > 5 ? 'text-danger' : 'text-success'} />
           <Cartao titulo="Valor parado em ordens não cobradas" valor={valorEmReais(i.valorParado)} alvo="Alvo: perto de zero. No legado, R$ 207.795." testid="valor-parado" />
-          <Cartao titulo="Ordens com item estruturado" valor={`${i.comItemPct}%`} alvo="Alvo: acima de 90%. No legado, 0%." testid="com-item" cor={Number(i.comItemPct) >= 90 ? 'text-success' : ''} />
+          <Cartao titulo="Ordens com item estruturado" valor={emPercentual(i.comItemPct)} alvo="Alvo: acima de 90%. No legado, 0%." testid="com-item" cor={Number(i.comItemPct) >= 90 ? 'text-success' : ''} />
           <Cartao titulo="Prazo de entrega" valor={i.prazoMedianoDias === null ? '—' : `${i.prazoMedianoDias} dias`} alvo={i.prazoP90Dias === null ? 'Sem ordem finalizada ainda.' : `9 de 10 saem em até ${i.prazoP90Dias} dias. No legado: 13 e 78.`} testid="prazo" />
           <Cartao titulo="Pessoas usando o sistema" valor={String(i.pessoas)} alvo="Alvo: 2 ou mais. No legado, uma pessoa fazia 84,6% das ordens." testid="pessoas" />
           <Cartao titulo="Recebido" valor={valorEmReais(i.recebido)} alvo={`De ${valorEmReais(i.faturado)} faturados.`} testid="recebido" />

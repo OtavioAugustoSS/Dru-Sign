@@ -36,7 +36,7 @@ describe('calcularArea', () => {
   it('rejeita item sem altura', () => {
     expect(() =>
       calcularArea({ unidade: 'm2', largura: 0.5, valorUnitario: 10, quantidade: 1 }),
-    ).toThrow('altura e largura sao obrigatorias para cobranca por m2')
+    ).toThrow('Para cobrar por m², informe altura e largura.')
   })
 
   it('rejeita dimensao zero ou negativa', () => {

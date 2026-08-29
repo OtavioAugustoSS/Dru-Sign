@@ -1,4 +1,5 @@
 'use client'
+import { SALVANDO } from '@/componentes/rotulos'
 import { SeloApelido } from '@/componentes/selo'
 
 import { useEffect, useRef, useState, useTransition, type KeyboardEvent } from 'react'
@@ -102,7 +103,7 @@ export function FormCabecalho(p: Props) {
         <textarea id="observacoes" className="form-control" rows={2} value={observacoes} onChange={(e) => setObservacoes(e.target.value)} />
       </div>
       <div className="col-12 d-flex align-items-center gap-2">
-        <button type="submit" className="btn" disabled={pendente}>{pendente ? 'Salvando…' : 'Salvar cabeçalho'}</button>
+        <button type="submit" className="btn" disabled={pendente}>{pendente ? SALVANDO : 'Salvar cabeçalho'}</button>
         <span className="small text-secondary">Ctrl+S</span>
         {resposta?.ok ? <span className="text-success small">Salvo.</span> : null}
         {resposta && !resposta.ok && !resposta.conflito ? <span className="text-danger small" role="alert">{resposta.erro}</span> : null}

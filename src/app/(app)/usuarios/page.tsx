@@ -6,12 +6,11 @@ import { CabecalhoPagina } from '@/componentes/cabecalho-pagina'
 import { CorpoPagina } from '@/componentes/corpo-pagina'
 import { CartaoTabela } from '@/componentes/cartao-tabela'
 import { Selo } from '@/componentes/selo'
+import { ROTULO_PAPEL } from '@/componentes/rotulos'
 import { FormUsuario } from './form-usuario'
 import { AcoesUsuario } from './acoes-usuario'
 
 export const metadata: Metadata = { title: 'Usuários' }
-
-const ROTULO_PAPEL = { administracao: 'Administração', operacao: 'Operação' } as const
 
 export default async function PaginaUsuarios() {
   const usuario = await exigirPapel('administracao')

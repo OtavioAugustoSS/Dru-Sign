@@ -12,14 +12,14 @@ function validarComum(item: ItemCobranca): void {
     throw new ErroDeValidacao('quantidade precisa ser maior que zero')
   }
   if (dinheiro(item.valorUnitario).lt(0)) {
-    throw new ErroDeValidacao('valor unitario nao pode ser negativo')
+    throw new ErroDeValidacao('O valor unitário não pode ser negativo.')
   }
 }
 
 export function calcularArea(item: ItemCobranca): ResultadoItem {
   validarComum(item)
   if (item.altura === undefined || item.largura === undefined) {
-    throw new ErroDeValidacao('altura e largura sao obrigatorias para cobranca por m2')
+    throw new ErroDeValidacao('Para cobrar por m², informe altura e largura.')
   }
   if (dinheiro(item.altura).lte(0) || dinheiro(item.largura).lte(0)) {
     throw new ErroDeValidacao('altura e largura precisam ser maiores que zero')
@@ -42,7 +42,7 @@ export function calcularUnidade(item: ItemCobranca): ResultadoItem {
 export function calcularMetroLinear(item: ItemCobranca): ResultadoItem {
   validarComum(item)
   if (item.altura === undefined || item.largura === undefined) {
-    throw new ErroDeValidacao('altura e largura sao obrigatorias para cobranca por metro linear')
+    throw new ErroDeValidacao('Para cobrar por metro linear, informe altura e largura.')
   }
   if (dinheiro(item.altura).lte(0) || dinheiro(item.largura).lte(0)) {
     throw new ErroDeValidacao('altura e largura precisam ser maiores que zero')

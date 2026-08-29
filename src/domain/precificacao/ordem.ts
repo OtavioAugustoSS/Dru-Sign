@@ -39,7 +39,7 @@ export function comporOrdem(
   }
 
   if (dinheiro(precoFinalManual).lt(0)) {
-    throw new ErroDeValidacao('preco final nao pode ser negativo')
+    throw new ErroDeValidacao('O preço final não pode ser negativo.')
   }
 
   const precoFinal = arredondarCentavos(dinheiro(precoFinalManual))

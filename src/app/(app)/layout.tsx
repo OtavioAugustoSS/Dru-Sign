@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { IconListCheck, IconUsers, IconPackage, IconFileInvoice, IconCash, IconListTree, IconTools, IconChartBar, IconUserCog, IconBuildingStore, IconArchive } from '@tabler/icons-react'
 import { exigirUsuario } from '@/infra/auth/usuario-atual'
 import { MenuUsuario } from '@/componentes/menu-usuario'
+import { ROTULO_PAPEL } from '@/componentes/rotulos'
 import { sair } from '@/app/(auth)/entrar/actions'
 import { escolherTema } from '@/app/acoes-tema'
 import { lerTemaDoCookie } from '@/infra/tema/cookie'
@@ -20,8 +21,6 @@ const ICONES = {
   empresa: <IconBuildingStore className="icon" />,
   historico: <IconArchive className="icon" />,
 } as const
-
-const PAPEL_LEGIVEL = { administracao: 'Administração', operacao: 'Operação' } as const
 
 function iniciais(nome: string): string {
   return nome
@@ -59,7 +58,7 @@ export default async function LayoutApp({ children }: { children: React.ReactNod
           <div className="navbar-nav mt-auto pb-lg-3">
             <MenuUsuario
               nome={usuario.nome}
-              papel={PAPEL_LEGIVEL[usuario.papel]}
+              papel={ROTULO_PAPEL[usuario.papel]}
               iniciais={iniciais(usuario.nome)}
               tema={tema}
               sairAction={sair}

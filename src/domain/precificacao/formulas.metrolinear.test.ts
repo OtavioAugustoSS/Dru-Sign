@@ -32,6 +32,6 @@ describe('calcularMetroLinear', () => {
   it('rejeita item sem dimensao', () => {
     expect(() =>
       calcularMetroLinear({ unidade: 'metro_linear', valorUnitario: 28, quantidade: 1 }),
-    ).toThrow('altura e largura sao obrigatorias para cobranca por metro linear')
+    ).toThrow('Para cobrar por metro linear, informe altura e largura.')
   })
 })

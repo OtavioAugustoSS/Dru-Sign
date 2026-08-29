@@ -1,4 +1,5 @@
 'use client'
+import { SALVANDO } from '@/componentes/rotulos'
 
 import { useActionState } from 'react'
 import { salvarMaterial, type EstadoMaterial } from './actions'
@@ -44,7 +45,7 @@ export function FormMaterial({ id, inicial }: Props) {
           </select>
         </div>
         <div className="col-md-1 d-flex gap-2">
-          <button type="submit" className="btn btn-primary" disabled={pendente}>{pendente ? '…' : 'Salvar'}</button>
+          <button type="submit" className="btn btn-primary" disabled={pendente}>{pendente ? SALVANDO : 'Salvar'}</button>
         </div>
       </div>
     </form>

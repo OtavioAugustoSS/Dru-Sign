@@ -1,4 +1,5 @@
 'use client'
+import { SALVANDO } from '@/componentes/rotulos'
 
 import { useActionState } from 'react'
 import { salvarCliente, type EstadoCliente } from './actions'
@@ -115,7 +116,7 @@ export function FormCliente({ id, inicial }: Props) {
 
       <div className="form-footer d-flex gap-2">
         <button type="submit" className="btn btn-primary" disabled={pendente}>
-          {pendente ? 'Salvando…' : 'Salvar'}
+          {pendente ? SALVANDO : 'Salvar'}
         </button>
         <a href={id ? `/clientes/${id}` : '/clientes'} className="btn btn-link">Cancelar</a>
       </div>

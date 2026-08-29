@@ -1,4 +1,5 @@
 'use client'
+import { SALVANDO } from '@/componentes/rotulos'
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
@@ -55,7 +56,7 @@ export function FormEmpresa({ empresa }: { empresa: EmpresaTela }) {
         <div className="col-12 form-hint">É o que sai no cabeçalho do impresso da ordem. O que ficar em branco simplesmente não aparece lá.</div>
       </div>
       <div className="card-footer d-flex align-items-center gap-2">
-        <button type="submit" className="btn btn-primary" disabled={pendente}>{pendente ? 'Salvando…' : 'Salvar'}</button>
+        <button type="submit" className="btn btn-primary" disabled={pendente}>{pendente ? SALVANDO : 'Salvar'}</button>
         {resposta === 'salvo' ? <span className="text-success small" role="status">Salvo.</span> : null}
         {resposta !== 'salvo' && resposta !== 'nenhuma' ? <span className="text-danger small" role="alert">{resposta}</span> : null}
       </div>

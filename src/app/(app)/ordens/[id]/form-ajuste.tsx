@@ -1,4 +1,5 @@
 'use client'
+import { SALVANDO } from '@/componentes/rotulos'
 
 import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
@@ -42,7 +43,7 @@ export function FormAjuste({ ordemId, versao, precoFinal, motivo }: { ordemId: s
       </div>
       <label className="form-label mb-0" htmlFor="motivoAjuste">Motivo do ajuste</label>
       <input id="motivoAjuste" className="form-control" value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="arredondamento comercial, cliente antigo…" required />
-      <button type="submit" className="btn btn-primary" disabled={pendente}>{pendente ? 'Gravando…' : 'Ajustar preço'}</button>
+      <button type="submit" className="btn btn-primary" disabled={pendente}>{pendente ? SALVANDO : 'Ajustar preço'}</button>
       {invalido ? <div className="text-danger small" role="alert">Preço inválido. Use 2528,00 ou 2528.</div> : null}
       {resposta && !resposta.ok && !resposta.conflito ? <div className="text-danger small" role="alert">{resposta.erro}</div> : null}
     </form>

@@ -1,13 +1,11 @@
 'use client'
+import { DESCRICAO_PAPEL, SALVANDO } from '@/componentes/rotulos'
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { criarUsuarioAction } from './actions'
 
-const PAPEIS = [
-  ['administracao', 'Administração — vê financeiro, indicadores e configurações'],
-  ['operacao', 'Operação — vê a fila de produção e marca serviço finalizado'],
-] as const
+const PAPEIS = Object.entries(DESCRICAO_PAPEL)
 
 export function FormUsuario() {
   const router = useRouter()
@@ -38,7 +36,7 @@ export function FormUsuario() {
         </select>
       </div>
       <div className="col-md-2"><label className="form-label" htmlFor="senhaUsuario">Senha inicial</label><input id="senhaUsuario" type="password" className="form-control" value={senha} onChange={(e) => setSenha(e.target.value)} autoComplete="new-password" /></div>
-      <div className="col-md-2"><button type="submit" className="btn btn-primary w-100" disabled={pendente}>{pendente ? 'Criando…' : 'Criar usuário'}</button></div>
+      <div className="col-md-2"><button type="submit" className="btn btn-primary w-100" disabled={pendente}>{pendente ? SALVANDO : 'Criar usuário'}</button></div>
       <div className="col-12 form-hint">A pessoa entra com essa senha e troca depois. Mínimo de 8 caracteres.</div>
       {erro ? <div className="col-12 text-danger small" role="alert">{erro}</div> : null}
     </form>

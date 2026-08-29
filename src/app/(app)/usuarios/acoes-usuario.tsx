@@ -1,4 +1,5 @@
 'use client'
+import { ROTULO_PAPEL } from '@/componentes/rotulos'
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
@@ -45,8 +46,7 @@ export function AcoesUsuario(p: Props) {
       <form className="d-flex gap-2 align-items-center" onSubmit={(e) => { e.preventDefault(); rodar(() => alterarUsuarioAction(p.id, { nome, papel })) }}>
         <input className="form-control form-control-sm" value={nome} onChange={(e) => setNome(e.target.value)} aria-label={`Nome de ${p.nome}`} autoFocus />
         <select className="form-select form-select-sm" value={papel} onChange={(e) => setPapel(e.target.value)} aria-label={`Papel de ${p.nome}`}>
-          <option value="administracao">Administração</option>
-          <option value="operacao">Operação</option>
+          {Object.entries(ROTULO_PAPEL).map(([v, rotulo]) => <option key={v} value={v}>{rotulo}</option>)}
         </select>
         <button type="submit" className="btn btn-primary btn-sm" disabled={pendente}>Gravar</button>
         <button type="button" className="btn btn-link btn-sm" onClick={() => setAberto('nenhum')}>Voltar</button>

@@ -54,6 +54,6 @@ describe('comporOrdem', () => {
 
   it('rejeita preco final negativo', () => {
     const itens: ItemCobranca[] = [{ unidade: 'unidade', valorUnitario: 100, quantidade: 1 }]
-    expect(() => comporOrdem(itens, [], -10)).toThrow('preco final nao pode ser negativo')
+    expect(() => comporOrdem(itens, [], -10)).toThrow('O preço final não pode ser negativo.')
   })
 })

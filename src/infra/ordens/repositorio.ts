@@ -121,12 +121,12 @@ async function recalcular(tx: Tx, ctx: Contexto, ordemId: string, versao: number
  */
 async function exigirResponsavel(tx: Tx, empresaId: string, responsavelId: string): Promise<void> {
   const u = await tx.usuario.findFirst({ where: { id: responsavelId, empresaId, ativo: true }, select: { id: true } })
-  if (!u) throw new ErroDeValidacao('responsavel nao encontrado')
+  if (!u) throw new ErroDeValidacao('Responsável não encontrado.')
 }
 
 async function exigirMaterial(tx: Tx, empresaId: string, materialId: string): Promise<void> {
   const m = await tx.material.findFirst({ where: { id: materialId, empresaId, ativo: true }, select: { id: true } })
-  if (!m) throw new ErroDeValidacao('material nao encontrado')
+  if (!m) throw new ErroDeValidacao('Material não encontrado.')
 }
 
 async function snapshotCliente(tx: Tx, empresaId: string, clienteId: string | null | undefined) {
@@ -135,7 +135,7 @@ async function snapshotCliente(tx: Tx, empresaId: string, clienteId: string | nu
     where: { id: clienteId, empresaId, arquivadoEm: null },
     select: { id: true, nome: true, apelido: true, telefones: { orderBy: { ordem: 'asc' }, take: 1, select: { original: true } } },
   })
-  if (!c) throw new ErroDeValidacao('cliente nao encontrado')
+  if (!c) throw new ErroDeValidacao('Cliente não encontrado.')
   return { clienteId: c.id, clienteNome: c.nome, clienteApelido: c.apelido, clienteTelefone: c.telefones[0]?.original ?? null }
 }
 
@@ -209,14 +209,14 @@ export async function removerItem(ctx: Contexto, ordemId: string, versao: number
       where: { id: itemId, ordemId, empresaId: ctx.empresaId, ...VIVOS },
       data: { removidoEm: new Date(), removidoPorId: ctx.usuarioId },
     })
-    if (count === 0) throw new ErroDeValidacao('item nao encontrado')
+    if (count === 0) throw new ErroDeValidacao('Item não encontrado.')
     return recalcular(tx, ctx, ordemId, versao)
   })
 }
 
 export async function adicionarAcrescimo(ctx: Contexto, ordemId: string, versao: number, dados: DadosAcrescimo): Promise<Totais> {
   const valor = dinheiro(dados.valor)
-  if (valor.lte(0)) throw new ErroDeValidacao('valor do acrescimo precisa ser maior que zero')
+  if (valor.lte(0)) throw new ErroDeValidacao('O valor do acréscimo precisa ser maior que zero.')
   return executarUmaVez(ctx, 'acrescimo.adicionar', async (tx) => {
     await carregarEditavel(tx, ctx, ordemId, versao)
     await tx.acrescimoOrdem.create({
@@ -233,7 +233,7 @@ export async function removerAcrescimo(ctx: Contexto, ordemId: string, versao: n
       where: { id: acrescimoId, ordemId, empresaId: ctx.empresaId, ...VIVOS },
       data: { removidoEm: new Date(), removidoPorId: ctx.usuarioId },
     })
-    if (count === 0) throw new ErroDeValidacao('acrescimo nao encontrado')
+    if (count === 0) throw new ErroDeValidacao('Acréscimo não encontrado.')
     return recalcular(tx, ctx, ordemId, versao)
   })
 }
@@ -241,8 +241,8 @@ export async function removerAcrescimo(ctx: Contexto, ordemId: string, versao: n
 /** Ajuste manual: os quatro campos juntos. O recalculo em seguida respeita o preco final. */
 export async function ajustarPreco(ctx: Contexto, ordemId: string, versao: number, precoFinal: string, motivo: string): Promise<Totais> {
   const preco = dinheiro(precoFinal)
-  if (preco.lt(0)) throw new ErroDeValidacao('preco final nao pode ser negativo')
-  if (motivo.trim() === '') throw new ErroDeValidacao('o motivo do ajuste e obrigatorio')
+  if (preco.lt(0)) throw new ErroDeValidacao('O preço final não pode ser negativo.')
+  if (motivo.trim() === '') throw new ErroDeValidacao('Informe o motivo do ajuste.')
   return executarUmaVez(ctx, 'ordem.ajustar', async (tx) => {
     const ordem = await carregarEditavel(tx, ctx, ordemId, versao)
     const atual = await tx.ordemServico.findUniqueOrThrow({ where: { id: ordem.id }, select: { precoCalculado: true } })
@@ -264,7 +264,7 @@ export async function ajustarPreco(ctx: Contexto, ordemId: string, versao: numbe
 export async function confirmarAjuste(ctx: Contexto, ordemId: string, versao: number): Promise<Totais> {
   return executarUmaVez(ctx, 'ordem.confirmar_ajuste', async (tx) => {
     const ordem = await carregarEditavel(tx, ctx, ordemId, versao)
-    if (ordem.ajustadoPorId === null) throw new ErroDeValidacao('a ordem nao tem ajuste')
+    if (ordem.ajustadoPorId === null) throw new ErroDeValidacao('Esta ordem não tem ajuste de preço.')
     const atual = await tx.ordemServico.findUniqueOrThrow({ where: { id: ordem.id }, select: { precoCalculado: true } })
     await tx.ordemServico.update({ where: { id: ordem.id }, data: { precoCalculadoNoAjuste: atual.precoCalculado } })
     return recalcular(tx, ctx, ordemId, versao)
@@ -295,7 +295,7 @@ export async function atualizarCabecalho(ctx: Contexto, ordemId: string, versao:
     let prometida: Date | null | undefined
     if (dados.prometidaPara !== undefined) {
       prometida = dados.prometidaPara ? lerDataCalendario(dados.prometidaPara) : null
-      if (dados.prometidaPara && !prometida) throw new ErroDeValidacao('data prometida invalida')
+      if (dados.prometidaPara && !prometida) throw new ErroDeValidacao('Data de entrega inválida.')
     }
     await tx.ordemServico.update({
       where: { id: ordem.id },
@@ -323,7 +323,7 @@ export async function aprovarOrcamento(ctx: Contexto, ordemId: string, versao: n
 }
 
 export async function cancelarOrdem(ctx: Contexto, ordemId: string, versao: number, motivo: string): Promise<Totais> {
-  if (motivo.trim() === '') throw new ErroDeValidacao('o motivo do cancelamento e obrigatorio')
+  if (motivo.trim() === '') throw new ErroDeValidacao('Informe o motivo do cancelamento.')
   return executarUmaVez(ctx, 'ordem.cancelar', async (tx) => {
     const ordem = await carregarEditavel(tx, ctx, ordemId, versao)
     await tx.ordemServico.update({

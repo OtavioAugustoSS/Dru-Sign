@@ -1,4 +1,5 @@
 'use client'
+import { SALVANDO } from '@/componentes/rotulos'
 
 import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
@@ -58,7 +59,7 @@ export function FormSaida({ hoje, contas }: Props) {
         <div className="col-12 form-hint">A compra parcelada entra uma vez por parcela, cada uma na sua data. Vazio quando não é parcelado.</div>
       </div>
       <div className="card-footer d-flex align-items-center gap-2">
-        <button type="submit" className="btn btn-primary" disabled={pendente}>{pendente ? 'Gravando…' : 'Lançar saída'}</button>
+        <button type="submit" className="btn btn-primary" disabled={pendente}>{pendente ? SALVANDO : 'Lançar saída'}</button>
         <a href="/financeiro" className="btn btn-link">Cancelar</a>
         {erro ? <span className="text-danger small" role="alert">{erro}</span> : null}
       </div>

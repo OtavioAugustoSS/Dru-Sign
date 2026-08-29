@@ -1,4 +1,5 @@
 'use client'
+import { SALVANDO } from '@/componentes/rotulos'
 
 import { useEffect, useMemo, useRef, useState, useTransition, type KeyboardEvent } from 'react'
 import { useRouter } from 'next/navigation'
@@ -121,7 +122,7 @@ export function EntradaLinha({ ordemId, versao, catalogo }: Props) {
                 <option value="metro_linear">por metro linear (perímetro)</option>
               </select>
             ) : null}
-            <span className="small text-secondary">{pendente ? 'Gravando…' : 'Enter adiciona · Esc limpa · Alt+U troca a unidade'}</span>
+            <span className="small text-secondary">{pendente ? SALVANDO : 'Enter adiciona · Esc limpa · Alt+U troca a unidade'}</span>
           </div>
         ) : (
           <span className="small text-secondary">Digite como no papel: quantidade, o que é, medida e valor. Acréscimo começa com +.</span>

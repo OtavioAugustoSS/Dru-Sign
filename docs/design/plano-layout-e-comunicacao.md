@@ -168,23 +168,24 @@ sozinho. Marcar `[x]` só depois do commit.
   Conferido no navegador: 121 valores em seis telas, todos no formato
   `R$ 1.234,56`, nenhum fora do padrão. Saldo e preço final inalterados.
 
-- [ ] **F6. Texto padronizado.** Um rótulo de botão pendente para todo o app; uma
-  frase de conflito otimista (hoje são quatro); rótulo de papel vindo de um lugar
-  só (hoje são cinco). Corrigir "você mesma não pode se desativar" para forma
-  neutra. Trocar `75.2%` por `75,2%` em toda porcentagem — é vírgula em português.
-
-  **Mais grave, achado depois:** as mensagens de `ErroDeValidacao` do domínio e da
-  infra chegam **verbatim** na tela (as actions fazem `return { ok: false, erro:
-  e.message }`), mas foram escritas em registro de desenvolvedor: minúsculas, sem
-  ponto final e **várias sem acento** — "descreva o item", "o motivo do ajuste e
-  obrigatorio", "preco final nao pode ser negativo", "responsavel nao encontrado",
-  "data prometida invalida" (`src/infra/ordens/repositorio.ts`), "altura e largura
-  sao obrigatorias para cobranca por m2"
-  (`src/domain/precificacao/formulas.ts`), "aprove o orçamento antes de receber",
-  "a ordem já está paga", "conta não encontrada". Contrastam com o texto escrito
-  direto nas telas, que é maiúsculo inicial e pontuado ("O nome é obrigatório.").
-  A Odete lê as duas coisas no mesmo lugar. Reescrever todas sem mexer no
-  comportamento, com teste que fixe as novas mensagens.
+- [x] **F6. Texto padronizado.** ✅ Feito.
+  - **Botão gravando:** cinco versões viraram uma (`SALVANDO`). Havia
+    "Gravando…", "Salvando…", "Criando…", "…" (só as reticências, sem dizer nada)
+    e um botão que não mudava. "Entrando…" no login fica: entrar não é gravar.
+  - **Conflito de trava otimista:** três redações viraram `CONFLITO_ORDEM`. A quarta
+    (`… Recarregando…`) continua separada porque é outro caso: a tela já recarrega
+    sozinha e não há o que a pessoa fazer.
+  - **Papel do usuário:** cinco cópias viraram `ROTULO_PAPEL` e `DESCRICAO_PAPEL`.
+  - **Gênero fixo:** "você mesma não pode se desativar" virou "você não pode
+    desativar o seu próprio acesso".
+  - **Porcentagem:** `emPercentual` traduz o "75.2" canônico do domínio para
+    "75,2%". Conferido no navegador: **zero** porcentagens com ponto em
+    `/operacao` e `/clientes/carteira`. A guarda contra string vazia importa:
+    `Number('')` é zero, e sem ela um campo vazio viraria "0,0%" — um número
+    inventado, pior que não mostrar nada.
+  - **Mensagens sem acento:** 15 corrigidas em `formulas.ts`, `ordem.ts` e
+    `ordens/repositorio.ts` — "preco final nao pode ser negativo" chegava assim
+    na tela. Três testes de domínio e um de integração acompanharam o texto novo.
 
 ### Casca
 
@@ -250,6 +251,16 @@ Ordem por tráfego e por gravidade do que foi encontrado.
 
 ### Fechamento
 
+- [ ] **Z0. Registro das mensagens de validação.** Sobraram ~25 mensagens de
+  `ErroDeValidacao` corretas em português mas escritas em registro de
+  desenvolvedor: minúsculas e sem ponto final ("aprove o orçamento antes de
+  receber", "a ordem já está paga"). Elas chegam verbatim na tela, ao lado de
+  texto escrito com maiúscula e ponto.
+  **Armadilha encontrada na F6, por isso isto virou item separado:** várias são
+  compostas em frases maiores (`{erro} — mostrando o mês atual.`). Se a mensagem
+  ganhar ponto final, a frase composta fica "Data inválida. — mostrando o mês
+  atual." Cada uma precisa ser decidida junto com o lugar onde aparece; não é
+  varredura mecânica.
 - [ ] **Z1. Passada final.** Percorrer as 22 telas nos dois temas em 390px e 1440px.
   Conferir contraste de todo par texto/fundo. Navegar o sistema inteiro só pelo
   teclado. Rodar `npm run check` e `npm run e2e`. Escrever o que ficou de fora.
