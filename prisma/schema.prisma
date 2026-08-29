@@ -27,11 +27,16 @@ model Empresa {
   atualizadoEm DateTime  @updatedAt @map("atualizado_em") @db.Timestamptz(3)
   arquivadoEm  DateTime? @map("arquivado_em") @db.Timestamptz(3)
 
+  /// A conta de receita em que todo recebimento e lancado (VENDAS DIVERSAS na importacao). Sem ela, receber recusa.
+  contaRecebimentoId String?     @unique @map("conta_recebimento_id") @db.Uuid
+  contaRecebimento   ContaPlano? @relation("empresa_conta_recebimento", fields: [contaRecebimentoId], references: [id])
+
   usuarios  Usuario[]
   clientes  Cliente[]
   materiais Material[]
   ordens    OrdemServico[]
   contador  ContadorEmpresa?
+  contas    ContaPlano[]
 
   @@map("empresa")
 }
@@ -51,6 +56,9 @@ model Usuario {
   sessoes           Sessao[]
   ordensResponsavel OrdemServico[] @relation("ordem_responsavel")
   ordensAjustadas   OrdemServico[] @relation("ordem_ajustada_por")
+  ordensConcluidas  OrdemServico[] @relation("ordem_concluida_por")
+  recebimentos      Recebimento[]     @relation("recebimento_usuario")
+  lancamentos       LancamentoCaixa[] @relation("lancamento_usuario")
 
   @@index([empresaId])
   @@map("usuario")
@@ -170,6 +178,114 @@ enum TipoAcrescimo {
   @@map("tipo_acrescimo")
 }
 
+/// Forma obrigatoria e sem valor de fabrica (spec, secoes 4 e 7). "Avista" do legado nao existe aqui.
+enum FormaPagamento {
+  dinheiro
+  pix
+  cartao_debito
+  cartao_credito
+  transferencia
+  cheque
+  boleto
+
+  @@map("forma_pagamento")
+}
+
+enum TipoConta {
+  receita
+  despesa
+
+  @@map("tipo_conta")
+}
+
+enum TipoLancamento {
+  entrada
+  saida
+
+  @@map("tipo_lancamento")
+}
+
+/// As 48 contas do legado como estao (spec, secao 4). Desativa, nunca apaga.
+model ContaPlano {
+  id           String    @id @default(uuid(7)) @db.Uuid
+  empresaId    String    @map("empresa_id") @db.Uuid
+  empresa      Empresa   @relation(fields: [empresaId], references: [id])
+  codigo       Int
+  nome         String    @db.VarChar(80)
+  nivel        Int       @default(0)
+  tipo         TipoConta
+  /// NOMENIVEL do legado: CUSTO GERAL, DESPESAS, CUSTO FINANCEIRO, DESPESAS COM VEICULO, RECEITA GERAL, COMPRAS.
+  grupo        String    @db.VarChar(60)
+  ativa        Boolean   @default(true)
+  codigoLegado Int?      @map("codigo_legado")
+  criadoEm     DateTime  @default(now()) @map("criado_em") @db.Timestamptz(3)
+  atualizadoEm DateTime  @updatedAt @map("atualizado_em") @db.Timestamptz(3)
+
+  lancamentos    LancamentoCaixa[]
+  recebeVendasDe Empresa?          @relation("empresa_conta_recebimento")
+
+  @@unique([empresaId, codigo])
+  @@index([empresaId, tipo])
+  @@map("conta_plano")
+}
+
+/// Log de recebimento (spec, secao 4): varios por ordem, sem parcela, juros ou vencimento.
+/// Nasce colado a um lancamento de entrada na mesma transacao; erro se estorna, nunca se apaga.
+model Recebimento {
+  id         String         @id @default(uuid(7)) @db.Uuid
+  empresaId  String         @map("empresa_id") @db.Uuid
+  ordemId    String         @map("ordem_id") @db.Uuid
+  ordem      OrdemServico   @relation(fields: [ordemId], references: [id])
+  data       DateTime       @db.Date
+  valor      Decimal        @db.Decimal(12, 4)
+  forma      FormaPagamento
+  observacao String?        @db.VarChar(160)
+  usuarioId  String         @map("usuario_id") @db.Uuid
+  usuario    Usuario        @relation("recebimento_usuario", fields: [usuarioId], references: [id])
+
+  lancamentoId String          @unique @map("lancamento_id") @db.Uuid
+  lancamento   LancamentoCaixa @relation(fields: [lancamentoId], references: [id])
+
+  estornadoEm    DateTime? @map("estornado_em") @db.Timestamptz(3)
+  estornadoPorId String?   @map("estornado_por_id") @db.Uuid
+  motivoEstorno  String?   @map("motivo_estorno") @db.VarChar(160)
+  criadoEm       DateTime  @default(now()) @map("criado_em") @db.Timestamptz(3)
+
+  @@index([empresaId, ordemId])
+  @@index([empresaId, data])
+  @@map("recebimento")
+}
+
+/// Livro-caixa (spec, secao 4): entradas vem do recebimento, saidas sao digitadas. Parcela fica na saida.
+model LancamentoCaixa {
+  id            String         @id @default(uuid(7)) @db.Uuid
+  empresaId     String         @map("empresa_id") @db.Uuid
+  data          DateTime       @db.Date
+  tipo          TipoLancamento
+  valor         Decimal        @db.Decimal(12, 4)
+  contaId       String         @map("conta_id") @db.Uuid
+  conta         ContaPlano     @relation(fields: [contaId], references: [id])
+  historico     String         @db.VarChar(160)
+  ordemId       String?        @map("ordem_id") @db.Uuid
+  ordem         OrdemServico?  @relation(fields: [ordemId], references: [id])
+  fornecedor    String?        @db.VarChar(120)
+  parcela       Int?
+  totalParcelas Int?           @map("total_parcelas")
+  usuarioId     String         @map("usuario_id") @db.Uuid
+  usuario       Usuario        @relation("lancamento_usuario", fields: [usuarioId], references: [id])
+  recebimento   Recebimento?
+
+  estornadoEm    DateTime? @map("estornado_em") @db.Timestamptz(3)
+  estornadoPorId String?   @map("estornado_por_id") @db.Uuid
+  motivoEstorno  String?   @map("motivo_estorno") @db.VarChar(160)
+  criadoEm       DateTime  @default(now()) @map("criado_em") @db.Timestamptz(3)
+
+  @@index([empresaId, data])
+  @@index([empresaId, ordemId])
+  @@index([empresaId, contaId])
+  @@map("lancamento_caixa")
+}
+
 /// Numeracao por empresa, sem buraco: `update { increment }` dentro da transacao que cria a OS.
 /// Nao e sequence: o TRUNCATE dos testes e o rollback nao mexem aqui. A DruSign continua em 18461 (seed).
 model ContadorEmpresa {
@@ -220,6 +336,8 @@ model OrdemServico {
   abertaEm           DateTime  @default(now()) @map("aberta_em") @db.Timestamptz(3)
   prometidaPara      DateTime? @map("prometida_para") @db.Date
   concluidaEm        DateTime? @map("concluida_em") @db.Timestamptz(3)
+  concluidaPorId     String?   @map("concluida_por_id") @db.Uuid
+  concluidaPor       Usuario?  @relation("ordem_concluida_por", fields: [concluidaPorId], references: [id])
   canceladaEm        DateTime? @map("cancelada_em") @db.Timestamptz(3)
   motivoCancelamento String?   @map("motivo_cancelamento") @db.VarChar(160)
 
@@ -228,8 +346,10 @@ model OrdemServico {
   criadoEm     DateTime @default(now()) @map("criado_em") @db.Timestamptz(3)
   atualizadoEm DateTime @updatedAt @map("atualizado_em") @db.Timestamptz(3)
 
-  itens      ItemOrdem[]
-  acrescimos AcrescimoOrdem[]
+  itens        ItemOrdem[]
+  acrescimos   AcrescimoOrdem[]
+  recebimentos Recebimento[]
+  lancamentos  LancamentoCaixa[]
 
   @@unique([empresaId, numero])
   @@index([empresaId, estadoProducao, abertaEm])

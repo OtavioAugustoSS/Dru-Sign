@@ -587,7 +587,7 @@ o `dinheiro.ts` ja exporta a classe. Sem outras mudancas.
 - Consumes: `converterContaLegado` (Task 1), `lerDbf` (`src/infra/importacao/dbf.ts`), `prisma`.
 - Produces: tabelas `conta_plano`, `recebimento`, `lancamento_caixa`; `empresa.conta_recebimento_id`; `ordem_servico.concluida_por_id`; `importarPlanoLegado(caminhoDbf, empresaId): Promise<ResultadoImportacaoPlano>` com `{ total, receitas, despesas, jaExistiam, contaRecebimento: string | null }`; `npm run importar:plano`.
 
-- [ ] **Step 1: Enums e modelos**
+- [x] **Step 1: Enums e modelos**
 
 Acrescentar ao `prisma/schema.prisma` (depois de `TipoAcrescimo`):
 ```prisma
@@ -724,12 +724,12 @@ e às relações no fim:
   lancamentos  LancamentoCaixa[]
 ```
 
-- [ ] **Step 2: Migração**
+- [x] **Step 2: Migração**
 
 Run: `npm run db:migrar -- dinheiro`
 Expected: `prisma/migrations/<timestamp>_dinheiro/migration.sql` com `CREATE TYPE "forma_pagamento"`, `"tipo_conta"`, `"tipo_lancamento"`, `CREATE TABLE "conta_plano"`, `"recebimento"`, `"lancamento_caixa"`, `ALTER TABLE "empresa" ADD COLUMN "conta_recebimento_id"`, `ALTER TABLE "ordem_servico" ADD COLUMN "concluida_por_id"`, índice único `recebimento_lancamento_id_key`; `migrate deploy` aplicado no `drusign`; `prisma generate` rodado. Conferir o SQL com o Read tool antes de seguir. Run: `npm run typecheck` → sem erros.
 
-- [ ] **Step 3: Importação do plano (teste de integração)**
+- [x] **Step 3: Importação do plano (teste de integração)**
 
 `src/infra/importacao/plano-legado.int.test.ts`:
 ```ts
@@ -766,7 +766,7 @@ describe.skipIf(!existsSync(DBF))('importacao do plano de contas do legado', () 
 
 Run: `npm run test:int -- plano-legado` → vermelho (`Cannot find module './plano-legado'`).
 
-- [ ] **Step 4: Importação (implementação) e script**
+- [x] **Step 4: Importação (implementação) e script**
 
 `src/infra/importacao/plano-legado.ts`:
 ```ts
@@ -846,12 +846,18 @@ Em `package.json`, ao lado de `importar:clientes`, acrescentar `"importar:plano"
 
 Run: `npm run test:int -- plano-legado` → PASS (1). Run: `npm run importar:plano` no banco de desenvolvimento → `48 contas importadas para "DruSign Placas e Comunicacao Visual" (3 receitas, 45 despesas); recebimentos vao para "VENDAS DIVERSAS"`.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add prisma/schema.prisma prisma/migrations package.json src/infra/importacao/plano-legado.ts src/infra/importacao/plano-legado.int.test.ts scripts/importar-plano.ts
 git commit -m "feat: modelos de conta do plano, recebimento e lancamento de caixa; importacao das 48 contas do legado"
 ```
+
+**Executado (29/08/2026).** Migracao `20260829170940_dinheiro` gerada e aplicada; o SQL traz
+os tres `CREATE TYPE`, as tres tabelas, os dois `ADD COLUMN` e o `recebimento_lancamento_id_key`,
+como previsto. `npm run test:int -- plano-legado` = 1 passed; `npm run importar:plano` no banco de
+desenvolvimento imprimiu exatamente `48 contas importadas para "DruSign Placas e Comunicacao Visual"
+(3 receitas, 45 despesas); recebimentos vao para "VENDAS DIVERSAS"`. Sem desvios.
 
 ---
 
