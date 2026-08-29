@@ -1,5 +1,6 @@
 'use client'
 import { SeloPagamento } from '@/componentes/selo'
+import { valorEmReais } from '@/componentes/dinheiro'
 
 import { useRef, useState, useTransition, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
@@ -22,8 +23,6 @@ interface Props {
   podeReceber: boolean
   administracao: boolean
 }
-
-const moeda = (v: string) => `R$ ${v.replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`
 
 export function PainelPagamento(p: Props) {
   const router = useRouter()
@@ -80,8 +79,8 @@ export function PainelPagamento(p: Props) {
           <SeloPagamento estado={p.pagamento.estado} testId="estado-pagamento" />
         </div>
         <dl className="row mb-0 mt-2">
-          <dt className="col-7">Recebido</dt><dd className="col-5 numero">{moeda(p.pagamento.totalRecebido)}</dd>
-          <dt className="col-7">Saldo a receber</dt><dd className="col-5 numero fw-bold" data-testid="saldo">{moeda(p.pagamento.saldo)}</dd>
+          <dt className="col-7">Recebido</dt><dd className="col-5 numero">{valorEmReais(p.pagamento.totalRecebido)}</dd>
+          <dt className="col-7">Saldo a receber</dt><dd className="col-5 numero fw-bold" data-testid="saldo">{valorEmReais(p.pagamento.saldo)}</dd>
         </dl>
         {conflito ? <div className="alert alert-warning mt-2 mb-0" role="alert">A ordem mudou. Recarregando…</div> : null}
       </div>
@@ -130,7 +129,7 @@ export function PainelPagamento(p: Props) {
                 <tr key={r.id} className={r.estornadoEm ? 'text-secondary' : ''}>
                   <td>{formatarDataCalendario(new Date(r.data))}{r.observacao ? <div className="small">{r.observacao}</div> : null}{r.estornadoEm ? <div className="small">estornado · {r.motivoEstorno}</div> : null}</td>
                   <td>{ROTULO_FORMA[r.forma]}<div className="small">{r.usuario}</div></td>
-                  <td className={`numero ${r.estornadoEm ? 'text-decoration-line-through' : ''}`}>{moeda(r.valor)}</td>
+                  <td className={`numero ${r.estornadoEm ? 'text-decoration-line-through' : ''}`}>{valorEmReais(r.valor)}</td>
                   <td>
                     {p.administracao && !r.estornadoEm && estornando !== r.id ? (
                       <button type="button" className="btn btn-ghost-danger btn-sm" onClick={() => { setEstornando(r.id); setMotivo('') }}>Estornar</button>

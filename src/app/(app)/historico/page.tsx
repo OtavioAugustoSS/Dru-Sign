@@ -2,16 +2,14 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { IconSearch } from '@tabler/icons-react'
 import { exigirUsuario } from '@/infra/auth/usuario-atual'
+import { valorEmReais } from '@/componentes/dinheiro'
 import { buscarHistorico } from '@/infra/legado/consulta'
 import { ErroDeValidacao } from '@/domain/precificacao/erros'
-import { formatarMoeda } from '@/domain/precificacao/moeda'
-import { dinheiro } from '@/domain/precificacao/dinheiro'
 import { formatarDataCalendario } from '@/domain/ordem/datas'
 import { formatarNumeroOs } from '@/domain/caixa/lancamento'
 
 export const metadata: Metadata = { title: 'Histórico' }
 
-const R$ = (v: string) => formatarMoeda(dinheiro(v))
 
 export default async function PaginaHistorico({ searchParams }: { searchParams: Promise<{ q?: string; de?: string; ate?: string }> }) {
   const usuario = await exigirUsuario()
@@ -63,7 +61,7 @@ export default async function PaginaHistorico({ searchParams }: { searchParams: 
           <>
             <div className="d-flex justify-content-between align-items-baseline mb-2">
               <div className="text-secondary">{historico.encontradas} ordens{historico.linhas.length < historico.encontradas ? ` · mostrando as ${historico.linhas.length} mais recentes` : ''}</div>
-              <div className="numero fw-bold" data-testid="soma-historico">{R$(historico.somaTotal)}</div>
+              <div className="numero fw-bold" data-testid="soma-historico">{valorEmReais(historico.somaTotal)}</div>
             </div>
             <div className="card"><div className="table-responsive">
               <table className="table table-vcenter card-table" aria-label="Ordens do sistema antigo">
@@ -82,7 +80,7 @@ export default async function PaginaHistorico({ searchParams }: { searchParams: 
                         {l.nomeDestruido ? <div className="small text-secondary">o sistema antigo apagou o nome ao cancelar</div> : null}
                       </td>
                       <td><div style={{ whiteSpace: 'pre-line' }}>{l.texto}</div>{l.situacao ? <div className="small text-secondary">{l.situacao}</div> : null}</td>
-                      <td className="numero">{R$(l.total)}</td>
+                      <td className="numero">{valorEmReais(l.total)}</td>
                     </tr>
                   ))}
                 </tbody>

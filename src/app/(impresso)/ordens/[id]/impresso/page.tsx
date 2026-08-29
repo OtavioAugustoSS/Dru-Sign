@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { formatarNumeroOs } from '@/domain/caixa/lancamento'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { exigirUsuario } from '@/infra/auth/usuario-atual'
@@ -16,7 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const usuario = await exigirUsuario()
   const { id } = await params
   const dados = await obterImpresso(usuario.empresaId, id)
-  return { title: dados ? `OS ${String(dados.ordem.numero).padStart(6, '0')}` : 'Impresso' }
+  return { title: dados ? `OS ${formatarNumeroOs(dados.ordem.numero)}` : 'Impresso' }
 }
 
 export default async function PaginaImpresso({ params, searchParams }: Props) {
@@ -38,7 +39,7 @@ export default async function PaginaImpresso({ params, searchParams }: Props) {
 }
 
 function Via({ rotulo, empresa, ordem }: { rotulo: string; empresa: DadosEmpresaImpresso; ordem: OrdemImpressa }) {
-  const numero = String(ordem.numero).padStart(6, '0')
+  const numero = formatarNumeroOs(ordem.numero)
   const eOrcamento = ordem.estadoProducao === 'orcamento'
   const temAjuste = !ordem.ajuste.isZero()
   return (

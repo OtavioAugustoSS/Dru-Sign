@@ -154,10 +154,20 @@ sozinho. Marcar `[x]` só depois do commit.
   Fora de escopo, para a T8: os limiares coloridos dos indicadores em `/operacao`
   ainda são ternário inline.
 
-- [ ] **F5. Fim dos formatadores paralelos.** Apagar a implementação por regex em
-  `painel-pagamento.tsx:27` e o atalho `R$` redeclarado nos seis arquivos; usar
-  `formatarMoeda` em todos. Trocar os três `padStart(6,'0')` por `formatarNumeroOs`.
-  **Escrever teste** provando que os valores do painel de pagamento não mudaram.
+- [x] **F5. Fim dos formatadores paralelos.** ✅ Feito. Apagada a implementação por
+  expressão regular do painel de pagamento e os cinco atalhos `R$` redeclarados
+  por tela; `valorEmReais` é agora o único caminho. Os três `padStart(6,'0')`
+  viraram `formatarNumeroOs`/`NumeroOs`. Imports órfãos removidos.
+
+  O teste guarda os dois lados: para os valores que a tela realmente recebe (o
+  repositório sempre entrega com duas casas) a saída é **idêntica** à de antes; e
+  onde o formatador aposentado errava, o teste registra o erro — ele escrevia
+  `R$ 80` para `80`, `R$ 80,5` para `80.5`, e `R$ 1.234,567` para `1234.567`,
+  porque não arredondava. Ou seja: a troca é correção, não regressão.
+
+  Conferido no navegador: 121 valores em seis telas, todos no formato
+  `R$ 1.234,56`, nenhum fora do padrão. Saldo e preço final inalterados.
+
 - [ ] **F6. Texto padronizado.** Um rótulo de botão pendente para todo o app; uma
   frase de conflito otimista (hoje são quatro); rótulo de papel vindo de um lugar
   só (hoje são cinco). Corrigir "você mesma não pode se desativar" para forma

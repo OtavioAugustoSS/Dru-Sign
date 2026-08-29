@@ -3,10 +3,11 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { IconPrinter } from '@tabler/icons-react'
 import { exigirUsuario } from '@/infra/auth/usuario-atual'
+import { valorEmReais } from '@/componentes/dinheiro'
+import { formatarNumeroOs } from '@/domain/caixa/lancamento'
 import { Selo } from '@/componentes/selo'
 import { prisma } from '@/infra/db/prisma'
 import { obterOrdemParaTela } from '@/infra/ordens/repositorio'
-import { formatarMoeda } from '@/domain/precificacao/moeda'
 import { dinheiro } from '@/domain/precificacao/dinheiro'
 import { formatarTelefone } from '@/domain/clientes/telefone'
 import { permissoes, ROTULO_ESTADO } from '@/domain/ordem/estados'
@@ -25,7 +26,6 @@ import { removerItemAction, removerAcrescimoAction, confirmarAjusteAction, remov
 export const metadata: Metadata = { title: 'Ordem de serviço' }
 
 const ROTULO_ACRESCIMO = { instalacao: 'Instalação', deslocamento: 'Deslocamento', frete: 'Frete', imposto: 'Imposto' } as const
-const R$ = (v: string) => formatarMoeda(dinheiro(v))
 
 export default async function PaginaOrdem({ params }: { params: Promise<{ id: string }> }) {
   const usuario = await exigirUsuario()
@@ -39,7 +39,7 @@ export default async function PaginaOrdem({ params }: { params: Promise<{ id: st
 
   const pode = permissoes(ordem.estadoProducao)
   const catalogo: MaterialCatalogo[] = materiais.map((m) => ({ id: m.id, nome: m.nome, unidadeCobranca: m.unidadeCobranca, preco: m.preco.toFixed() }))
-  const numero = String(ordem.numero).padStart(6, '0')
+  const numero = formatarNumeroOs(ordem.numero)
   const acao = <A extends unknown[]>(fn: (ordemId: string, versao: number, ...rest: [...A, string]) => ReturnType<typeof removerItemAction>, ...args: A) =>
     fn.bind(null, ordem.id, ordem.versao, ...args) as (chave: string) => ReturnType<typeof removerItemAction>
 
@@ -98,8 +98,8 @@ export default async function PaginaOrdem({ params }: { params: Promise<{ id: st
                             <td className="numero">{i.quantidade}</td>
                             <td>{i.descricao}<div className="small text-secondary">{descreverCobranca({ quantidade: i.quantidade, descricao: i.descricao, unidade: i.unidadeCobranca, altura, largura, valorUnitario: dinheiro(i.valorUnitario), total: dinheiro(i.total) })}</div></td>
                             <td className="text-secondary">{formatarDimensao(altura, largura)}</td>
-                            <td className="numero">{R$(i.valorUnitario)}</td>
-                            <td className="numero">{R$(i.total)}</td>
+                            <td className="numero">{valorEmReais(i.valorUnitario)}</td>
+                            <td className="numero">{valorEmReais(i.total)}</td>
                             <td>{pode.editarItens ? <BotaoMutacao acao={acao(removerItemAction, i.id)} rotulo="Remover" className="btn btn-ghost-danger btn-sm" /> : null}</td>
                           </tr>
                         )
@@ -121,32 +121,32 @@ export default async function PaginaOrdem({ params }: { params: Promise<{ id: st
               <div className="card">
                 <div className="card-body">
                   <dl className="row mb-0">
-                    <dt className="col-7">Materiais e serviços</dt><dd className="col-5 numero">{R$(ordem.subtotalItens)}</dd>
+                    <dt className="col-7">Materiais e serviços</dt><dd className="col-5 numero">{valorEmReais(ordem.subtotalItens)}</dd>
                     {ordem.acrescimos.map((a) => (
                       <div className="row g-0 col-12" key={a.id}>
                         <dt className="col-7 fw-normal">{ROTULO_ACRESCIMO[a.tipo]}{a.descricao ? ` · ${a.descricao}` : ''}</dt>
-                        <dd className="col-5 numero d-flex justify-content-end gap-2">{R$(a.valor)}{pode.editarItens ? <BotaoMutacao acao={acao(removerAcrescimoAction, a.id)} rotulo="Remover" className="btn btn-ghost-danger btn-sm py-0" /> : null}</dd>
+                        <dd className="col-5 numero d-flex justify-content-end gap-2">{valorEmReais(a.valor)}{pode.editarItens ? <BotaoMutacao acao={acao(removerAcrescimoAction, a.id)} rotulo="Remover" className="btn btn-ghost-danger btn-sm py-0" /> : null}</dd>
                       </div>
                     ))}
-                    <dt className="col-7">Calculado</dt><dd className="col-5 numero">{R$(ordem.precoCalculado)}</dd>
+                    <dt className="col-7">Calculado</dt><dd className="col-5 numero">{valorEmReais(ordem.precoCalculado)}</dd>
                     <dt className="col-7">Preço final{ordem.ajuste ? <Selo tom="marca" className="ms-2">ajustado</Selo> : null}</dt>
-                    <dd className="col-5 numero fs-2 fw-bold" data-testid="preco-final">{R$(ordem.precoFinal)}</dd>
+                    <dd className="col-5 numero fs-2 fw-bold" data-testid="preco-final">{valorEmReais(ordem.precoFinal)}</dd>
                   </dl>
                   {ordem.ajuste ? (
                     <div className="small text-secondary">
-                      {dinheiro(ordem.precoFinal).lt(ordem.precoCalculado) ? 'Desconto' : 'Acréscimo'} de {R$(dinheiro(ordem.precoFinal).minus(ordem.precoCalculado).abs().toFixed(2))} · {ordem.ajuste.motivo}, por {ordem.ajuste.por}
+                      {dinheiro(ordem.precoFinal).lt(ordem.precoCalculado) ? 'Desconto' : 'Acréscimo'} de {valorEmReais(dinheiro(ordem.precoFinal).minus(ordem.precoCalculado).abs().toFixed(2))} · {ordem.ajuste.motivo}, por {ordem.ajuste.por}
                     </div>
                   ) : null}
                   {ordem.ajuste?.desatualizado ? (
                     <div className="alert alert-warning mt-3" role="alert">
-                      O calculado passou de {R$(ordem.ajuste.precoCalculadoNoAjuste)} para {R$(ordem.precoCalculado)}. O preço final continua {R$(ordem.precoFinal)}.
+                      O calculado passou de {valorEmReais(ordem.ajuste.precoCalculadoNoAjuste)} para {valorEmReais(ordem.precoCalculado)}. O preço final continua {valorEmReais(ordem.precoFinal)}.
                       <div className="d-flex gap-2 mt-2">
-                        <BotaoMutacao acao={acao(confirmarAjusteAction)} rotulo={`Manter ${R$(ordem.precoFinal)}`} className="btn btn-warning btn-sm" />
+                        <BotaoMutacao acao={acao(confirmarAjusteAction)} rotulo={`Manter ${valorEmReais(ordem.precoFinal)}`} className="btn btn-warning btn-sm" />
                         <BotaoMutacao acao={acao(removerAjusteAction)} rotulo="Usar o calculado" className="btn btn-sm" />
                       </div>
                     </div>
                   ) : null}
-                  {ordem.aprovadoEm ? <div className="small text-secondary mt-2">Orçamento aprovado em {formatarDataHora(new Date(ordem.aprovadoEm))} por {R$(ordem.precoAprovado ?? '0')}</div> : null}
+                  {ordem.aprovadoEm ? <div className="small text-secondary mt-2">Orçamento aprovado em {formatarDataHora(new Date(ordem.aprovadoEm))} por {valorEmReais(ordem.precoAprovado ?? '0')}</div> : null}
                 </div>
                 {pode.editarPreco ? (
                   <div className="card-body border-top">

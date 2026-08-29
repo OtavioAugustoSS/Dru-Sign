@@ -2,27 +2,25 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { IconDownload } from '@tabler/icons-react'
 import { exigirPapel } from '@/infra/auth/usuario-atual'
+import { valorEmReais } from '@/componentes/dinheiro'
 import { montarRelatorio } from '@/infra/caixa/relatorio'
 import { ErroDeValidacao } from '@/domain/precificacao/erros'
-import { formatarMoeda } from '@/domain/precificacao/moeda'
-import { dinheiro } from '@/domain/precificacao/dinheiro'
 import { mesCalendario } from '@/domain/ordem/datas'
 import type { ContaDoRelatorio } from '@/domain/caixa/relatorio'
 
 export const metadata: Metadata = { title: 'Relatório para o contador' }
 
-const R$ = (v: string) => formatarMoeda(dinheiro(v))
 
 function Tabela({ titulo, contas, total, rotulo }: { titulo: string; contas: ContaDoRelatorio[]; total: string; rotulo: string }) {
   return (
     <div className="card mb-3">
-      <div className="card-header"><h3 className="card-title">{titulo}</h3><span className="ms-auto numero fw-bold" data-testid={rotulo}>{R$(total)}</span></div>
+      <div className="card-header"><h3 className="card-title">{titulo}</h3><span className="ms-auto numero fw-bold" data-testid={rotulo}>{valorEmReais(total)}</span></div>
       {contas.length === 0 ? <div className="card-body text-secondary">Nenhum lançamento no período.</div> : (
         <div className="table-responsive"><table className="table table-vcenter card-table" aria-label={titulo}>
           <thead><tr><th className="w-1">Código</th><th>Conta</th><th className="text-end">Lançamentos</th><th className="text-end">Total</th></tr></thead>
           <tbody>
             {contas.map((c) => (
-              <tr key={c.codigo}><td className="numero">{c.codigo}</td><td>{c.nome}</td><td className="numero">{c.lancamentos}</td><td className="numero">{R$(c.total)}</td></tr>
+              <tr key={c.codigo}><td className="numero">{c.codigo}</td><td>{c.nome}</td><td className="numero">{c.lancamentos}</td><td className="numero">{valorEmReais(c.total)}</td></tr>
             ))}
           </tbody>
         </table></div>
@@ -73,7 +71,7 @@ export default async function PaginaContador({ searchParams }: { searchParams: P
 
         <div className="card"><div className="card-body d-flex justify-content-between align-items-baseline">
           <span className="h3 mb-0">Saldo do período</span>
-          <span className="h1 mb-0 numero" data-testid="saldo">{R$(relatorio.saldo)}</span>
+          <span className="h1 mb-0 numero" data-testid="saldo">{valorEmReais(relatorio.saldo)}</span>
         </div></div>
         <p className="text-secondary small mt-2">Lançamento estornado não aparece: para o contador ele nunca foi movimento.</p>
       </div></div>

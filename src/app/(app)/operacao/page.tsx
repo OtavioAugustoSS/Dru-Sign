@@ -1,13 +1,11 @@
 import type { Metadata } from 'next'
 import { exigirPapel } from '@/infra/auth/usuario-atual'
+import { valorEmReais } from '@/componentes/dinheiro'
 import { carregarOperacao } from '@/infra/operacao/indicadores'
 import { ErroDeValidacao } from '@/domain/precificacao/erros'
-import { formatarMoeda } from '@/domain/precificacao/moeda'
-import { dinheiro } from '@/domain/precificacao/dinheiro'
 
 export const metadata: Metadata = { title: 'Operação' }
 
-const R$ = (v: string) => formatarMoeda(dinheiro(v))
 
 /** Cada cartao carrega o alvo da spec (secao 11): o numero sozinho nao diz se esta bom. */
 function Cartao({ titulo, valor, alvo, testid, cor }: { titulo: string; valor: string; alvo: string; testid: string; cor?: string }) {
@@ -55,11 +53,11 @@ export default async function PaginaOperacao({ searchParams }: { searchParams: P
 
         <div className="row g-3 mb-3">
           <Cartao titulo="Ordens que ainda não foram finalizadas" valor={`${i.naoFinalizadasPct}%`} alvo="Alvo: abaixo de 5%. No legado, 29,4% em 2025." testid="nao-finalizadas" cor={Number(i.naoFinalizadasPct) > 5 ? 'text-danger' : 'text-success'} />
-          <Cartao titulo="Valor parado em ordens não cobradas" valor={R$(i.valorParado)} alvo="Alvo: perto de zero. No legado, R$ 207.795." testid="valor-parado" />
+          <Cartao titulo="Valor parado em ordens não cobradas" valor={valorEmReais(i.valorParado)} alvo="Alvo: perto de zero. No legado, R$ 207.795." testid="valor-parado" />
           <Cartao titulo="Ordens com item estruturado" valor={`${i.comItemPct}%`} alvo="Alvo: acima de 90%. No legado, 0%." testid="com-item" cor={Number(i.comItemPct) >= 90 ? 'text-success' : ''} />
           <Cartao titulo="Prazo de entrega" valor={i.prazoMedianoDias === null ? '—' : `${i.prazoMedianoDias} dias`} alvo={i.prazoP90Dias === null ? 'Sem ordem finalizada ainda.' : `9 de 10 saem em até ${i.prazoP90Dias} dias. No legado: 13 e 78.`} testid="prazo" />
           <Cartao titulo="Pessoas usando o sistema" valor={String(i.pessoas)} alvo="Alvo: 2 ou mais. No legado, uma pessoa fazia 84,6% das ordens." testid="pessoas" />
-          <Cartao titulo="Recebido" valor={R$(i.recebido)} alvo={`De ${R$(i.faturado)} faturados.`} testid="recebido" />
+          <Cartao titulo="Recebido" valor={valorEmReais(i.recebido)} alvo={`De ${valorEmReais(i.faturado)} faturados.`} testid="recebido" />
         </div>
 
         <div className="card">
@@ -76,9 +74,9 @@ export default async function PaginaOperacao({ searchParams }: { searchParams: P
                       <td className="numero">{a.ano}</td>
                       <td className="numero">{a.ordens}</td>
                       <td className="numero">{a.concluidas}</td>
-                      <td className="numero">{R$(a.faturado)}</td>
-                      <td className="numero">{R$(a.recebido)}</td>
-                      <td className="numero">{R$(a.ticketMedio)}</td>
+                      <td className="numero">{valorEmReais(a.faturado)}</td>
+                      <td className="numero">{valorEmReais(a.recebido)}</td>
+                      <td className="numero">{valorEmReais(a.ticketMedio)}</td>
                     </tr>
                   ))}
                 </tbody>

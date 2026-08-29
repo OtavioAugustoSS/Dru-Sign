@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { IconPlus } from '@tabler/icons-react'
 import { exigirUsuario } from '@/infra/auth/usuario-atual'
 import { SeloApelido, SeloEstado, SeloPagamento } from '@/componentes/selo'
+import { NumeroOs } from '@/componentes/numero-os'
 import { listarOrdens } from '@/infra/ordens/repositorio'
 import { formatarMoeda } from '@/domain/precificacao/moeda'
 import { dinheiro } from '@/domain/precificacao/dinheiro'
@@ -73,7 +74,7 @@ export default async function PaginaOrdens({ searchParams }: { searchParams: Pro
                 <tbody>
                   {ordens.map((o) => (
                     <tr key={o.id}>
-                      <td><Link href={`/ordens/${o.id}`} className="text-reset fw-medium">{String(o.numero).padStart(6, '0')}</Link></td>
+                      <td><Link href={`/ordens/${o.id}`} className="text-reset fw-medium"><NumeroOs numero={o.numero} /></Link></td>
                       <td>
                         {o.clienteNome ?? <span className="text-secondary">Venda de balcão</span>}
                         <SeloApelido apelido={o.clienteApelido} />
