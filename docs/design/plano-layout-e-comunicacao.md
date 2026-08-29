@@ -508,9 +508,26 @@ Ordem por tráfego e por gravidade do que foi encontrado.
   de cada fileira eles se alinham, que é o que importa. Forçar as seis à altura da
   maior só acrescentaria espaço vazio.
 
-- [ ] **T9. `/financeiro` + `/financeiro/saida` + `/financeiro/contador`.** Alinhar
-  o título com o menu ("Livro-caixa" nos dois). Tirar "Ver o livro-caixa" de dentro
-  do cartão de filtro.
+- [x] **T9. `/financeiro` + `/financeiro/saida` + `/financeiro/contador`.** ✅ Feito.
+
+  - **Título alinhado com o menu:** ambos dizem "Livro-caixa". O pretítulo seguiu a
+    regra da T6 — `/financeiro` e `/financeiro/contador` são itens de menu, então
+    levam o grupo ("Financeiro"); `/financeiro/saida` é filha do livro-caixa e leva
+    "Livro-caixa".
+  - **"Ver o livro-caixa" saiu de dentro do cartão de filtro**, onde estava junto
+    dos campos de data: navegação no meio de um formulário. Foi para o cabeçalho,
+    ao lado de "Baixar CSV". Conferido: zero links dentro do filtro.
+  - Os três totais do livro-caixa e o saldo do relatório viraram `CartaoIndicador`,
+    e **o saldo passou a se colorir** — verde quando entra mais do que sai,
+    vermelho quando não. Era o único dos quatro números que quer dizer bom ou ruim.
+  - A nota sobre estorno saiu de um parágrafo solto no fim da página e foi para
+    dentro do cartão do saldo, que é o número que ela explica.
+
+  **Não paginei o livro-caixa, de propósito.** O período já é o limite: a tela abre
+  no mês atual, e os totais de entrada, saída e saldo têm de cobrir o período
+  inteiro de qualquer forma. Paginar um livro-caixa que se lê para conferir o mês
+  atrapalharia em vez de ajudar.
+
 - [ ] **T10. `/materiais` + `/materiais/[id]`.** O `…` como rótulo de botão
   pendente. O estado vazio mais longo do app, sem ação, com o formulário logo acima.
 - [ ] **T11. `/plano-de-contas`.** 3.493px. Aspas retas no meio do português. O

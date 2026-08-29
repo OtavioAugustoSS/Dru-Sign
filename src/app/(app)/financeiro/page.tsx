@@ -6,6 +6,7 @@ import { listarLivro } from '@/infra/caixa/livro'
 import { ErroDeValidacao } from '@/domain/precificacao/erros'
 import { formatarDataCalendario, mesCalendario } from '@/domain/ordem/datas'
 import { CabecalhoPagina } from '@/componentes/cabecalho-pagina'
+import { CartaoIndicador } from '@/componentes/cartao-indicador'
 import { SeloTipoLancamento } from '@/componentes/selo'
 import { CorpoPagina } from '@/componentes/corpo-pagina'
 import { CartaoTabela } from '@/componentes/cartao-tabela'
@@ -34,7 +35,7 @@ export default async function PaginaFinanceiro({ searchParams }: { searchParams:
   return (
     <>
       <CabecalhoPagina
-        pretitulo="Administração"
+        pretitulo="Financeiro"
         titulo="Livro-caixa"
         acoes={
           <>
@@ -51,9 +52,22 @@ export default async function PaginaFinanceiro({ searchParams }: { searchParams:
         <FiltroPeriodo de={livro.de} ate={livro.ate} erro={erro ? `${erro} — mostrando o mês atual.` : null} />
 
         <div className="row g-3 mb-3">
-          <div className="col-md-4"><div className="card card-sm"><div className="card-body"><div className="subheader">Entradas</div><div className="h2 mb-0 numero" data-testid="entradas"><Dinheiro valor={livro.entradas} /></div></div></div></div>
-          <div className="col-md-4"><div className="card card-sm"><div className="card-body"><div className="subheader">Saídas</div><div className="h2 mb-0 numero" data-testid="saidas"><Dinheiro valor={livro.saidas} /></div></div></div></div>
-          <div className="col-md-4"><div className="card card-sm"><div className="card-body"><div className="subheader">Saldo do período</div><div className="h2 mb-0 numero" data-testid="saldo-periodo"><Dinheiro valor={livro.saldo} /></div></div></div></div>
+          <div className="col-md-4">
+            <CartaoIndicador rotulo="Entradas" valor={<Dinheiro valor={livro.entradas} />} testId="entradas" nota="Recebimentos das ordens no período" />
+          </div>
+          <div className="col-md-4">
+            <CartaoIndicador rotulo="Saídas" valor={<Dinheiro valor={livro.saidas} />} testId="saidas" nota="O que foi lançado como despesa" />
+          </div>
+          <div className="col-md-4">
+            {/* O saldo e o unico dos tres que quer dizer bom ou ruim. */}
+            <CartaoIndicador
+              rotulo="Saldo do período"
+              valor={<Dinheiro valor={livro.saldo} />}
+              tom={Number(livro.saldo) < 0 ? 'ruim' : 'bom'}
+              testId="saldo-periodo"
+              nota="Entradas menos saídas"
+            />
+          </div>
         </div>
 
         {livro.linhas.length === 0 ? (
