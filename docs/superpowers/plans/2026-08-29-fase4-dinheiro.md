@@ -1655,7 +1655,7 @@ reconferidos da revisao da Fase 3) e o `dinheiro.int.test.ts` tem 14 testes, nao
 - Consumes: tudo da Task 3; `gerarChave`; `BotaoMutacao` (recebe `acao: (chave) => Promise<Resposta>` — para as actions de dinheiro usa-se o `PainelPagamento`, que tem o próprio botão); `exigirPapel('administracao')` (redireciona para `/` quem não é); `formatarMoeda`, `dinheiro`, `formatarDataCalendario`, `formatarDataHora`, `hojeCalendario`, `mesCalendario`, `ROTULO_ESTADO`, `ROTULO_PAGAMENTO`, `ROTULO_FORMA`, `FORMAS_PAGAMENTO`, `ROTULO_TIPO_CONTA`, `formatarNumeroOs`.
 - Produces: rotas `/` (fila), `/ordens?q=&estado=&de=&ate=`, `/ordens/[id]` com painel de pagamento, `/financeiro?de=&ate=`, `/financeiro/saida`, `/plano-de-contas`; `type RespostaDinheiro = { ok: true; resultado: ResultadoDinheiro } | { ok: false; conflito: true } | { ok: false; conflito?: false; erro: string }`; actions `registrarRecebimentoAction`, `concluirOrdemAction`, `estornarRecebimentoAction`, `registrarSaidaAction`, `estornarLancamentoAction`, `criarContaAction`, `alterarAtivaAction`, `definirContaRecebimentoAction`; `type RespostaSimples = { ok: true } | { ok: false; erro: string }`.
 
-- [ ] **Step 1: Navegação**
+- [x] **Step 1: Navegação**
 
 Em `navegacao.ts`: o tipo `icone` vira `'fila' | 'ordens' | 'clientes' | 'materiais' | 'financeiro' | 'plano'` e, depois de "Materiais e preços":
 ```ts
@@ -1664,7 +1664,7 @@ Em `navegacao.ts`: o tipo `icone` vira `'fila' | 'ordens' | 'clientes' | 'materi
 ```
 Em `layout.tsx`: importar `IconCash, IconListTree` de `@tabler/icons-react` e acrescentar a `ICONES`: `financeiro: <IconCash className="icon" />, plano: <IconListTree className="icon" />`.
 
-- [ ] **Step 2: Actions de dinheiro da ordem**
+- [x] **Step 2: Actions de dinheiro da ordem**
 
 Acrescentar a `src/app/(app)/ordens/[id]/actions.ts` (imports no topo; funções no fim):
 ```ts
@@ -1704,7 +1704,7 @@ export async function estornarRecebimentoAction(ordemId: string, versao: number,
 }
 ```
 
-- [ ] **Step 3: O painel de pagamento (Client Component)**
+- [x] **Step 3: O painel de pagamento (Client Component)**
 
 `src/app/(app)/ordens/[id]/painel-pagamento.tsx`:
 ```tsx
@@ -1869,7 +1869,7 @@ export function PainelPagamento(p: Props) {
 ```
 (O botão "Só receber" chama `receber` com um evento sintético só para reaproveitar o `preventDefault`; o `as unknown as` é aceito pelo TS 7. Se o typecheck reclamar, trocar por uma função `enviar(concluir: boolean)` sem evento chamada pelos dois botões, e `onSubmit={(e) => { e.preventDefault(); enviar(aberta) }}`.)
 
-- [ ] **Step 4: A página da ordem mostra os dois eixos e o painel**
+- [x] **Step 4: A página da ordem mostra os dois eixos e o painel**
 
 Em `src/app/(app)/ordens/[id]/page.tsx`:
 - imports: `import { PainelPagamento } from './painel-pagamento'`, `import { ROTULO_PAGAMENTO } from '@/domain/caixa/pagamento'`, `import { hojeCalendario } from '@/domain/ordem/datas'` (acrescentar ao import existente de `datas`).
@@ -1883,7 +1883,7 @@ Em `src/app/(app)/ordens/[id]/page.tsx`:
               </div>
 ```
 
-- [ ] **Step 5: Lista de ordens com filtros e eixo de pagamento**
+- [x] **Step 5: Lista de ordens com filtros e eixo de pagamento**
 
 Em `src/app/(app)/ordens/page.tsx`:
 - assinatura: `export default async function PaginaOrdens({ searchParams }: { searchParams: Promise<{ q?: string; estado?: string; de?: string; ate?: string }> })`, e:
@@ -1920,7 +1920,7 @@ Em `src/app/(app)/ordens/page.tsx`:
                       <td><span className={`badge ${COR_PAGAMENTO[o.estadoPagamento]}`}>{ROTULO_PAGAMENTO[o.estadoPagamento]}</span>{o.estadoPagamento === 'parcial' ? <span className="small text-secondary ms-2">falta {formatarMoeda(dinheiro(o.saldo))}</span> : null}</td>
 ```
 
-- [ ] **Step 6: A fila de trabalho**
+- [x] **Step 6: A fila de trabalho**
 
 `src/app/(app)/page.tsx` inteiro:
 ```tsx
@@ -2016,7 +2016,7 @@ export default async function PaginaFila() {
 }
 ```
 
-- [ ] **Step 7: Financeiro — livro-caixa, nova saída e estorno**
+- [x] **Step 7: Financeiro — livro-caixa, nova saída e estorno**
 
 `src/app/(app)/financeiro/actions.ts`:
 ```ts
@@ -2281,7 +2281,7 @@ export default async function PaginaSaida() {
 }
 ```
 
-- [ ] **Step 8: Plano de contas**
+- [x] **Step 8: Plano de contas**
 
 `src/app/(app)/plano-de-contas/actions.ts`:
 ```ts
@@ -2451,16 +2451,22 @@ export default async function PaginaPlano({ searchParams }: { searchParams: Prom
 ```
 (No checkbox de "Mostrar desativadas", o `onChange={undefined}` é só para o React não reclamar de `defaultChecked` — pode ser omitido se não houver aviso.)
 
-- [ ] **Step 9: Typecheck, testes, build e fumaça**
+- [x] **Step 9: Typecheck, testes, build e fumaça**
 
 Run: `npm run typecheck` → sem erros. Run: `npm test` → PASS (`use-client` continua verde). Run: `npm run build` → rotas `ƒ /`, `ƒ /financeiro`, `ƒ /financeiro/saida`, `ƒ /plano-de-contas`, `ƒ /ordens`. Fumaça com `next start`: `curl -s -o /dev/null -w "%{http_code} %{redirect_url}\n" http://localhost:3000/financeiro` → `307 …/entrar?proximo=%2Ffinanceiro`.
 
-- [ ] **Step 10: Commit**
+- [x] **Step 10: Commit**
 
 ```bash
 git add "src/app/(app)/"
 git commit -m "feat: painel de pagamento na ordem, fila de trabalho, lista com os dois eixos, livro-caixa e plano de contas"
 ```
+
+**Executado (29/08/2026).** typecheck limpo (o `as unknown as FormEvent` do botao "So receber"
+passou no TS 7, sem precisar do plano B), 265 unitarios verdes com o `use-client` incluso,
+`npm run build` compilou em 18,8s e listou `ƒ /`, `ƒ /financeiro`, `ƒ /financeiro/saida`,
+`ƒ /plano-de-contas` e `ƒ /ordens`. Fumaca com `next start`: as cinco rotas devolvem
+`307 .../entrar?proximo=...`. Sem desvios.
 
 ---
 

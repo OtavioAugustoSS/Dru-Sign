@@ -7,6 +7,7 @@ import { buscarClientes, type ClienteResumo } from '@/infra/clientes/repositorio
 import { ErroDeValidacao } from '@/domain/precificacao/erros'
 import * as ordens from '@/infra/ordens/repositorio'
 import type { DadosItem, DadosAcrescimo, DadosCabecalho, Totais } from '@/infra/ordens/repositorio'
+import { registrarRecebimento, concluirOrdem, estornarRecebimento, type DadosRecebimento, type ResultadoDinheiro } from '@/infra/caixa/recebimentos'
 
 /** JSON puro: serializado para o cliente. */
 export type Resposta =
@@ -67,4 +68,37 @@ export async function buscarClientesAction(termo: string): Promise<ClienteResumo
   const usuario = await exigirUsuario()
   if (termo.trim().length < 2) return []
   return buscarClientes(usuario.empresaId, termo, { limite: 8 })
+}
+
+export type RespostaDinheiro =
+  | { ok: true; resultado: ResultadoDinheiro }
+  | { ok: false; conflito: true }
+  | { ok: false; conflito?: false; erro: string }
+
+async function executarDinheiro(ordemId: string, chave: string, soAdministracao: boolean, corpo: (ctx: Contexto) => Promise<ResultadoDinheiro>): Promise<RespostaDinheiro> {
+  const usuario = await exigirUsuario()
+  if (soAdministracao && usuario.papel !== 'administracao') return { ok: false, erro: 'Só a administração registra e estorna recebimentos.' }
+  if (!chaveValida(chave)) return { ok: false, erro: 'Chave de idempotência inválida.' }
+  try {
+    const resultado = await corpo({ empresaId: usuario.empresaId, usuarioId: usuario.id, chave })
+    revalidatePath(`/ordens/${ordemId}`)
+    revalidatePath('/')
+    revalidatePath('/financeiro')
+    return { ok: true, resultado }
+  } catch (e) {
+    if (e instanceof ordens.ConflitoVersao) return { ok: false, conflito: true }
+    if (e instanceof ordens.OrdemNaoEditavel) return { ok: false, erro: 'Esta ordem não aceita essa ação no estado atual.' }
+    if (e instanceof ErroDeValidacao) return { ok: false, erro: e.message }
+    throw e
+  }
+}
+
+export async function registrarRecebimentoAction(ordemId: string, versao: number, chave: string, dados: DadosRecebimento): Promise<RespostaDinheiro> {
+  return executarDinheiro(ordemId, chave, true, (ctx) => registrarRecebimento(ctx, ordemId, versao, dados))
+}
+export async function concluirOrdemAction(ordemId: string, versao: number, chave: string): Promise<RespostaDinheiro> {
+  return executarDinheiro(ordemId, chave, false, (ctx) => concluirOrdem(ctx, ordemId, versao))
+}
+export async function estornarRecebimentoAction(ordemId: string, versao: number, chave: string, recebimentoId: string, motivo: string): Promise<RespostaDinheiro> {
+  return executarDinheiro(ordemId, chave, true, (ctx) => estornarRecebimento(ctx, ordemId, versao, recebimentoId, motivo))
 }

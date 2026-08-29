@@ -9,7 +9,7 @@ import { formatarMoeda } from '@/domain/precificacao/moeda'
 import { dinheiro } from '@/domain/precificacao/dinheiro'
 import { formatarTelefone } from '@/domain/clientes/telefone'
 import { permissoes, ROTULO_ESTADO } from '@/domain/ordem/estados'
-import { formatarDataCalendario, formatarDataHora, formatarDataLonga } from '@/domain/ordem/datas'
+import { formatarDataCalendario, formatarDataHora, formatarDataLonga, hojeCalendario } from '@/domain/ordem/datas'
 import { descreverCobranca, formatarDimensao } from '@/domain/ordem/impresso'
 import type { MaterialCatalogo } from '@/domain/precificacao/resolucao'
 import { EntradaLinha } from './entrada-linha'
@@ -17,6 +17,8 @@ import { BotaoMutacao } from './botao-mutacao'
 import { FormAjuste } from './form-ajuste'
 import { FormCabecalho } from './form-cabecalho'
 import { FormCancelar } from './form-cancelar'
+import { PainelPagamento } from './painel-pagamento'
+import { ROTULO_PAGAMENTO } from '@/domain/caixa/pagamento'
 import { removerItemAction, removerAcrescimoAction, confirmarAjusteAction, removerAjusteAction, aprovarOrcamentoAction } from './actions'
 
 export const metadata: Metadata = { title: 'Ordem de serviço' }
@@ -46,7 +48,11 @@ export default async function PaginaOrdem({ params }: { params: Promise<{ id: st
         <div className="container-xl">
           <div className="row g-2 align-items-center">
             <div className="col">
-              <div className="page-pretitle">{ROTULO_ESTADO[ordem.estadoProducao]}{ordem.canceladaEm ? ` · ${ordem.motivoCancelamento}` : ''}</div>
+              <div className="page-pretitle">
+                {ROTULO_ESTADO[ordem.estadoProducao]}{' · '}{ROTULO_PAGAMENTO[ordem.pagamento.estado]}
+                {ordem.concluidaEm ? ` · serviço finalizado em ${formatarDataHora(new Date(ordem.concluidaEm))}` : ''}
+                {ordem.canceladaEm ? ` · ${ordem.motivoCancelamento}` : ''}
+              </div>
               <h2 className="page-title">{ordem.estadoProducao === 'orcamento' ? 'Orçamento' : 'Ordem de serviço'} nº {numero}</h2>
               <div className="text-secondary">
                 {ordem.cliente ? <>{ordem.cliente.nome}{ordem.cliente.apelido ? ` · ${ordem.cliente.apelido}` : ''}{ordem.cliente.telefone ? ` · ${formatarTelefone(ordem.cliente.telefone.replace(/\D/g, ''))}` : ''}</> : 'Venda de balcão'}
@@ -102,6 +108,11 @@ export default async function PaginaOrdem({ params }: { params: Promise<{ id: st
             </div>
 
             <div className="col-lg-4">
+              <div className="mb-3">
+                <PainelPagamento ordemId={ordem.id} versao={ordem.versao} estadoProducao={ordem.estadoProducao} pagamento={ordem.pagamento}
+                  recebimentos={ordem.recebimentos} hoje={hojeCalendario(new Date())} podeConcluir={pode.concluir} podeReceber={pode.receber}
+                  administracao={usuario.papel === 'administracao'} />
+              </div>
               <div className="card">
                 <div className="card-body">
                   <dl className="row mb-0">

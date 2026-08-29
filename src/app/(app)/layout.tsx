@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { IconListCheck, IconUsers, IconPackage, IconFileInvoice } from '@tabler/icons-react'
+import { IconListCheck, IconUsers, IconPackage, IconFileInvoice, IconCash, IconListTree } from '@tabler/icons-react'
 import { exigirUsuario } from '@/infra/auth/usuario-atual'
 import { MenuUsuario } from '@/componentes/menu-usuario'
 import { sair } from '@/app/(auth)/entrar/actions'
@@ -10,6 +10,8 @@ const ICONES = {
   ordens: <IconFileInvoice className="icon" />,
   clientes: <IconUsers className="icon" />,
   materiais: <IconPackage className="icon" />,
+  financeiro: <IconCash className="icon" />,
+  plano: <IconListTree className="icon" />,
 } as const
 
 const PAPEL_LEGIVEL = { administracao: 'Administração', operacao: 'Operação' } as const
