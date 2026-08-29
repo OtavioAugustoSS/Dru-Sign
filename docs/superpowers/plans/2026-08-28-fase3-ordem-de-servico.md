@@ -1728,7 +1728,7 @@ git commit -m "feat: repositorio de ordens com recalculo transacional, trava oti
 **Interfaces:**
 - Produces: rotas `/ordens`, `/ordens/nova`, `/ordens/[id]`; `type Resposta = { ok: true; totais: Totais } | { ok: false; conflito: true } | { ok: false; conflito?: false; erro: string }`; actions `adicionarItemAction`, `adicionarAcrescimoAction`, `removerItemAction`, `removerAcrescimoAction`, `ajustarPrecoAction`, `confirmarAjusteAction`, `removerAjusteAction`, `atualizarCabecalhoAction`, `aprovarOrcamentoAction`, `cancelarOrdemAction`, `buscarClientesAction`; `gerarChave(): string`
 
-- [ ] **Step 1: Navegação e gerador de chave**
+- [x] **Step 1: Navegação e gerador de chave**
 
 Em `navegacao.ts`, inserir após "Fila de trabalho": `{ href: '/ordens', titulo: 'Ordens', icone: 'ordens' }` e acrescentar `'ordens'` ao tipo `icone`. No `layout.tsx`, `ICONES.ordens = <IconFileInvoice className="icon" />` (importar de `@tabler/icons-react`).
 
@@ -1765,7 +1765,7 @@ export function gerarChave(): string {
 
 Run: `npm test -- chave` → vermelho (`Cannot find module`), depois PASS — 1 passed.
 
-- [ ] **Step 2: Lista e nova ordem**
+- [x] **Step 2: Lista e nova ordem**
 
 `src/app/(app)/ordens/nova/actions.ts`:
 ```ts
@@ -1892,7 +1892,7 @@ export default async function PaginaOrdens() {
 }
 ```
 
-- [ ] **Step 3: Actions da ordem**
+- [x] **Step 3: Actions da ordem**
 
 `src/app/(app)/ordens/[id]/actions.ts` — cada action: autenticação, chave válida, chamada ao repositório, `revalidatePath` e resposta JSON pura. Só `ConflitoVersao`, `OrdemNaoEditavel` e `ErroDeValidacao` viram `{ ok: false }`; o resto estoura para o `error.tsx`.
 ```tsx
@@ -1965,7 +1965,7 @@ export async function buscarClientesAction(termo: string): Promise<ClienteResumo
 }
 ```
 
-- [ ] **Step 4: A entrada assistida (Client Component)**
+- [x] **Step 4: A entrada assistida (Client Component)**
 
 `src/app/(app)/ordens/[id]/entrada-linha.tsx` — o campo é controlado (preview a cada tecla); Enter chama a action dentro de `startTransition` e só limpa depois do commit; Esc limpa; o campo nunca fica `disabled`; a chave sobrevive ao retry e é renovada só após resposta do servidor.
 ```tsx
@@ -2091,7 +2091,7 @@ export function EntradaLinha({ ordemId, versao, catalogo }: Props) {
 }
 ```
 
-- [ ] **Step 5: Botão de mutação, ajuste, cabeçalho e cancelamento (Client Components)**
+- [x] **Step 5: Botão de mutação, ajuste, cabeçalho e cancelamento (Client Components)**
 
 `src/app/(app)/ordens/[id]/botao-mutacao.tsx` — recebe uma Server Action já vinculada aos argumentos (`.bind`), gera a chave por tentativa e mostra conflito.
 ```tsx
@@ -2336,7 +2336,7 @@ export function FormCancelar({ ordemId, versao }: { ordemId: string; versao: num
 }
 ```
 
-- [ ] **Step 6: A página da ordem (Server Component)**
+- [x] **Step 6: A página da ordem (Server Component)**
 
 `src/app/(app)/ordens/[id]/page.tsx`:
 ```tsx
@@ -2495,18 +2495,20 @@ export default async function PaginaOrdem({ params }: { params: Promise<{ id: st
 }
 ```
 
-- [ ] **Step 7: Typecheck, testes, build e fumaça**
+- [x] **Step 7: Typecheck, testes, build e fumaça**
 
 Run: `npm run typecheck` → sem erros (atenção ao helper `acao`: se o TypeScript 7 reclamar do `bind` genérico, trocar por chamadas explícitas `removerItemAction.bind(null, ordem.id, ordem.versao, i.id)` em cada uso — o `.bind` de Server Action é serializável). Run: `npm test` → PASS (`use-client` continua verde: nenhum arquivo novo importa react-bootstrap).
 Run: `npm run build` → rotas `ƒ /ordens`, `ƒ /ordens/[id]`, `ƒ /ordens/nova`.
 Fumaça: `curl -s -o /dev/null -w "%{http_code} %{redirect_url}\n" http://localhost:3000/ordens` → `307 …/entrar?proximo=%2Fordens`.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add "src/app/(app)/navegacao.ts" "src/app/(app)/layout.tsx" "src/app/(app)/ordens/"
 git commit -m "feat: tela da ordem de servico com entrada assistida, acrescimos, ajuste, aprovacao e cancelamento"
 ```
+
+**Execução (2026-08-29):** `npm test -- chave` vermelho (`Cannot find module './chave'`) → verde 1 passed. `npm run typecheck` sem erros — o helper genérico `acao` com `.bind` passou no TS 7 sem precisar do fallback. `npm test` 216 passed (28 arquivos). `npm run build`: `ƒ /ordens`, `ƒ /ordens/[id]`, `ƒ /ordens/nova`. Fumaça com `next start`: `/ordens` → `307 …/entrar?proximo=%2Fordens`, `/ordens/nova` → `307 …/entrar?proximo=%2Fordens%2Fnova`.
 
 ---
 ### Task 5: O impresso

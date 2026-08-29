@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { IconListCheck, IconUsers, IconPackage } from '@tabler/icons-react'
+import { IconListCheck, IconUsers, IconPackage, IconFileInvoice } from '@tabler/icons-react'
 import { exigirUsuario } from '@/infra/auth/usuario-atual'
 import { MenuUsuario } from '@/componentes/menu-usuario'
 import { sair } from '@/app/(auth)/entrar/actions'
@@ -7,6 +7,7 @@ import { NAVEGACAO } from './navegacao'
 
 const ICONES = {
   fila: <IconListCheck className="icon" />,
+  ordens: <IconFileInvoice className="icon" />,
   clientes: <IconUsers className="icon" />,
   materiais: <IconPackage className="icon" />,
 } as const
