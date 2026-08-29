@@ -61,7 +61,7 @@
   - `formatarDataCalendario(d)` (UTC, `dd/mm/aaaa`), `formatarDataHora(d)` (`America/Sao_Paulo`), `formatarDataLonga(d)` ("4 de setembro")
   - `descreverCobranca(item)`, `formatarDimensao(a, l)`, `tituloDocumento(estado)`, `TEXTOS_IMPRESSO`
 
-- [ ] **Step 1: `ValorNumerico` e `ErroDeValidacao`**
+- [x] **Step 1: `ValorNumerico` e `ErroDeValidacao`**
 
 `src/domain/precificacao/erros.ts`:
 ```ts
@@ -86,7 +86,7 @@ Em `src/domain/precificacao/ordem.ts`: `Acrescimo.valor: ValorNumerico`, `precoF
 
 Run: `npm test -- precificacao` → PASS (os testes da 1A continuam: `number` segue aceito).
 
-- [ ] **Step 2: Teste da resolução da linha**
+- [x] **Step 2: Teste da resolução da linha**
 
 `src/domain/precificacao/resolucao.test.ts`:
 ```ts
@@ -228,12 +228,12 @@ describe('lerMedida e proximaUnidade', () => {
 })
 ```
 
-- [ ] **Step 3: Rodar e ver falhar**
+- [x] **Step 3: Rodar e ver falhar**
 
 Run: `npm test -- resolucao`
 Expected: FAIL — `Cannot find module './resolucao'`
 
-- [ ] **Step 4: Criar `src/domain/precificacao/resolucao.ts`**
+- [x] **Step 4: Criar `src/domain/precificacao/resolucao.ts`**
 
 ```ts
 import { interpretarLinha, normalizarDimensao } from './parser'
@@ -468,11 +468,13 @@ export function proximaUnidade(atual: UnidadeCobranca): UnidadeCobranca {
 
 > Este arquivo tem `\\s` dentro de `new RegExp(...)`: **escrever pela ferramenta de edição**, nunca por heredoc.
 
-- [ ] **Step 5: Rodar e ver passar**
+- [x] **Step 5: Rodar e ver passar**
 
 Run: `npm test -- resolucao` → PASS — 22 passed
 
-- [ ] **Step 6: Permissões e rótulos em `src/domain/ordem/estados.ts`**
+> Nota de execução (2026-08-28): duas linhas do legado vêm com a quantidade colada (`03PLACAS`, `06PLACAS`) e o parser da 1A exige espaço; `resolverLinha` passou a inserir o espaço (`RE_QTD_COLADA`) antes de chamar o parser.
+
+- [x] **Step 6: Permissões e rótulos em `src/domain/ordem/estados.ts`**
 
 Acrescentar ao fim do arquivo existente (mantendo `podeTransicionar`, `transicionar`, `calcularEstadoPagamento`):
 ```ts
@@ -545,7 +547,7 @@ describe('ajusteDesatualizado', () => {
 
 Run: `npm test -- estados` → PASS — 22 passed
 
-- [ ] **Step 7: Datas e formatadores do impresso**
+- [x] **Step 7: Datas e formatadores do impresso**
 
 `src/domain/ordem/datas.test.ts`:
 ```ts
@@ -708,7 +710,7 @@ export function tituloDocumento(estado: EstadoProducao): string {
 
 Run: `npm test -- datas` → PASS — 2 passed. Run: `npm test -- impresso` → PASS — 5 passed. (Nos dois, rodar antes o vermelho: `Cannot find module`.)
 
-- [ ] **Step 8: Verificação e commit**
+- [x] **Step 8: Verificação e commit**
 
 Run: `npm test` → PASS (pureza incluída: os módulos novos só importam o próprio domínio). Run: `npm run typecheck` → sem erros.
 

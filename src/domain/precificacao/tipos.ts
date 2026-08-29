@@ -2,14 +2,17 @@ import type { Decimal } from './dinheiro'
 
 export type UnidadeCobranca = 'm2' | 'unidade' | 'metro_linear'
 
+/** number vindo do formulario; string exata (Decimal.toFixed()) vindo do banco. Nunca passa por float. */
+export type ValorNumerico = number | string
+
 export interface ItemCobranca {
   unidade: UnidadeCobranca
   quantidade: number
-  valorUnitario: number
+  valorUnitario: ValorNumerico
   /** Em metros. Obrigatorio para m2 e metro_linear. */
-  altura?: number
+  altura?: ValorNumerico
   /** Em metros. Obrigatorio para m2 e metro_linear. */
-  largura?: number
+  largura?: ValorNumerico
 }
 
 export interface ResultadoItem {

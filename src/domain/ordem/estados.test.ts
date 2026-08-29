@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { podeTransicionar, transicionar, calcularEstadoPagamento } from './estados'
+import { podeTransicionar, transicionar, calcularEstadoPagamento, permissoes, ajusteDesatualizado, ROTULO_ESTADO } from './estados'
 
 describe('transicoes de producao', () => {
   it.each([
@@ -60,5 +60,25 @@ describe('estado de pagamento derivado', () => {
 
   it('ordem de valor zero ja nasce paga', () => {
     expect(calcularEstadoPagamento(0, [])).toBe('pago')
+  })
+})
+
+describe('permissoes por estado', () => {
+  it('orcamento e aberta editam; concluida so observacoes; cancelada nada', () => {
+    expect(permissoes('orcamento')).toMatchObject({ editarItens: true, aprovarOrcamento: true, cancelar: true })
+    expect(permissoes('aberta')).toMatchObject({ editarItens: true, aprovarOrcamento: false, cancelar: true })
+    expect(permissoes('concluida')).toMatchObject({ editarItens: false, editarObservacoes: true, cancelar: false })
+    expect(permissoes('cancelada')).toMatchObject({ editarItens: false, editarObservacoes: false })
+  })
+  it('rotulos no vocabulario da loja', () => {
+    expect(ROTULO_ESTADO.concluida).toBe('Serviço finalizado')
+  })
+})
+
+describe('ajusteDesatualizado', () => {
+  it('so avisa quando ha ajuste e o calculado mudou desde ele', () => {
+    expect(ajusteDesatualizado({ temAjuste: false, precoCalculado: '10.00', precoCalculadoNoAjuste: null })).toBe(false)
+    expect(ajusteDesatualizado({ temAjuste: true, precoCalculado: '10.00', precoCalculadoNoAjuste: '10.00' })).toBe(false)
+    expect(ajusteDesatualizado({ temAjuste: true, precoCalculado: '12.00', precoCalculadoNoAjuste: '10.00' })).toBe(true)
   })
 })

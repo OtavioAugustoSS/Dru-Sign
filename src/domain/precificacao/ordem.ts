@@ -1,11 +1,12 @@
 import { calcularItem } from './formulas'
 import { dinheiro, arredondarCentavos, type Decimal } from './dinheiro'
-import type { ItemCobranca } from './tipos'
+import type { ItemCobranca, ValorNumerico } from './tipos'
+import { ErroDeValidacao } from './erros'
 
 export interface Acrescimo {
   tipo: string
   descricao: string
-  valor: number
+  valor: ValorNumerico
 }
 
 export interface ComposicaoOrdem {
@@ -20,7 +21,7 @@ export interface ComposicaoOrdem {
 export function comporOrdem(
   itens: ItemCobranca[],
   acrescimos: Acrescimo[],
-  precoFinalManual?: number,
+  precoFinalManual?: ValorNumerico,
 ): ComposicaoOrdem {
   const subtotalItens = arredondarCentavos(
     itens.reduce((soma, i) => soma.plus(calcularItem(i).total), dinheiro(0)),
@@ -37,8 +38,8 @@ export function comporOrdem(
     }
   }
 
-  if (precoFinalManual < 0) {
-    throw new Error('preco final nao pode ser negativo')
+  if (dinheiro(precoFinalManual).lt(0)) {
+    throw new ErroDeValidacao('preco final nao pode ser negativo')
   }
 
   const precoFinal = arredondarCentavos(dinheiro(precoFinalManual))
