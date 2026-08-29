@@ -2792,7 +2792,7 @@ git commit -m "feat: impresso da ordem em A4 com uma ou duas vias"
 **Files:**
 - Create: `e2e/ordens.spec.ts`, `e2e/impresso.spec.ts`
 
-- [ ] **Step 1: O teste da tela**
+- [x] **Step 1: O teste da tela**
 
 `e2e/ordens.spec.ts`:
 ```ts
@@ -2917,7 +2917,7 @@ test.describe('Ordem de serviço', () => {
 })
 ```
 
-- [ ] **Step 2: O teste do impresso**
+- [x] **Step 2: O teste do impresso**
 
 `e2e/impresso.spec.ts`:
 ```ts
@@ -2967,14 +2967,14 @@ test.describe('Impresso da ordem', () => {
 })
 ```
 
-- [ ] **Step 3: Rodar**
+- [x] **Step 3: Rodar**
 
 Antes: `npm run typecheck` (o `next typegen` precisa conhecer as rotas novas), `npm run db:local:ls` com `drusign` de pé, seed com o contador aplicado, clientes importados.
 
 Run: `npm run e2e`
 Expected: `16 passed` (10 anteriores + 5 de ordens + 1 do impresso). Se o segundo Enter cair em conflito, a ressalva documentada é real: trocar o `revalidatePath` por `router.refresh()` depois do `await` na `EntradaLinha` e anotar no plano.
 
-- [ ] **Step 4: Verificação final e commit**
+- [x] **Step 4: Verificação final e commit**
 
 Run: `npm run check` → typecheck, unitários e integração verdes. Run: `npm run build` → verde.
 
@@ -2983,16 +2983,22 @@ git add e2e/
 git commit -m "test: ordem de servico e impresso ponta a ponta com a OS 18449"
 ```
 
+**Execução (2026-08-29):** primeira rodada `6 failed, 10 passed` — todas as 6 novas caíram antes de renderizar `/ordens/[id]` com `Connection terminated unexpectedly` / `DriverAdapterError: ConnectionClosed`. Causa isolada com `pg` puro: o daemon do `prisma dev` (PGlite) aceita poucas conexões simultâneas e o teto **encolhe** a cada servidor morto à força (a instância `drusign`, depois de várias sessões de `taskkill`/Playwright, aceitava só 2; `drusign-test`, usada só pelo Vitest, aceitava 8). A página dispara `Promise.all` de 3 queries e o Prisma abre as 4 sub-queries do `include` em paralelo → estoura o teto. Correção: `DATABASE_POOL_MAX` opcional (`env.ts` + `prisma.ts`, teste vermelho→verde em `env.test.ts`), `=2` só no `.env.local`, documentado no `.env.example` com o reinício do daemon (`npx prisma dev stop drusign && npm run db:local`); a instância `drusign` foi recriada (migrate deploy, seed, 3219 clientes reimportados em 40,5s).
+
+Segunda rodada `3 failed, 13 passed`: a ressalva prevista era real, mas com outra cara — o segundo Enter não conflitava, era **engolido** (`confirmar()` retorna cedo enquanto `pendente`, e o campo já tinha sido limpo antes de a transition terminar). Correção na `EntradaLinha`: o campo só limpa quando a transition (action + `router.refresh()` aninhado em `iniciar`) termina, via `useEffect` em `pendente`, preservando o que a pessoa já digitou por cima; `BotaoMutacao`, `FormAjuste` e `FormCabecalho` também fazem `iniciar(() => router.refresh())` no sucesso. O `revalidatePath` nas actions ficou (sem ele, `goBack()` depois do cancelamento mostrava a ordem "Aberta" do cache do router).
+
+Terceira rodada: **16 passed (1.3m)**, `test-results/impresso-os-018478.pdf` (164 KB). `npm run check`: 217 unitários + 37 integração; `npm run build` verde.
+
 ---
 
 ## Critério de conclusão da Fase 3
 
 Verificação da spec (seção 13): *"reproduzir a OS 18449 do legado — seis itens de ACM somando R$ 2.528,00."*
 
-- [ ] `repositorio.int.test.ts` de ordens verde: a OS 18461 recebe as seis linhas do legado como estão e fecha em 2.528,00; idempotência, trava, ajuste, soft delete, aprovação e cancelamento provados no banco
-- [ ] `resolucao.test.ts` verde: as seis linhas, com o sufixo `CD`, resolvem por unidade e conferem
-- [ ] `npm run check` e `npm run build` verdes
-- [ ] `npm run e2e` verde: a OS 18449 digitada pela interface dá R$ 2.528,00; acréscimo, ajuste, aviso de divergência, remoção, pendência, Esc, dois Enters seguidos, orçamento→aprovação→cancelamento, cliente por busca, impresso com PDF em `test-results/`
+- [x] `repositorio.int.test.ts` de ordens verde: a OS 18461 recebe as seis linhas do legado como estão e fecha em 2.528,00; idempotência, trava, ajuste, soft delete, aprovação e cancelamento provados no banco
+- [x] `resolucao.test.ts` verde: as seis linhas, com o sufixo `CD`, resolvem por unidade e conferem
+- [x] `npm run check` e `npm run build` verdes
+- [x] `npm run e2e` verde: a OS 18449 digitada pela interface dá R$ 2.528,00; acréscimo, ajuste, aviso de divergência, remoção, pendência, Esc, dois Enters seguidos, orçamento→aprovação→cancelamento, cliente por busca, impresso com PDF em `test-results/`
 
 Feito isso, a Fase 4 (recebimento, livro-caixa, plano de contas, a transação única e a fila de trabalho — o marco em que o legado pode ser desligado) ganha seu próprio plano.
 
