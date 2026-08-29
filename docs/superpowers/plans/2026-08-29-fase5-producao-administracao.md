@@ -801,7 +801,7 @@ banco ja usado sem sobrescrever o que o Otavio digitar em `/empresa`, que era o 
   - `listarUsuarios(empresaId): Promise<UsuarioTela[]>`, `criarUsuario(empresaId, dados): Promise<{ id }>`, `alterarUsuario(empresaId, id, dados)`, `alterarAtivoUsuario(empresaId, id, ativo, usuarioAtualId)`, `trocarSenha(empresaId, id, senha)`
   - `obterEmpresa(empresaId): Promise<EmpresaTela>`, `salvarEmpresa(empresaId, dados): Promise<void>`
 
-- [ ] **Step 1: Fila de produção, indicadores e carteira (teste de integração)**
+- [x] **Step 1: Fila de produção, indicadores e carteira (teste de integração)**
 
 `src/infra/producao/producao.int.test.ts`:
 ```ts
@@ -936,7 +936,7 @@ describe('carteira de clientes (banco real)', () => {
 
 Run: `npm run test:int -- producao` → vermelho (`Cannot find module './fila'`).
 
-- [ ] **Step 2: Fila de produção (implementação)**
+- [x] **Step 2: Fila de produção (implementação)**
 
 `src/infra/producao/fila.ts`:
 ```ts
@@ -964,7 +964,7 @@ export async function carregarFilaProducao(empresaId: string, agora: Date = new 
 }
 ```
 
-- [ ] **Step 3: Indicadores e carteira (implementação)**
+- [x] **Step 3: Indicadores e carteira (implementação)**
 
 `src/infra/operacao/indicadores.ts`:
 ```ts
@@ -1055,7 +1055,7 @@ export async function carregarCarteira(empresaId: string, agora: Date = new Date
 
 Run: `npm run test:int -- producao` → PASS (7).
 
-- [ ] **Step 4: Usuários (teste de integração)**
+- [x] **Step 4: Usuários (teste de integração)**
 
 `src/infra/usuarios/repositorio.int.test.ts`:
 ```ts
@@ -1141,7 +1141,7 @@ describe('usuarios (banco real)', () => {
 
 Run: `npm run test:int -- usuarios` → vermelho.
 
-- [ ] **Step 5: Usuários e empresa (implementação)**
+- [x] **Step 5: Usuários e empresa (implementação)**
 
 `src/infra/usuarios/repositorio.ts`:
 ```ts
@@ -1308,7 +1308,7 @@ export async function salvarEmpresa(empresaId: string, dados: Record<keyof Empre
 }
 ```
 
-- [ ] **Step 6: O impresso passa a ler a empresa do banco**
+- [x] **Step 6: O impresso passa a ler a empresa do banco**
 
 Em `src/infra/ordens/impresso.ts`, trocar o `select` da empresa e o objeto devolvido:
 ```ts
@@ -1334,12 +1334,16 @@ e, no retorno, no lugar de `empresa: { nomeFantasia: 'DruSign', razaoSocial: o.e
 
 Run: `npm run typecheck` → sem erros. Run: `npm run test:int` → PASS (56 + 7 de produção + 5 de usuários = **68**). Run: `npm test` → PASS.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/infra/producao src/infra/operacao src/infra/clientes/carteira.ts src/infra/usuarios src/infra/empresa src/infra/ordens/impresso.ts
 git commit -m "feat: fila de producao, indicadores de operacao, carteira de clientes, usuarios e dados da empresa no impresso"
 ```
+
+**Executado (29/08/2026).** 295 unitarios e **73** de integracao verdes, typecheck limpo. O codigo
+do plano rodou como escrito, sem nenhum ajuste. A conta de 68 no Step 6 estava baixa: o `it.each`
+de seis linhas do teste de usuarios conta como seis testes, entao sao 56 + 7 + 10 = 73.
 
 ---
 ### Task 4: Telas — fila de produção, operação, carteira, usuários e dados da empresa

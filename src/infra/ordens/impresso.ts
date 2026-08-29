@@ -16,7 +16,12 @@ export async function obterImpresso(empresaId: string, ordemId: string): Promise
   const o = await prisma.ordemServico.findFirst({
     where: { id: ordemId, empresaId },
     include: {
-      empresa: { select: { razaoSocial: true } },
+      empresa: {
+        select: {
+          razaoSocial: true, nomeFantasia: true, cnpj: true, endereco: true,
+          bairro: true, cidade: true, uf: true, telefone1: true, telefone2: true,
+        },
+      },
       responsavel: { select: { nome: true } },
       cliente: { select: { documento: true } },
       itens: { where: { removidoEm: null }, orderBy: { ordemExibicao: 'asc' } },
@@ -31,7 +36,15 @@ export async function obterImpresso(empresaId: string, ordemId: string): Promise
   const ROTULO = { instalacao: 'Instalação', deslocamento: 'Deslocamento', frete: 'Frete', imposto: 'Imposto' } as const
 
   return {
-    empresa: { nomeFantasia: 'DruSign', razaoSocial: o.empresa.razaoSocial },
+    empresa: {
+      // Sem nome fantasia, o nome grande do cabecalho e a propria razao social.
+      nomeFantasia: o.empresa.nomeFantasia ?? o.empresa.razaoSocial,
+      razaoSocial: o.empresa.razaoSocial,
+      cnpj: o.empresa.cnpj,
+      endereco: [o.empresa.endereco, o.empresa.bairro].filter(Boolean).join(' · ') || null,
+      cidadeUf: o.empresa.cidade ? `${o.empresa.cidade}${o.empresa.uf ? `/${o.empresa.uf}` : ''}` : null,
+      telefones: [o.empresa.telefone1, o.empresa.telefone2].filter((t): t is string => t !== null),
+    },
     ordem: {
       numero: o.numero,
       estadoProducao: o.estadoProducao,
