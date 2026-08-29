@@ -462,9 +462,22 @@ Ordem por tráfego e por gravidade do que foi encontrado.
   escolhe UTC para cliente vindo do legado e São Paulo para cadastro novo, e essa
   diferença é real — trocar por um formatador único mudaria a data mostrada.
 
-- [ ] **T7. `/clientes/carteira`.** Alinhar a fileira de indicadores (o primeiro
-  cartão não tem legenda e desalinha os quatro). Resolver a meia tela vazia quando
-  não há adormecidos. Corrigir `0.0%`.
+- [x] **T7. `/clientes/carteira`.** ✅ Feito.
+
+  - **A fileira de indicadores estava desalinhada** porque o primeiro cartão não
+    tinha legenda e os outros três tinham: a altura vinha do conteúdo. Extraí
+    `CartaoIndicador`, que resolve isso com `h-100`. Medido: os quatro com
+    **117px exatos**. O primeiro também ganhou legenda — um número sem
+    explicação ao lado de três que têm é estranho por si só.
+  - **"Para reativar" sumia da tela** quando não havia ninguém adormecido, e
+    sobrava meia tela em branco. Agora o cartão fica e explica: sem ele a pessoa
+    não sabia se a lista não existia ou se estava vazia.
+  - `0.0%` virou `0,0%` — zero porcentagens com ponto na tela.
+
+  O `CartaoIndicador` já nasce servindo a T8 (`/operacao`, seis indicadores com
+  cor por limiar) e a T9 (`/financeiro`, três totais), que hoje desenham o mesmo
+  bloco à mão e nenhuma igual.
+
 - [ ] **T8. `/operacao` → Indicadores.** Tirar título e número da mesma linha.
   Aplicar cor de alerta a todo indicador fora do alvo, não só ao primeiro.
   Corrigir `75.2%` e `82.4%`. Resolver "0 dias" no prazo de entrega.
