@@ -32,13 +32,21 @@ export function interpretarLinha(texto: string): LinhaInterpretada {
   const quantidade = mQtd?.[1] ? Number(mQtd[1]) : 1
   if (mQtd) resto = resto.slice(mQtd[0].length)
 
-  let valorUnitario: number | undefined
-  const mVal = resto.match(RE_VALOR)
-  if (mVal?.[1]) {
-    valorUnitario = paraNumero(mVal[1])
-    resto = resto.slice(0, resto.length - mVal[0].length)
-  }
-
+  /*
+   * A MEDIDA sai antes do VALOR, e a ordem importa.
+   *
+   * As duas expressoes disputam o mesmo numero quando a linha termina em
+   * medida. Em "acm 3mm branco 1,00 x 0,50" o valor saia primeiro, levava o
+   * "0,50" como preco unitario, e a medida ficava sem o segundo lado -- entao
+   * sumia. Resultado: a placa custava cinquenta centavos e o preco do catalogo
+   * era ignorado, porque so entra quando nao ha valor na linha.
+   *
+   * Tirando a medida primeiro, os dois casos ficam certos: "01 placa acm 35 x 25
+   * e adesivo impresso 30,00", que e como a loja escreve ha catorze anos, segue
+   * com medida 35x25 e valor 30,00; e "2 acm 3mm branco 1,00 x 0,50" passa a ser
+   * medida 1,00x0,50 com o preco vindo do catalogo, que era a intencao de quem
+   * digitou.
+   */
   let altura: number | undefined
   let largura: number | undefined
   const mDim = resto.match(RE_DIMENSAO)
@@ -46,6 +54,13 @@ export function interpretarLinha(texto: string): LinhaInterpretada {
     altura = normalizarDimensao(mDim[1])
     largura = normalizarDimensao(mDim[2])
     resto = resto.replace(mDim[0], ' ')
+  }
+
+  let valorUnitario: number | undefined
+  const mVal = resto.match(RE_VALOR)
+  if (mVal?.[1]) {
+    valorUnitario = paraNumero(mVal[1])
+    resto = resto.slice(0, resto.length - mVal[0].length)
   }
 
   const descricao = resto.replace(/\s+/g, ' ').trim()

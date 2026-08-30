@@ -73,3 +73,26 @@ describe('interpretarLinha', () => {
     expect(r.valorUnitario).toBe(450)
   })
 })
+
+/*
+ * A medida sai antes do valor: as duas expressoes disputam o mesmo numero
+ * quando a linha termina em medida, e quem saisse primeiro levava. Com o valor
+ * saindo antes, "1,00 x 0,50" virava preco de cinquenta centavos e a medida
+ * sumia -- e, sem medida, o preco do catalogo nem chegava a ser consultado.
+ */
+describe('medida no fim da linha', () => {
+  it('a linha que termina em medida nao vira preco de cinquenta centavos', () => {
+    const l = interpretarLinha('2 acm 3mm branco 1,00 x 0,50')
+    expect(l).toMatchObject({ quantidade: 2, descricao: 'acm 3mm branco', altura: 1, largura: 0.5 })
+    expect(l.valorUnitario).toBeUndefined()
+  })
+
+  it('a notacao da loja, com medida no meio e valor no fim, segue igual', () => {
+    const l = interpretarLinha('01 placa acm 35 x 25 e adesivo impresso 30,00')
+    expect(l).toMatchObject({ quantidade: 1, altura: 0.35, largura: 0.25, valorUnitario: 30 })
+  })
+
+  it('sem medida, o valor no fim continua sendo valor', () => {
+    expect(interpretarLinha('4 adesivo recorte 35,00')).toMatchObject({ quantidade: 4, valorUnitario: 35 })
+  })
+})
