@@ -145,14 +145,35 @@ test.describe('Ordem de serviço', () => {
     await expect(campoDe(page, 'Lançar item ou acréscimo')).toHaveCount(0)
   })
 
-  test('cabecalho: escolhe o cliente pela busca e a ordem passa a mostrar o apelido', async ({ page }) => {
+  test('cabecalho: escolher o cliente ja grava, e a ordem sobrevive ao recarregar', async ({ page }) => {
     await novaOrdem(page)
     await campoDe(page, 'Cliente').fill('factu')
     await page.getByRole('option').filter({ hasText: 'ASSOCIAÇÃO DE ENSINO' }).getByRole('button').click()
+
+    // Sem clicar em "Salvar cabeçalho": escolher o cliente grava sozinho. Era
+    // aqui que a ordem seguia para a bancada como "Venda de balcao" -- o nome
+    // aparecia no campo e ninguem sabia que faltava gravar.
+    await expect(page.getByText(/ASSOCIAÇÃO DE ENSINO E PERQUISA DE UNAÍ · FACTU/)).toBeVisible({ timeout: 30_000 })
+    await page.reload()
+    await expect(page.getByText(/ASSOCIAÇÃO DE ENSINO E PERQUISA DE UNAÍ · FACTU/)).toBeVisible()
+
+    // A data continua no fluxo do botao: ela nao e escolha de lista.
     await campoDe(page, 'Entrega prometida').fill('2026-09-04')
     await page.getByRole('button', { name: 'Salvar cabeçalho' }).click()
     await expect(page.getByText('Salvo.')).toBeVisible({ timeout: 30_000 })
-    await expect(page.getByText(/ASSOCIAÇÃO DE ENSINO E PERQUISA DE UNAÍ · FACTU/)).toBeVisible()
     await expect(page.getByText('entrega prometida 4 de setembro')).toBeVisible()
+  })
+
+  test('cabecalho: cadastrar o cliente dentro da ordem ja deixa a ordem no nome dele', async ({ page }) => {
+    await novaOrdem(page)
+    const nome = `Serralheria e2e ${Date.now()}`
+    await campoDe(page, 'Cliente').fill(nome)
+    await page.getByRole('button', { name: `Cadastrar “${nome}”` }).click()
+    await campoDe(page, 'Telefone').fill('(38) 99111-2222')
+    await page.getByRole('button', { name: 'Cadastrar e usar' }).click()
+
+    await expect(page.getByText(new RegExp(`${nome} · \\(38\\) 99111-2222`))).toBeVisible({ timeout: 30_000 })
+    await page.reload()
+    await expect(page.getByText(new RegExp(nome))).toBeVisible()
   })
 })

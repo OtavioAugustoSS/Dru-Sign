@@ -42,10 +42,23 @@ export function FormCabecalho(p: Props) {
     return () => clearTimeout(t)
   }, [termo])
 
+  /**
+   * Escolher o cliente JA GRAVA a ordem.
+   *
+   * Todo o resto desta tela se grava sozinho: o item entra no Enter, o
+   * recebimento no botao. So o cabecalho esperava o "Salvar" -- e quem escolhia
+   * o cliente na busca via o nome aparecer no campo e seguia para os itens. A
+   * ordem continuava "Venda de balcao", e saia impressa assim. Erro caro numa
+   * grafica: a OS vai para a bancada sem dizer de quem e.
+   *
+   * O id vai por parametro porque `setClienteId` so vale no proximo render: ler
+   * do estado aqui gravaria o cliente ANTERIOR.
+   */
   function escolher(c: ClienteResumo | null) {
     setClienteId(c?.id ?? null)
     setClienteNome(c ? `${c.nome}${c.apelido ? ` (${c.apelido})` : ''}` : '')
     setTermo(''); setSugestoes([]); setCadastrando(null); setErroCadastro(null)
+    if (!p.somenteObservacoes) salvar({ clienteId: c?.id ?? null })
   }
 
   function cadastrarEUsar() {
@@ -58,12 +71,14 @@ export function FormCabecalho(p: Props) {
     })
   }
 
-  function salvar() {
-    if (pendente) return
+  function salvar(sobrescreve?: { clienteId: string | null }) {
+    // A gravacao vinda de `escolher` passa pelo guarda: ela nasce DENTRO da
+    // transicao do cadastro rapido, entao `pendente` ja e true ali.
+    if (pendente && sobrescreve === undefined) return
     iniciar(async () => {
       const r = await atualizarCabecalhoAction(p.ordemId, p.versao, chave.current, p.somenteObservacoes
         ? { observacoes }
-        : { clienteId, prometidaPara: prometida || null, responsavelId, observacoes })
+        : { clienteId: sobrescreve ? sobrescreve.clienteId : clienteId, prometidaPara: prometida || null, responsavelId, observacoes })
       setResposta(r)
       if (r.ok) { chave.current = gerarChave(); iniciar(() => router.refresh()) }
       else if (r.conflito) router.refresh()

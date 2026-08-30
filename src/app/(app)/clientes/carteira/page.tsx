@@ -10,8 +10,8 @@ import { Paginacao, POR_PAGINA, lerPagina } from '@/componentes/paginacao'
 import { Dinheiro } from '@/componentes/dinheiro'
 import { contar } from '@/componentes/plural'
 import { Percentual } from '@/componentes/percentual'
-import { Apelido, SituacaoRecencia } from '@/componentes/situacao'
-import { carregarCarteira, telefonesDeClientes } from '@/infra/clientes/carteira'
+import { Anotacao, Apelido, SituacaoRecencia } from '@/componentes/situacao'
+import { carregarCarteira, telefonesDeClientes, arquivadosEntre } from '@/infra/clientes/carteira'
 import { formatarDocumento } from '@/domain/clientes/documento'
 import { formatarTelefone } from '@/domain/clientes/telefone'
 import { formatarDataCalendario } from '@/domain/ordem/datas'
@@ -32,12 +32,15 @@ const MAIORES = 30
  * nomes eram texto morto: o grupo maior da carteira era justamente o que nao
  * tinha para onde ir.
  */
-function Nome({ g }: { g: GrupoCarteira }) {
+function Nome({ g, arquivados }: { g: GrupoCarteira; arquivados: Set<string> }) {
   const destino = g.clienteIds.length === 1 && g.clienteIds[0]
     ? `/clientes/${g.clienteIds[0]}`
     : g.documento
       ? `/clientes?q=${g.documento}`
       : null
+  // So quando o grupo INTEIRO esta arquivado: com 18 secretarias, uma
+  // arquivada nao diz nada sobre a Prefeitura.
+  const todoArquivado = g.clienteIds.every((id) => arquivados.has(id))
   return (
     <>
       {destino ? (
@@ -46,6 +49,7 @@ function Nome({ g }: { g: GrupoCarteira }) {
         <span className="fw-medium">{g.nome}</span>
       )}
       <Apelido apelido={g.apelido} />
+      {todoArquivado ? <Anotacao>arquivado</Anotacao> : null}
       {g.cadastros > 1 ? <div className="small text-secondary">{g.cadastros} cadastros com o mesmo documento</div> : null}
       {g.documento ? <div className="small text-secondary">{formatarDocumento(g.documento)}</div> : null}
     </>
@@ -63,7 +67,11 @@ export default async function PaginaCarteira({ searchParams }: { searchParams: P
   const total = dinheiro(carteira.faturadoTotal)
   const fatiaDosMaiores = total.isZero() ? '0.0' : somaMaiores.dividedBy(total).times(100).toFixed(1)
   const reativarNaPagina = carteira.paraReativar.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA)
-  const telefones = await telefonesDeClientes(usuario.empresaId, reativarNaPagina.flatMap((g) => g.clienteIds))
+  const idsNaTela = [...reativarNaPagina, ...maiores].flatMap((g) => g.clienteIds)
+  const [telefones, arquivados] = await Promise.all([
+    telefonesDeClientes(usuario.empresaId, reativarNaPagina.flatMap((g) => g.clienteIds)),
+    arquivadosEntre(usuario.empresaId, idsNaTela),
+  ])
 
   return (
     <>
@@ -136,7 +144,7 @@ export default async function PaginaCarteira({ searchParams }: { searchParams: P
                 const numeros = [...new Set(g.clienteIds.flatMap((id) => telefones.get(id) ?? []))].slice(0, 2)
                 return (
                   <tr key={g.documento ?? g.clienteIds[0]}>
-                    <td><Nome g={g} /></td>
+                    <td><Nome g={g} arquivados={arquivados} /></td>
                     <td className="text-secondary">
                       {numeros.length === 0
                         ? <span className="anotacao-solta">sem telefone no cadastro</span>
@@ -173,7 +181,7 @@ export default async function PaginaCarteira({ searchParams }: { searchParams: P
             >
               {maiores.map((g) => (
                 <tr key={g.documento ?? g.clienteIds[0]}>
-                  <td><Nome g={g} /></td>
+                  <td><Nome g={g} arquivados={arquivados} /></td>
                   <td><SituacaoRecencia recencia={g.recencia} /></td>
                   <td className="numero">{g.ordens}</td>
                   <td className="numero"><Dinheiro valor={g.faturado} /></td>

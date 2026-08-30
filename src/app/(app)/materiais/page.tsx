@@ -109,6 +109,7 @@ export default async function PaginaMateriais({
         ) : (
           <CartaoTabela
             rotulo="Materiais e preços"
+            titulo="Catálogo"
             aoLado={<span className="text-secondary">{contar(total, 'material', 'materiais')}</span>}
             rodape={
               <Paginacao

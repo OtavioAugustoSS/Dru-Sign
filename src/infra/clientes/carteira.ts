@@ -19,11 +19,17 @@ const FATURAM = ['aberta', 'concluida'] as const
  *
  * Do arquivo ficam de fora as 3.152 ordens em que o sistema antigo escreveu
  * "C A N C E L A D O" por cima do nome do cliente: aquilo nao foi venda.
+ *
+ * Cadastro arquivado ENTRA. Os 1.978 arquivados nao sao escolha de ninguem: sao
+ * os que o sistema antigo marcou como apagados, e a marca nao vale muito -- 54
+ * deles compraram nos ultimos dois anos, 53 na faixa de reativacao. Deixar de
+ * fora seria esconder da lista de telefonemas justamente quem o sistema velho
+ * errou. A tela marca quais sao, e quem decide e a loja.
  */
 export async function carregarCarteira(empresaId: string, agora: Date = new Date()): Promise<Carteira> {
   const [clientes, novas, antigas] = await Promise.all([
     prisma.cliente.findMany({
-      where: { empresaId, arquivadoEm: null },
+      where: { empresaId },
       select: { id: true, nome: true, apelido: true, documento: true },
     }),
     prisma.ordemServico.groupBy({
@@ -75,6 +81,22 @@ export async function carregarCarteira(empresaId: string, agora: Date = new Date
  * So os cadastros da pagina aberta: buscar os tres mil de uma vez para exibir
  * cinquenta seria pagar caro por nada.
  */
+/**
+ * Quais destes cadastros o sistema antigo deu como apagados.
+ *
+ * A carteira os conta, mas a tela precisa dizer. "Este comprou R$ 18 mil ha
+ * oito meses e esta arquivado" e informacao de verdade: ou a marca do legado
+ * estava errada, ou o cliente foi arquivado por engano aqui.
+ */
+export async function arquivadosEntre(empresaId: string, ids: string[]): Promise<Set<string>> {
+  if (ids.length === 0) return new Set()
+  const linhas = await prisma.cliente.findMany({
+    where: { empresaId, id: { in: ids }, arquivadoEm: { not: null } },
+    select: { id: true },
+  })
+  return new Set(linhas.map((l) => l.id))
+}
+
 export async function telefonesDeClientes(empresaId: string, ids: string[]): Promise<Map<string, string[]>> {
   if (ids.length === 0) return new Map()
   const linhas = await prisma.telefoneCliente.findMany({
