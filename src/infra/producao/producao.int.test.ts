@@ -39,7 +39,7 @@ describe('fila de producao (banco real)', () => {
 
     const fila = await carregarFilaProducao(base.empresaId)
     expect(fila.grupos.map((g) => g.grupo)).toEqual(['atrasada', 'sem_data'])
-    expect(fila.grupos[0]?.ordens[0]).toMatchObject({ id: atrasada.id, itens: ['PLACA ATRASADA'] })
+    expect(fila.grupos[0]?.ordens[0]).toMatchObject({ id: atrasada.id, itens: ['1 × PLACA ATRASADA'] })
     expect(fila.grupos[1]?.ordens.map((o) => o.id)).toEqual([semData.id])
     expect(fila.total).toBe(2)
     expect(fila.atrasadas).toBe(1)
@@ -48,12 +48,28 @@ describe('fila de producao (banco real)', () => {
     expect(ids).not.toContain(orcamento.id)
   })
 
+  /*
+   * A producao le "quantas" antes de qualquer outra coisa. A consulta da fila
+   * trazia so a descricao, entao o cartao dizia "PLACA ACM 60 X 80" sem dizer se
+   * era uma ou seis. Este teste trava as duas informacoes na linha.
+   */
+  it('a linha da fila traz a quantidade na frente e a medida junto', async () => {
+    const o = await criarOrdem(ctx(), { estado: 'aberta' })
+    await adicionarItem(ctx(), o.id, o.versao, {
+      descricao: 'PLACA ACM 60 X 80', materialId: null, quantidade: 6,
+      altura: '0.60', largura: '0.80', unidadeCobranca: 'm2', valorUnitario: '120.50',
+    })
+    const fila = await carregarFilaProducao(base.empresaId)
+    const linhas = fila.grupos.flatMap((g) => g.ordens).find((x) => x.id === o.id)?.itens
+    expect(linhas).toEqual(['6 × PLACA ACM 60 X 80 · 0,60 × 0,80 m'])
+  })
+
   it('a versao que vem na fila serve para concluir; item removido nao aparece na descricao', async () => {
     const o = await ordemCom('100.00', 'PLACA A')
     const t = await adicionarItem(ctx(), o.id, o.versao, ITEM('PLACA B', '20.00'))
     const fila = await carregarFilaProducao(base.empresaId)
     const daFila = fila.grupos[0]?.ordens[0]
-    expect(daFila?.itens).toEqual(['PLACA A', 'PLACA B'])
+    expect(daFila?.itens).toEqual(['1 × PLACA A', '1 × PLACA B'])
     expect(daFila?.versao).toBe(t.versao)
     const r = await concluirOrdem(ctx(), o.id, daFila?.versao ?? 0)
     expect(r.estadoProducao).toBe('concluida')

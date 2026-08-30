@@ -10,6 +10,8 @@ import { CartaoIndicador } from '@/componentes/cartao-indicador'
 import { SituacaoTipoLancamento } from '@/componentes/situacao'
 import { CorpoPagina } from '@/componentes/corpo-pagina'
 import { CartaoTabela } from '@/componentes/cartao-tabela'
+import { Paginacao, POR_PAGINA, lerPagina } from '@/componentes/paginacao'
+import { contar } from '@/componentes/plural'
 import { EstadoVazio } from '@/componentes/estado-vazio'
 import { FiltroPeriodo } from '@/componentes/filtro-periodo'
 import { Dinheiro, valorEmReais } from '@/componentes/dinheiro'
@@ -18,18 +20,23 @@ import { BotaoEstorno } from './botao-estorno'
 
 export const metadata: Metadata = { title: 'Financeiro' }
 
-export default async function PaginaFinanceiro({ searchParams }: { searchParams: Promise<{ de?: string; ate?: string }> }) {
+export default async function PaginaFinanceiro({
+  searchParams,
+}: {
+  searchParams: Promise<{ de?: string; ate?: string; pagina?: string }>
+}) {
   const usuario = await exigirPapel('administracao')
   const mes = mesCalendario(new Date())
-  const { de = mes.de, ate = mes.ate } = await searchParams
+  const { de = mes.de, ate = mes.ate, pagina: paginaCrua } = await searchParams
+  const pagina = lerPagina(paginaCrua)
   let livro
   let erro: string | null = null
   try {
-    livro = await listarLivro(usuario.empresaId, { de, ate })
+    livro = await listarLivro(usuario.empresaId, { de, ate }, { limite: POR_PAGINA, pagina })
   } catch (e) {
     if (!(e instanceof ErroDeValidacao)) throw e
     erro = e.message
-    livro = await listarLivro(usuario.empresaId, mes)
+    livro = await listarLivro(usuario.empresaId, mes, { limite: POR_PAGINA, pagina })
   }
 
   return (
@@ -83,6 +90,16 @@ export default async function PaginaFinanceiro({ searchParams }: { searchParams:
         ) : (
           <CartaoTabela
             rotulo="Lançamentos"
+            aoLado={<span className="text-secondary">{contar(livro.total, 'lançamento', 'lançamentos')} no período</span>}
+            rodape={
+              <Paginacao
+                pagina={pagina}
+                porPagina={POR_PAGINA}
+                total={livro.total}
+                base="/financeiro"
+                parametros={{ de: livro.de, ate: livro.ate }}
+              />
+            }
             colunas={
               <>
                 <th>Data</th>

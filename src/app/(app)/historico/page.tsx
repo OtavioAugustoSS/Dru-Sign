@@ -5,12 +5,13 @@ import { exigirUsuario } from '@/infra/auth/usuario-atual'
 import { CabecalhoPagina } from '@/componentes/cabecalho-pagina'
 import { CorpoPagina } from '@/componentes/corpo-pagina'
 import { CartaoTabela } from '@/componentes/cartao-tabela'
+import { CartaoIndicador } from '@/componentes/cartao-indicador'
 import { EstadoVazio } from '@/componentes/estado-vazio'
 import { Dinheiro } from '@/componentes/dinheiro'
 import { NumeroOs } from '@/componentes/numero-os'
 import { Paginacao, POR_PAGINA, lerPagina } from '@/componentes/paginacao'
 import { limparTextoLegado } from '@/componentes/texto-legado'
-import { buscarHistorico } from '@/infra/legado/consulta'
+import { buscarHistorico, contagensDoHistorico } from '@/infra/legado/consulta'
 import { ErroDeValidacao } from '@/domain/precificacao/erros'
 import { formatarDataCalendario } from '@/domain/ordem/datas'
 
@@ -35,6 +36,7 @@ export default async function PaginaHistorico({
     historico = await buscarHistorico(usuario.empresaId, { q, limite: POR_PAGINA, pagina })
   }
   const filtrando = Boolean(q || de)
+  const contagens = await contagensDoHistorico(usuario.empresaId)
 
   return (
     <>
@@ -44,6 +46,26 @@ export default async function PaginaHistorico({
         descricao="Somente leitura. É o que a loja fez de 2012 a 2026, com o texto como foi escrito — só sem as linhas que o sistema antigo usava para marcar campo vazio."
       />
       <CorpoPagina>
+        {/* Sao 18.443 ordens de catorze anos, e a tela nao dizia isso em lugar
+            nenhum: quem abria via cem linhas sem saber se o arquivo tinha cem ou
+            vinte mil. Nenhum deles e clicavel -- o arquivo inteiro JA e o que a
+            tela mostra sem filtro, entao o clique nao levaria a lugar nenhum. */}
+        <div className="row g-3 mb-3">
+          <div className="col-6 col-lg-4">
+            <CartaoIndicador rotulo="Ordens no arquivo" valor={contagens.ordens.toLocaleString('pt-BR')} nota="somente leitura" />
+          </div>
+          <div className="col-6 col-lg-4">
+            <CartaoIndicador rotulo="Faturado no período" valor={<Dinheiro valor={contagens.faturado} />} nota="tudo o que o sistema antigo registrou" />
+          </div>
+          <div className="col-6 col-lg-4">
+            <CartaoIndicador
+              rotulo="Vai de"
+              valor={contagens.primeiroAno && contagens.ultimoAno ? `${contagens.primeiroAno} a ${contagens.ultimoAno}` : '—'}
+              nota="da primeira à última ordem"
+            />
+          </div>
+        </div>
+
         <form method="get" className="card mb-3" role="search">
           <div className="card-body row g-2 align-items-end">
             <div className="col-md-5">

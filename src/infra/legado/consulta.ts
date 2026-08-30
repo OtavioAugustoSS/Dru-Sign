@@ -108,3 +108,31 @@ export async function historicoDoCliente(empresaId: string, clienteId: string, l
   })
   return linhas.map(paraLinha)
 }
+
+/**
+ * Os numeros do alto do arquivo do sistema antigo.
+ *
+ * Sao 18.443 ordens de catorze anos, e a tela nao dizia isso em lugar nenhum:
+ * quem abria via cem linhas e nao sabia se o arquivo tinha cem ou vinte mil.
+ * O periodo tambem importa -- e a resposta para "de quando ate quando isso vai".
+ */
+export async function contagensDoHistorico(empresaId: string): Promise<{
+  ordens: number
+  faturado: string
+  primeiroAno: number | null
+  ultimoAno: number | null
+}> {
+  const [ordens, soma, primeira, ultima] = await Promise.all([
+    prisma.ordemLegado.count({ where: { empresaId } }),
+    prisma.ordemLegado.aggregate({ where: { empresaId }, _sum: { total: true } }),
+    prisma.ordemLegado.findFirst({ where: { empresaId }, orderBy: { dataEntrada: 'asc' }, select: { dataEntrada: true } }),
+    prisma.ordemLegado.findFirst({ where: { empresaId }, orderBy: { dataEntrada: 'desc' }, select: { dataEntrada: true } }),
+  ])
+  const total = soma._sum.total
+  return {
+    ordens,
+    faturado: (total === null || total === undefined ? dinheiro(0) : paraDominio(total)).toFixed(2),
+    primeiroAno: primeira?.dataEntrada.getUTCFullYear() ?? null,
+    ultimoAno: ultima?.dataEntrada.getUTCFullYear() ?? null,
+  }
+}

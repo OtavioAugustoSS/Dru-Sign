@@ -51,34 +51,63 @@ export interface Livro {
   de: string
   ate: string
   linhas: LinhaLivro[]
+  /** Quantos lancamentos o periodo tem, mesmo quando a pagina mostra menos. */
+  total: number
   /** Somas dos lancamentos vivos, strings com 2 casas. */
   entradas: string
   saidas: string
   saldo: string
 }
 
-export async function listarLivro(empresaId: string, periodo: { de: string; ate: string }): Promise<Livro> {
+export async function listarLivro(
+  empresaId: string,
+  periodo: { de: string; ate: string },
+  paginacao: { limite?: number; pagina?: number } = {},
+): Promise<Livro> {
   const de = lerDataCalendario(periodo.de)
   const ate = lerDataCalendario(periodo.ate)
   if (!de || !ate || de.getTime() > ate.getTime()) throw new ErroDeValidacao('Período inválido.')
-  const lancamentos = await prisma.lancamentoCaixa.findMany({
-    where: { empresaId, data: { gte: de, lte: ate } },
-    orderBy: [{ data: 'asc' }, { criadoEm: 'asc' }],
-    include: { conta: { select: { codigo: true, nome: true } }, ordem: { select: { numero: true } }, usuario: { select: { nome: true } } },
-  })
-  let entradas = dinheiro(0)
-  let saidas = dinheiro(0)
+  const onde = { empresaId, data: { gte: de, lte: ate } }
+  const limite = paginacao.limite
+
+  /*
+   * As somas vem de agregado sobre o periodo INTEIRO, nao da pagina.
+   * Antes o livro carregava todo lancamento do mes e somava em memoria: com o
+   * sistema em producao, um mes movimentado sao centenas de linhas renderizadas
+   * de uma vez. Paginando as linhas mas somando na pagina, os totais mentiriam
+   * -- "entradas do mes" viraria "entradas destas cinquenta linhas".
+   */
+  const [somas, total, lancamentos] = await Promise.all([
+    prisma.lancamentoCaixa.groupBy({
+      by: ['tipo'],
+      where: { ...onde, estornadoEm: null },
+      _sum: { valor: true },
+    }),
+    prisma.lancamentoCaixa.count({ where: onde }),
+    prisma.lancamentoCaixa.findMany({
+      where: onde,
+      orderBy: [{ data: 'asc' }, { criadoEm: 'asc' }],
+      ...(limite ? { take: limite, skip: paginacao.pagina && paginacao.pagina > 1 ? (paginacao.pagina - 1) * limite : 0 } : {}),
+      include: { conta: { select: { codigo: true, nome: true } }, ordem: { select: { numero: true } }, usuario: { select: { nome: true } } },
+    }),
+  ])
+  const soma = (t: 'entrada' | 'saida') => {
+    const v = somas.find((g) => g.tipo === t)?._sum.valor
+    return v === null || v === undefined ? dinheiro(0) : paraDominio(v)
+  }
+  const entradas = soma('entrada')
+  const saidas = soma('saida')
+
   const linhas = lancamentos.map((l) => {
     const valor = paraDominio(l.valor)
-    if (!l.estornadoEm) {
-      if (l.tipo === 'entrada') entradas = entradas.plus(valor)
-      else saidas = saidas.plus(valor)
-    }
     return {
       id: l.id, data: l.data.toISOString(), tipo: l.tipo, valor: valor.toFixed(2), contaCodigo: l.conta.codigo, contaNome: l.conta.nome,
       historico: l.historico, ordemId: l.ordemId, ordemNumero: l.ordem?.numero ?? null, fornecedor: l.fornecedor, parcela: l.parcela,
       totalParcelas: l.totalParcelas, usuarioNome: l.usuario.nome, estornadoEm: l.estornadoEm?.toISOString() ?? null, motivoEstorno: l.motivoEstorno,
     }
   })
-  return { de: periodo.de, ate: periodo.ate, linhas, entradas: entradas.toFixed(2), saidas: saidas.toFixed(2), saldo: entradas.minus(saidas).toFixed(2) }
+  return {
+    de: periodo.de, ate: periodo.ate, linhas, total,
+    entradas: entradas.toFixed(2), saidas: saidas.toFixed(2), saldo: entradas.minus(saidas).toFixed(2),
+  }
 }
