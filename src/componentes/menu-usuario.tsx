@@ -1,7 +1,7 @@
 'use client'
 
 import Dropdown from 'react-bootstrap/Dropdown'
-import { IconLogout } from '@tabler/icons-react'
+import { IconChevronUp, IconLogout } from '@tabler/icons-react'
 import { SeletorTema } from './seletor-tema'
 import type { Tema } from '@/infra/tema/preferencia'
 
@@ -38,6 +38,11 @@ export function MenuUsuario({ nome, papel, iniciais, tema, sairAction, escolherT
           <div>{nome}</div>
           <div className="mt-1 small text-secondary">{papel}</div>
         </div>
+        {/* A seta e o que diz que isto ABRE alguma coisa. Sem ela, o unico
+            caminho para trocar o tema e para sair era descobrir por tentativa
+            que aquele nome no rodape era clicavel -- e o Otavio, procurando o
+            perfil, achou que ele tinha sumido. */}
+        <IconChevronUp className="icon ms-auto text-secondary" aria-hidden="true" />
       </Dropdown.Toggle>
       <Dropdown.Menu className="dropdown-menu-arrow">
         <SeletorTema inicial={tema} escolherAction={escolherTemaAction} />

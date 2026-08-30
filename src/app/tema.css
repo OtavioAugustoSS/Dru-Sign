@@ -482,3 +482,16 @@ summary:focus-visible,
     transition: none;
   }
 }
+
+/* O perfil no rodape da lateral: e um botao, e precisa parecer um.
+ *
+ * Ele abre o menu de trocar o tema e sair. Sem realce nenhum, ficava um nome
+ * solto no rodape -- e quem procurava por onde sair nao encontrava. */
+.lateral-usuario .nav-link {
+  border-radius: var(--tblr-border-radius);
+}
+
+.lateral-usuario .nav-link:hover,
+.lateral-usuario .nav-link[aria-expanded='true'] {
+  background: var(--tblr-primary-lt);
+}
