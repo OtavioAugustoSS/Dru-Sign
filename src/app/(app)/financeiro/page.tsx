@@ -32,11 +32,11 @@ export default async function PaginaFinanceiro({
   let livro
   let erro: string | null = null
   try {
-    livro = await listarLivro(usuario.empresaId, { de, ate }, { limite: POR_PAGINA, pagina })
+    livro = await listarLivro(usuario.empresaId, { de, ate }, { limite: POR_PAGINA, pagina, ordem: 'desc' })
   } catch (e) {
     if (!(e instanceof ErroDeValidacao)) throw e
     erro = e.message
-    livro = await listarLivro(usuario.empresaId, mes, { limite: POR_PAGINA, pagina })
+    livro = await listarLivro(usuario.empresaId, mes, { limite: POR_PAGINA, pagina, ordem: 'desc' })
   }
 
   return (

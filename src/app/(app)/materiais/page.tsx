@@ -8,6 +8,7 @@ import { CorpoPagina } from '@/componentes/corpo-pagina'
 import { CartaoTabela } from '@/componentes/cartao-tabela'
 import { CartaoIndicador } from '@/componentes/cartao-indicador'
 import { Paginacao, POR_PAGINA, lerPagina } from '@/componentes/paginacao'
+import { ColunaOrdenavel, lerOrdenacao } from '@/componentes/coluna-ordenavel'
 import { contar } from '@/componentes/plural'
 import { Anotacao } from '@/componentes/situacao'
 import { EstadoVazio } from '@/componentes/estado-vazio'
@@ -17,15 +18,20 @@ import { alternarAtivo } from './actions'
 
 export const metadata: Metadata = { title: 'Materiais e preços' }
 
+/** O que a tela deixa ordenar. "Cobrado" fica de fora: unidade nao tem ordem natural. */
+const ORDENAVEIS = ['nome', 'categoria', 'preco'] as const
+
 export default async function PaginaMateriais({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; categoria?: string; inativos?: string; pagina?: string }>
+  searchParams: Promise<{ q?: string; categoria?: string; inativos?: string; pagina?: string; ordenar?: string; direcao?: string }>
 }) {
   const usuario = await exigirPapel('administracao')
-  const { q = '', categoria = '', inativos, pagina: paginaCrua } = await searchParams
+  const { q = '', categoria = '', inativos, pagina: paginaCrua, ordenar, direcao } = await searchParams
   const pagina = lerPagina(paginaCrua)
-  const filtros = { q, categoria: categoria || undefined, incluirInativos: inativos !== '0' }
+  const ordem = lerOrdenacao(ORDENAVEIS, { campo: 'categoria', direcao: 'asc' }, { ordenar, direcao })
+  const filtros = { q, categoria: categoria || undefined, incluirInativos: inativos !== '0', ordenar: ordem.campo, direcao: ordem.direcao }
+  const contexto = { q, categoria, inativos, ordenar: ordem.campo, direcao: ordem.direcao }
   const filtrando = q !== '' || categoria !== '' || inativos === '0'
 
   const [materiais, total, categorias, contagens] = await Promise.all([
@@ -110,14 +116,14 @@ export default async function PaginaMateriais({
                 porPagina={POR_PAGINA}
                 total={total}
                 base="/materiais"
-                parametros={{ q, categoria, inativos }}
+                parametros={contexto}
               />
             }
             colunas={
               <>
-                <th>Material</th>
-                <th>Categoria</th>
-                <th className="text-end">Preço</th>
+                <ColunaOrdenavel campo="nome" atual={ordem} base="/materiais" parametros={contexto}>Material</ColunaOrdenavel>
+                <ColunaOrdenavel campo="categoria" atual={ordem} base="/materiais" parametros={contexto}>Categoria</ColunaOrdenavel>
+                <ColunaOrdenavel campo="preco" atual={ordem} base="/materiais" parametros={contexto} primeiraDirecao="desc" className="text-end">Preço</ColunaOrdenavel>
                 <th>Cobrado</th>
                 <th className="w-1"></th>
               </>

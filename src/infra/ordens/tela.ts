@@ -149,6 +149,13 @@ export interface FiltrosOrdens {
   limite?: number
   /** 1 e a primeira. Junto com `limite`, decide o trecho que a tela mostra. */
   pagina?: number
+  /**
+   * Por qual coluna ordenar. So estas: o valor vem do endereco, e campo de URL
+   * indo direto para o `orderBy` seria a pessoa escolhendo a coluna digitando na
+   * barra do navegador.
+   */
+  ordenar?: 'numero' | 'abertaEm' | 'prometidaPara' | 'precoFinal' | 'clienteNome'
+  direcao?: 'asc' | 'desc'
 }
 
 /**
@@ -184,7 +191,12 @@ export async function listarOrdens(empresaId: string, filtros: FiltrosOrdens = {
   const limite = filtros.limite ?? 100
   const linhas = await prisma.ordemServico.findMany({
     where: condicaoDeOrdens(empresaId, filtros, periodo),
-    orderBy: { numero: 'desc' },
+    // O numero desempata sempre: sem isso, ordenar por uma coluna com valores
+    // repetidos (a data de abertura de um dia cheio) devolve a pagina 2 com
+    // linhas que ja apareceram na 1.
+    orderBy: filtros.ordenar && filtros.ordenar !== 'numero'
+      ? [{ [filtros.ordenar]: filtros.direcao ?? 'desc' }, { numero: 'desc' }]
+      : { numero: filtros.direcao ?? 'desc' },
     skip: filtros.pagina && filtros.pagina > 1 ? (filtros.pagina - 1) * limite : 0,
     take: limite,
     select: { id: true, numero: true, estadoProducao: true, clienteNome: true, clienteApelido: true, abertaEm: true, prometidaPara: true, precoFinal: true },

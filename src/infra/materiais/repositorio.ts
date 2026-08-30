@@ -55,6 +55,9 @@ export interface FiltrosMateriais {
   limite?: number
   /** 1 e a primeira. */
   pagina?: number
+  /** So estas colunas: o valor vem do endereco e vai direto para o `orderBy`. */
+  ordenar?: 'nome' | 'categoria' | 'preco'
+  direcao?: 'asc' | 'desc'
 }
 
 /** O mesmo filtro para a lista e para a contagem: se divergirem, a paginacao mente. */
@@ -80,7 +83,11 @@ export async function listarMateriais(
   const limite = opcoes.limite
   const linhas = await prisma.material.findMany({
     where: condicaoDeMateriais(empresaId, opcoes),
-    orderBy: [{ categoria: 'asc' }, { nome: 'asc' }],
+    // O nome desempata: sem isso, ordenar por preco com valores repetidos
+    // devolve a pagina 2 com linhas que ja apareceram na 1.
+    orderBy: opcoes.ordenar
+      ? [{ [opcoes.ordenar]: opcoes.direcao ?? 'asc' }, { nome: 'asc' }]
+      : [{ categoria: 'asc' }, { nome: 'asc' }],
     ...(limite ? { take: limite, skip: opcoes.pagina && opcoes.pagina > 1 ? (opcoes.pagina - 1) * limite : 0 } : {}),
     select: SELECAO,
   })

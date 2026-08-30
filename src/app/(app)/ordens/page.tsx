@@ -10,6 +10,7 @@ import { EstadoVazio } from '@/componentes/estado-vazio'
 import { Dinheiro } from '@/componentes/dinheiro'
 import { NumeroOs } from '@/componentes/numero-os'
 import { Paginacao, POR_PAGINA, lerPagina } from '@/componentes/paginacao'
+import { ColunaOrdenavel, lerOrdenacao } from '@/componentes/coluna-ordenavel'
 import { Apelido, Situacao, SituacaoEstado, SituacaoPagamento } from '@/componentes/situacao'
 import { contagensDeOrdens, contarOrdens, listarOrdens } from '@/infra/ordens/repositorio'
 import { ROTULO_ESTADO, type EstadoPagamento } from '@/domain/ordem/estados'
@@ -18,6 +19,10 @@ import { formatarDataCalendario, formatarDataHora } from '@/domain/ordem/datas'
 export const metadata: Metadata = { title: 'Ordens' }
 
 const ESTADOS = ['orcamento', 'aberta', 'concluida', 'cancelada'] as const
+
+/** As colunas que a lista deixa ordenar. Situação e Pagamento ficam de fora: a
+ *  primeira é um estado sem ordem natural, e a segunda é derivada, não coluna. */
+const ORDENAVEIS = ['numero', 'clienteNome', 'abertaEm', 'prometidaPara', 'precoFinal'] as const
 
 /**
  * O pagamento na mesma lingua da coluna de situacao: ponto mais palavra.
@@ -45,13 +50,17 @@ function Pagamento({ estado, saldo }: { estado: EstadoPagamento; saldo: string }
 export default async function PaginaOrdens({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; estado?: string; de?: string; ate?: string; pagina?: string }>
+  searchParams: Promise<{ q?: string; estado?: string; de?: string; ate?: string; pagina?: string; ordenar?: string; direcao?: string }>
 }) {
   const usuario = await exigirUsuario()
-  const { q = '', estado = '', de = '', ate = '', pagina: paginaCrua } = await searchParams
+  const { q = '', estado = '', de = '', ate = '', pagina: paginaCrua, ordenar, direcao } = await searchParams
   const estadoValido = ESTADOS.find((e) => e === estado)
   const pagina = lerPagina(paginaCrua)
-  const filtros = { q, estado: estadoValido, de: de || undefined, ate: ate || undefined }
+  const ordem = lerOrdenacao(ORDENAVEIS, { campo: 'numero', direcao: 'desc' }, { ordenar, direcao })
+  const filtros = { q, estado: estadoValido, de: de || undefined, ate: ate || undefined, ordenar: ordem.campo, direcao: ordem.direcao }
+  /* Vai junto em todo link de ordenar e de paginar: sem isso, clicar numa coluna
+     apaga o filtro que a pessoa acabou de montar. */
+  const contexto = { q, estado, de, ate, ordenar: ordem.campo, direcao: ordem.direcao }
 
   const [ordens, total, contagens] = await Promise.all([
     listarOrdens(usuario.empresaId, { ...filtros, limite: POR_PAGINA, pagina }),
@@ -147,13 +156,13 @@ export default async function PaginaOrdens({
             rotulo="Ordens"
             colunas={
               <>
-                <th>Nº</th>
-                <th>Cliente</th>
+                <ColunaOrdenavel campo="numero" atual={ordem} base="/ordens" parametros={contexto} primeiraDirecao="desc">Nº</ColunaOrdenavel>
+                <ColunaOrdenavel campo="clienteNome" atual={ordem} base="/ordens" parametros={contexto}>Cliente</ColunaOrdenavel>
                 <th>Situação</th>
                 <th>Pagamento</th>
-                <th>Aberta em</th>
-                <th>Entrega</th>
-                <th className="text-end">Preço final</th>
+                <ColunaOrdenavel campo="abertaEm" atual={ordem} base="/ordens" parametros={contexto} primeiraDirecao="desc">Aberta em</ColunaOrdenavel>
+                <ColunaOrdenavel campo="prometidaPara" atual={ordem} base="/ordens" parametros={contexto}>Entrega</ColunaOrdenavel>
+                <ColunaOrdenavel campo="precoFinal" atual={ordem} base="/ordens" parametros={contexto} primeiraDirecao="desc" className="text-end">Preço final</ColunaOrdenavel>
               </>
             }
             rodape={
@@ -162,7 +171,7 @@ export default async function PaginaOrdens({
                 porPagina={POR_PAGINA}
                 total={total}
                 base="/ordens"
-                parametros={{ q, estado, de, ate }}
+                parametros={contexto}
               />
             }
           >

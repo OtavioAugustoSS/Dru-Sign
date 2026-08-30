@@ -62,7 +62,7 @@ export interface Livro {
 export async function listarLivro(
   empresaId: string,
   periodo: { de: string; ate: string },
-  paginacao: { limite?: number; pagina?: number } = {},
+  paginacao: { limite?: number; pagina?: number; ordem?: 'asc' | 'desc' } = {},
 ): Promise<Livro> {
   const de = lerDataCalendario(periodo.de)
   const ate = lerDataCalendario(periodo.ate)
@@ -86,7 +86,16 @@ export async function listarLivro(
     prisma.lancamentoCaixa.count({ where: onde }),
     prisma.lancamentoCaixa.findMany({
       where: onde,
-      orderBy: [{ data: 'asc' }, { criadoEm: 'asc' }],
+      /*
+       * O padrao continua cronologico crescente, que e como um livro-caixa se le
+       * de ponta a ponta e e o que o relatorio do contador consome. A TELA pede
+       * 'desc': paginando em ordem crescente, o lancamento de hoje cai na ultima
+       * pagina, e quem abre o livro quer ver o que acabou de acontecer, nao o
+       * dia 1 do mes.
+       */
+      orderBy: paginacao.ordem === 'desc'
+        ? [{ data: 'desc' }, { criadoEm: 'desc' }]
+        : [{ data: 'asc' }, { criadoEm: 'asc' }],
       ...(limite ? { take: limite, skip: paginacao.pagina && paginacao.pagina > 1 ? (paginacao.pagina - 1) * limite : 0 } : {}),
       include: { conta: { select: { codigo: true, nome: true } }, ordem: { select: { numero: true } }, usuario: { select: { nome: true } } },
     }),
