@@ -10,7 +10,7 @@ import { CartaoIndicador } from '@/componentes/cartao-indicador'
 import { SituacaoTipoLancamento } from '@/componentes/situacao'
 import { CorpoPagina } from '@/componentes/corpo-pagina'
 import { CartaoTabela } from '@/componentes/cartao-tabela'
-import { Paginacao, POR_PAGINA, lerPagina } from '@/componentes/paginacao'
+import { Paginacao, PaginacaoCompacta, POR_PAGINA, lerPagina } from '@/componentes/paginacao'
 import { contar } from '@/componentes/plural'
 import { EstadoVazio } from '@/componentes/estado-vazio'
 import { FiltroPeriodo } from '@/componentes/filtro-periodo'
@@ -94,6 +94,15 @@ export default async function PaginaFinanceiro({
             rotulo="Lançamentos"
             titulo="Lançamentos"
             aoLado={<span className="text-secondary">{contar(livro.total, 'lançamento', 'lançamentos')} no período</span>}
+            paginacao={
+              <PaginacaoCompacta
+                pagina={pagina}
+                porPagina={POR_PAGINA}
+                total={livro.total}
+                base="/financeiro"
+                parametros={{ de: livro.de, ate: livro.ate }}
+              />
+            }
             rodape={
               <Paginacao
                 pagina={pagina}

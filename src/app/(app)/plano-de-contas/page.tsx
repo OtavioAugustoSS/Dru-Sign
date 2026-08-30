@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Fragment } from 'react'
 import Link from 'next/link'
 import { exigirPapel } from '@/infra/auth/usuario-atual'
 import { CabecalhoPagina } from '@/componentes/cabecalho-pagina'
@@ -15,10 +16,10 @@ export const metadata: Metadata = { title: 'Plano de contas' }
 
 /** Onde cada grupo aparece no dia a dia. Sem isto, "grupo" e so um titulo. */
 const PARA_QUE: Record<string, string> = {
-  Receitas: 'O dinheiro que entra. Uma destas recebe os pagamentos das ordens.',
-  'Custos da produção': 'O que você compra para fazer o serviço: material, chapa, terceiro, frete.',
-  'Despesas fixas': 'O que a loja paga todo mês, com ou sem venda.',
-  'Outras despesas': 'O que não cabe nos outros grupos.',
+  Receitas: 'o dinheiro que entra',
+  'Custos da produção': 'o que você compra para fazer o serviço',
+  'Despesas fixas': 'o que a loja paga todo mês, com ou sem venda',
+  'Outras despesas': 'o que não cabe nos outros grupos',
 }
 
 export default async function PaginaPlano({ searchParams }: { searchParams: Promise<{ inativas?: string }> }) {
@@ -35,33 +36,34 @@ export default async function PaginaPlano({ searchParams }: { searchParams: Prom
         pretitulo="Financeiro"
         titulo="Plano de contas"
         descricao="Toda entrada e toda saída do caixa precisa dizer por qual conta passou. Esta é a lista dessas contas, e é ela que faz o relatório do contador somar por categoria no fim do mês."
+        /* O cadastro no cabecalho, e nao num cartao depois da lista. Era ali que
+           ele estava, e para chegar nele a pessoa tinha de rolar a tela inteira
+           -- foi essa a reclamacao de "nao consigo descer ate o final". */
+        acoes={
+          <a href="#criar" className="btn btn-primary">Criar conta</a>
+        }
       />
       <CorpoPagina>
-        {/* As duas unicas coisas que o plano decide na pratica. Antes a tela
-            abria com um formulario de cadastro, e quem nao conhecia a palavra
-            "plano de contas" nao descobria para que servia nenhuma linha. */}
+        {/* As duas unicas coisas que o plano decide na pratica. Uma linha cada:
+            eram dois blocos de rotulo e valor, e ocupavam meia tela para dizer
+            duas frases. */}
         <div className="card mb-3">
-          <div className="card-body">
-            <dl className="ficha-dados mb-0">
-              <dt>Quando você recebe uma ordem</dt>
-              <dd>
-                {recebimento ? (
-                  <>
-                    O valor entra em <strong>{recebimento.nome}</strong>, sem você escolher nada.
-                  </>
-                ) : (
-                  <span className="text-danger-emphasis">
-                    Nenhuma conta está marcada para receber. Enquanto isso, receber uma ordem é
-                    recusado: escolha uma conta de receita abaixo e clique em “Usar para recebimentos”.
-                  </span>
-                )}
-              </dd>
-              <dt>Quando você paga alguma coisa</dt>
-              <dd>
-                Em <Link href="/financeiro/saida">Nova saída</Link> você escolhe por qual das{' '}
-                {contar(despesasAtivas, 'conta de despesa ativa', 'contas de despesa ativas')} o dinheiro saiu.
-              </dd>
-            </dl>
+          <div className="card-body py-2">
+            <p className="m-0">
+              <strong>Você recebe uma ordem:</strong>{' '}
+              {recebimento ? (
+                <>o valor entra em <strong>{recebimento.nome}</strong>, sem escolher nada.</>
+              ) : (
+                <span className="text-danger-emphasis">
+                  nenhuma conta está marcada para receber, e enquanto isso receber é recusado. Escolha
+                  uma conta de receita abaixo e clique em “Usar para recebimentos”.
+                </span>
+              )}
+            </p>
+            <p className="m-0">
+              <strong>Você paga alguma coisa:</strong> em <Link href="/financeiro/saida">Nova saída</Link>{' '}
+              você escolhe por qual das {contar(despesasAtivas, 'conta de despesa ativa', 'contas de despesa ativas')} o dinheiro saiu.
+            </p>
           </div>
         </div>
 
@@ -79,51 +81,60 @@ export default async function PaginaPlano({ searchParams }: { searchParams: Prom
             descricao="É a lista de para onde vai cada entrada e cada saída do caixa. Crie a primeira conta no formulário abaixo — comece por uma de receita, que é onde os recebimentos das ordens vão cair."
           />
         ) : (
-          grupos.map((g) => (
-            <CartaoTabela
-              className="mb-3"
-              key={g}
-              rotulo={`Contas de ${g}`}
-              titulo={g}
-              aoLado={PARA_QUE[g] ? <span className="text-secondary">{PARA_QUE[g]}</span> : null}
-              /* Larguras fixas: sao quatro tabelas empilhadas, e sem isto cada
-                 uma dimensiona as colunas pelo proprio conteudo -- "Tipo" caia
-                 em quatro alturas diferentes e a tela parecia desalinhada. */
-              colunas={
-                <>
-                  <th style={{ width: '5rem' }}>Código</th>
-                  <th>Conta</th>
-                  <th style={{ width: '9rem' }}>Tipo</th>
-                  <th style={{ width: '15rem' }}></th>
-                </>
-              }
-            >
-              {contas.filter((c) => c.grupo === g).map((c) => (
-                <tr key={c.id} className={c.ativa ? '' : 'text-secondary'}>
-                  <td className="numero text-secondary">{c.codigo}</td>
-                  <td>
-                    {c.nome}
-                    {c.recebeVendas ? <Anotacao tom="bom">recebe os pagamentos das ordens</Anotacao> : null}
-                    {/* Quantas vezes ja foi usada: e o que diz se da para
-                        excluir sem perder historico. Como quase toda conta
-                        comeca em zero, isto e anotacao e nao coluna -- uma
-                        coluna inteira de travessao nao informa nada. */}
-                    {c.lancamentos > 0 ? <Anotacao>{contar(c.lancamentos, 'lançamento', 'lançamentos')}</Anotacao> : null}
-                    {c.ativa ? null : <Anotacao>desativada, não aparece em Nova saída</Anotacao>}
-                  </td>
-                  <td><SituacaoTipoConta tipo={c.tipo} /></td>
-                  <td className="text-end">
-                    <AcoesConta contaId={c.id} nome={c.nome} ativa={c.ativa} receita={c.tipo === 'receita'} recebeVendas={c.recebeVendas} usos={c.lancamentos} />
-                  </td>
+          /* Uma tabela so, com linha de grupo no meio, no lugar de quatro
+             cartoes empilhados. Cada cartao trazia cabecalho proprio e uma nova
+             linha de titulos de coluna: quinze contas ocupavam 1.700px de
+             rolagem, e as colunas de cada tabela se dimensionavam sozinhas. */
+          <CartaoTabela
+            className="mb-3"
+            /* Denso: e lista de configuracao, nao de leitura. Quinze linhas na
+               altura de fabrica gastavam 800px so de linhas. */
+            denso
+            rotulo="Plano de contas"
+            titulo="As contas"
+            aoLado={<span className="text-secondary">{contar(contas.length, 'conta', 'contas')}</span>}
+            colunas={
+              <>
+                <th style={{ width: '5rem' }}>Código</th>
+                <th>Conta</th>
+                <th style={{ width: '9rem' }}>Tipo</th>
+                <th style={{ width: '15rem' }}></th>
+              </>
+            }
+          >
+            {grupos.map((g) => (
+              <Fragment key={g}>
+                <tr className="linha-grupo">
+                  <th colSpan={4} scope="colgroup">
+                    {g}
+                    {PARA_QUE[g] ? <Anotacao>{PARA_QUE[g]}</Anotacao> : null}
+                  </th>
                 </tr>
-              ))}
-            </CartaoTabela>
-          ))
+                {contas.filter((c) => c.grupo === g).map((c) => (
+                  <tr key={c.id} className={c.ativa ? '' : 'text-secondary'}>
+                    <td className="numero text-secondary">{c.codigo}</td>
+                    <td>
+                      {c.nome}
+                      {c.recebeVendas ? <Anotacao tom="bom">recebe os pagamentos das ordens</Anotacao> : null}
+                      {/* Quantas vezes ja foi usada: e o que diz se da para
+                          excluir sem perder historico. Como quase toda conta
+                          comeca em zero, isto e anotacao e nao coluna -- uma
+                          coluna inteira de travessao nao informa nada. */}
+                      {c.lancamentos > 0 ? <Anotacao>{contar(c.lancamentos, 'lançamento', 'lançamentos')}</Anotacao> : null}
+                      {c.ativa ? null : <Anotacao>desativada, não aparece em Nova saída</Anotacao>}
+                    </td>
+                    <td><SituacaoTipoConta tipo={c.tipo} /></td>
+                    <td className="text-end">
+                      <AcoesConta contaId={c.id} nome={c.nome} ativa={c.ativa} receita={c.tipo === 'receita'} recebeVendas={c.recebeVendas} usos={c.lancamentos} />
+                    </td>
+                  </tr>
+                ))}
+              </Fragment>
+            ))}
+          </CartaoTabela>
         )}
 
-        {/* O cadastro vem depois da lista: quem abre a tela quer ver o que ja
-            tem, e o grupo novo quase sempre e um que ja existe. */}
-        <div className="card">
+        <div className="card" id="criar">
           <div className="card-header"><h2 className="card-title">Criar conta</h2></div>
           <div className="card-body">
             <FormConta grupos={grupos} />

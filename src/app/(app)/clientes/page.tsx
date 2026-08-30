@@ -7,7 +7,7 @@ import { CorpoPagina } from '@/componentes/corpo-pagina'
 import { CartaoTabela } from '@/componentes/cartao-tabela'
 import { CartaoIndicador } from '@/componentes/cartao-indicador'
 import { EstadoVazio } from '@/componentes/estado-vazio'
-import { Paginacao, POR_PAGINA, lerPagina } from '@/componentes/paginacao'
+import { Paginacao, PaginacaoCompacta, POR_PAGINA, lerPagina } from '@/componentes/paginacao'
 import { Anotacao, Apelido } from '@/componentes/situacao'
 import { contar } from '@/componentes/plural'
 import { buscarClientes, contarClientes, contagensDeClientes, type OrigemCliente } from '@/infra/clientes/repositorio'
@@ -138,6 +138,15 @@ export default async function PaginaClientes({
                 <th>Documento</th>
                 <th>Cidade</th>
               </>
+            }
+            paginacao={
+              <PaginacaoCompacta
+                pagina={pagina}
+                porPagina={POR_PAGINA}
+                total={total}
+                base="/clientes"
+                parametros={{ q, arquivados, origem: origem === 'todos' ? undefined : origem }}
+              />
             }
             rodape={
               <Paginacao

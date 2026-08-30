@@ -602,3 +602,22 @@ summary:hover {
 .cabecalho-descricao {
   max-width: 80ch;
 }
+
+/* Linha de grupo DENTRO da tabela, no lugar de um cartao por grupo.
+ *
+ * Quatro cartoes empilhados custavam, cada um, um cabecalho de cartao e uma
+ * nova fila de titulos de coluna: quinze contas viravam 1.700px de rolagem, e
+ * as colunas de cada tabela se dimensionavam sozinhas, entao "Tipo" caia em
+ * quatro alturas diferentes. Uma tabela so resolve as duas coisas. */
+.linha-grupo > th {
+  background: var(--tblr-bg-surface-secondary);
+  font-weight: 600;
+  /* Nao e o topo de uma tabela nova: e uma divisoria no meio de uma. */
+  border-top: 1px solid var(--tblr-border-color);
+}
+
+/* Fim de pagina. Os 24px de fabrica colam o ultimo cartao na borda da janela e
+ * a tela parece cortada mesmo quando a rolagem chegou ao fim. */
+.page-body {
+  padding-bottom: 2rem;
+}

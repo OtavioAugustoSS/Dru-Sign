@@ -7,7 +7,7 @@ import { CabecalhoPagina } from '@/componentes/cabecalho-pagina'
 import { CorpoPagina } from '@/componentes/corpo-pagina'
 import { CartaoTabela } from '@/componentes/cartao-tabela'
 import { CartaoIndicador } from '@/componentes/cartao-indicador'
-import { Paginacao, POR_PAGINA, lerPagina } from '@/componentes/paginacao'
+import { Paginacao, PaginacaoCompacta, POR_PAGINA, lerPagina } from '@/componentes/paginacao'
 import { ColunaOrdenavel, lerOrdenacao } from '@/componentes/coluna-ordenavel'
 import { contar } from '@/componentes/plural'
 import { Anotacao } from '@/componentes/situacao'
@@ -111,6 +111,9 @@ export default async function PaginaMateriais({
             rotulo="Materiais e preços"
             titulo="Catálogo"
             aoLado={<span className="text-secondary">{contar(total, 'material', 'materiais')}</span>}
+            paginacao={
+              <PaginacaoCompacta pagina={pagina} porPagina={POR_PAGINA} total={total} base="/materiais" parametros={contexto} />
+            }
             rodape={
               <Paginacao
                 pagina={pagina}

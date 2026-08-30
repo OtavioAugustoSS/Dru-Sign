@@ -9,7 +9,7 @@ import { CartaoIndicador } from '@/componentes/cartao-indicador'
 import { EstadoVazio } from '@/componentes/estado-vazio'
 import { Dinheiro } from '@/componentes/dinheiro'
 import { NumeroOs } from '@/componentes/numero-os'
-import { Paginacao, POR_PAGINA, lerPagina } from '@/componentes/paginacao'
+import { Paginacao, PaginacaoCompacta, POR_PAGINA, lerPagina } from '@/componentes/paginacao'
 import { Abas } from '@/componentes/abas'
 import { SituacaoEstado } from '@/componentes/situacao'
 import { contarOrdens, listarOrdens } from '@/infra/ordens/repositorio'
@@ -157,6 +157,9 @@ export default async function PaginaHistorico({
                   <th className="text-end">Total</th>
                 </>
               }
+              paginacao={
+                <PaginacaoCompacta pagina={pagina} porPagina={POR_PAGINA} total={novasTotal} base="/historico" parametros={{ q, aba }} />
+              }
               rodape={
                 <Paginacao pagina={pagina} porPagina={POR_PAGINA} total={novasTotal} base="/historico" parametros={{ q, aba }} />
               }
@@ -200,6 +203,9 @@ export default async function PaginaHistorico({
                 <th>O que foi feito</th>
                 <th className="text-end">Total</th>
               </>
+            }
+            paginacao={
+              <PaginacaoCompacta pagina={pagina} porPagina={POR_PAGINA} total={historico.encontradas} base="/historico" parametros={{ q, de, ate, aba }} />
             }
             rodape={
               <Paginacao

@@ -37,20 +37,28 @@ test.describe('Administração', () => {
       return
     }
     await expect(page.getByTestId('faturado-total')).toContainText('R$')
-    await expect(page.getByText('de 6 a 24 meses sem aparecer')).toBeVisible()
 
-    // O que a tela existe para mostrar: a Prefeitura de Unai comprando por 18
-    // cadastros do mesmo CNPJ, um por secretaria. Sem o agrupamento ela sumia
-    // dentro de 18 linhas pequenas em vez de aparecer como o maior cliente.
-    const concentracao = page.getByRole('table', { name: 'Concentração de receita' })
-    await expect(concentracao).toBeVisible()
-    await expect(concentracao.getByRole('row').nth(1)).toContainText('cadastros com o mesmo documento')
-    await expect(page.getByText(/os \d+ maiores de/)).toBeVisible()
+    // Sem filtro a lista vem do maior para o menor, entao a primeira linha e o
+    // maior cliente da loja: a Prefeitura de Unai, comprando por 18 cadastros
+    // do mesmo CNPJ, um por secretaria. Sem o agrupamento por documento ela
+    // sumia em 18 linhas pequenas em vez de aparecer como a maior.
+    const tabela = page.getByRole('table', { name: 'Carteira de clientes' })
+    await expect(tabela.getByRole('row').nth(1)).toContainText('cadastros com o mesmo documento')
+    // A lista existe para alguem ligar: precisa do telefone nela.
+    await expect(tabela.getByRole('columnheader', { name: 'Telefone' })).toBeVisible()
 
-    // A lista de reativacao existe para alguem ligar: precisa do telefone nela.
-    const reativar = page.getByRole('table', { name: 'Para reativar' })
-    await expect(reativar.getByRole('columnheader', { name: 'Telefone' })).toBeVisible()
-    await expect(reativar.getByRole('row').nth(1)).toContainText(/\(\d{2}\) \d/)
+    // O filtro e o que responde "quem sumiu e vale a pena ligar".
+    await page.getByLabel('Situação').selectOption('adormecido')
+    await page.getByRole('button', { name: 'Filtrar' }).click()
+    await expect(page.getByRole('heading', { name: 'Para reativar' })).toBeVisible({ timeout: 30_000 })
+    const linhasAdormecidas = await tabela.getByRole('row').count()
+    await expect(tabela.getByRole('row').nth(1)).toContainText(/\(\d{2}\) \d/)
+
+    // E o recorte por valor precisa mudar de verdade o que a tela mostra.
+    await page.getByLabel('Já faturou').selectOption('20000')
+    await page.getByRole('button', { name: 'Filtrar' }).click()
+    await expect(page.getByText(/do faturamento/)).toBeVisible({ timeout: 30_000 })
+    expect(await tabela.getByRole('row').count()).toBeLessThan(linhasAdormecidas)
   })
 
   test('usuarios: cria, troca papel, desativa, e nao deixa se desativar', async ({ page }) => {

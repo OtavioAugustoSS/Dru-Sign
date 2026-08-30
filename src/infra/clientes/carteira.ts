@@ -27,10 +27,30 @@ const FATURAM = ['aberta', 'concluida'] as const
  * errou. A tela marca quais sao, e quem decide e a loja.
  */
 export async function carregarCarteira(empresaId: string, agora: Date = new Date()): Promise<Carteira> {
+  return (await carregarCarteiraComExtras(empresaId, agora)).carteira
+}
+
+export interface CarteiraComExtras {
+  carteira: Carteira
+  /** Cidade por id de cadastro, para o filtro da tela. */
+  cidades: Map<string, string>
+  /** Ids que o sistema antigo deu como apagados; a tela marca, nao esconde. */
+  arquivados: Set<string>
+}
+
+/**
+ * A carteira mais o que a TELA precisa para filtrar, numa leitura so.
+ *
+ * Cidade e "arquivado" nao entram no dominio da carteira: nao participam de
+ * conta nenhuma, sao recorte. Mas buscar cada um por conta propria custava tres
+ * varreduras da tabela de clientes por carregamento de pagina. Aqui a lista de
+ * cadastros e lida uma vez e distribuida.
+ */
+export async function carregarCarteiraComExtras(empresaId: string, agora: Date = new Date()): Promise<CarteiraComExtras> {
   const [clientes, novas, antigas] = await Promise.all([
     prisma.cliente.findMany({
       where: { empresaId },
-      select: { id: true, nome: true, apelido: true, documento: true },
+      select: { id: true, nome: true, apelido: true, documento: true, cidade: true, arquivadoEm: true },
     }),
     prisma.ordemServico.groupBy({
       by: ['clienteId'],
@@ -67,7 +87,14 @@ export async function carregarCarteira(empresaId: string, agora: Date = new Date
       ultimaOrdemEm: datas.length === 0 ? null : (datas.sort().at(-1) as string),
     }
   })
-  return agruparPorDocumento(linhas, agora)
+  const cidades = new Map<string, string>()
+  const arquivados = new Set<string>()
+  for (const c of clientes) {
+    const cidade = c.cidade?.trim()
+    if (cidade) cidades.set(c.id, cidade)
+    if (c.arquivadoEm !== null) arquivados.add(c.id)
+  }
+  return { carteira: agruparPorDocumento(linhas, agora), cidades, arquivados }
 }
 
 /**
@@ -81,22 +108,6 @@ export async function carregarCarteira(empresaId: string, agora: Date = new Date
  * So os cadastros da pagina aberta: buscar os tres mil de uma vez para exibir
  * cinquenta seria pagar caro por nada.
  */
-/**
- * Quais destes cadastros o sistema antigo deu como apagados.
- *
- * A carteira os conta, mas a tela precisa dizer. "Este comprou R$ 18 mil ha
- * oito meses e esta arquivado" e informacao de verdade: ou a marca do legado
- * estava errada, ou o cliente foi arquivado por engano aqui.
- */
-export async function arquivadosEntre(empresaId: string, ids: string[]): Promise<Set<string>> {
-  if (ids.length === 0) return new Set()
-  const linhas = await prisma.cliente.findMany({
-    where: { empresaId, id: { in: ids }, arquivadoEm: { not: null } },
-    select: { id: true },
-  })
-  return new Set(linhas.map((l) => l.id))
-}
-
 export async function telefonesDeClientes(empresaId: string, ids: string[]): Promise<Map<string, string[]>> {
   if (ids.length === 0) return new Map()
   const linhas = await prisma.telefoneCliente.findMany({

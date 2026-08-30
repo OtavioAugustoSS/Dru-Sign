@@ -9,7 +9,7 @@ import { CartaoIndicador } from '@/componentes/cartao-indicador'
 import { EstadoVazio } from '@/componentes/estado-vazio'
 import { Dinheiro } from '@/componentes/dinheiro'
 import { NumeroOs } from '@/componentes/numero-os'
-import { Paginacao, POR_PAGINA, lerPagina } from '@/componentes/paginacao'
+import { Paginacao, PaginacaoCompacta, POR_PAGINA, lerPagina } from '@/componentes/paginacao'
 import { ColunaOrdenavel, lerOrdenacao } from '@/componentes/coluna-ordenavel'
 import { Apelido, Situacao, SituacaoEstado, SituacaoPagamento } from '@/componentes/situacao'
 import { contagensDeOrdens, contarOrdens, listarOrdens } from '@/infra/ordens/repositorio'
@@ -164,6 +164,9 @@ export default async function PaginaOrdens({
                 <ColunaOrdenavel campo="prometidaPara" atual={ordem} base="/ordens" parametros={contexto}>Entrega</ColunaOrdenavel>
                 <ColunaOrdenavel campo="precoFinal" atual={ordem} base="/ordens" parametros={contexto} primeiraDirecao="desc" className="text-end">Preço final</ColunaOrdenavel>
               </>
+            }
+            paginacao={
+              <PaginacaoCompacta pagina={pagina} porPagina={POR_PAGINA} total={total} base="/ordens" parametros={contexto} />
             }
             rodape={
               <Paginacao
