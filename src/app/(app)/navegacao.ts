@@ -12,7 +12,7 @@ export const GRUPOS: { chave: GrupoNavegacao; rotulo: string }[] = [
 ]
 
 export type IconeNavegacao =
-  | 'fila' | 'producao' | 'ordens' | 'historico' | 'clientes' | 'carteira'
+  | 'painel' | 'fila' | 'producao' | 'ordens' | 'historico' | 'clientes' | 'carteira'
   | 'materiais' | 'indicadores' | 'financeiro' | 'contador' | 'plano'
   | 'usuarios' | 'empresa'
 
@@ -39,6 +39,9 @@ export const NAVEGACAO: ItemNavegacao[] = [
   // Para quem e da operacao, `/` ja e a fila de producao: um item "Fila de trabalho"
   // levando ao mesmo lugar com outro nome so confunde.
   { href: '/', titulo: 'Fila de trabalho', icone: 'fila', papel: 'administracao' },
+  // Acima dos grupos, junto da fila: as duas telas que se abre de manha. A fila
+  // diz o que fazer hoje; o painel diz como a loja esta indo.
+  { href: '/painel', titulo: 'Painel', icone: 'painel', papel: 'administracao' },
 
   { href: '/ordens', titulo: 'Ordens', icone: 'ordens', grupo: 'atendimento' },
   { href: '/clientes', titulo: 'Clientes', icone: 'clientes', grupo: 'atendimento' },

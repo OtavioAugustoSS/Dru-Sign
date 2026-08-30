@@ -621,3 +621,146 @@ summary:hover {
 .page-body {
   padding-bottom: 2rem;
 }
+
+/* GRAFICOS: desenhados no servidor, em CSS, sem biblioteca.
+ *
+ * A cor sai dos mesmos tokens de --ponto-* que a situacao usa, entao os
+ * graficos acompanham o modo claro e o escuro sozinhos, e verde continua
+ * querendo dizer a mesma coisa aqui e na lista de ordens. */
+.grafico-tempo {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  min-height: 200px;
+}
+
+.grafico-coluna {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.25rem;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+  border-radius: var(--tblr-border-radius);
+  padding: 0.25rem 0;
+}
+
+a.grafico-coluna:hover {
+  background: var(--tblr-bg-surface-secondary);
+}
+
+.grafico-barra {
+  display: block;
+  width: 100%;
+  max-width: 2.5rem;
+  border-radius: var(--tblr-border-radius) var(--tblr-border-radius) 0 0;
+  /* A barra e a unica coisa que muda de altura; sem isto ela encolhe junto
+   * com o rotulo quando o mes tem nome comprido. */
+  flex: 0 0 auto;
+}
+
+/* Duas barras coladas: entrou e saiu do mesmo mes se leem como um par. */
+.grafico-par {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  width: 100%;
+  justify-content: center;
+}
+
+.grafico-par .grafico-barra {
+  max-width: 1.1rem;
+}
+
+.grafico-valor,
+.grafico-rotulo {
+  font-size: 0.75rem;
+  color: var(--tblr-secondary);
+  white-space: nowrap;
+}
+
+.grafico-valor {
+  /* Altura reservada mesmo vazia: sem isso as barras dos meses sem valor
+   * sobem alguns pixels e o eixo deixa de ser reto. */
+  min-height: 1rem;
+}
+
+.grafico-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.grafico-lista-linha {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 8rem auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.35rem 0.5rem;
+  color: inherit;
+  text-decoration: none;
+  border-radius: var(--tblr-border-radius);
+}
+
+a.grafico-lista-linha:hover {
+  background: var(--tblr-bg-surface-secondary);
+}
+
+.grafico-lista-nome {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.grafico-lista-trilho {
+  display: block;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--tblr-bg-surface-secondary);
+  overflow: hidden;
+}
+
+.grafico-lista-barra {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+}
+
+.grafico-lista-valor {
+  color: var(--tblr-secondary);
+  white-space: nowrap;
+}
+
+.grafico-amostra {
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 2px;
+}
+
+.tom-neutro { background: var(--ponto-neutro); }
+.tom-marca { background: var(--ponto-marca); }
+.tom-bom { background: var(--ponto-bom); }
+.tom-atencao { background: var(--ponto-atencao); }
+.tom-ruim { background: var(--ponto-ruim); }
+
+/* As abas dentro do cabecalho de um cartao. O `.card-header` e flex, e o
+ * `.card-header-tabs` do Tabler nasce com margens negativas pensadas para um
+ * cabecalho que so tem abas -- num cabecalho com titulo, elas colam no texto
+ * em vez de ir para a ponta. */
+.card-header > .card-header-tabs {
+  margin-bottom: calc(-1 * var(--tblr-card-cap-padding-y));
+  margin-top: calc(-1 * var(--tblr-card-cap-padding-y));
+  border-bottom: 0;
+  /* Sem isto o item flex encolhe abaixo do conteudo e "Sistema novo" quebra
+   * em duas linhas, esticando o cabecalho do cartao para o dobro da altura. */
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+}
+
+.card-header > .card-header-tabs .nav-link {
+  white-space: nowrap;
+}

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   IconAddressBook,
+  IconLayoutDashboard,
   IconArchive,
   IconBuildingStore,
   IconCash,
@@ -20,6 +21,7 @@ import {
 import { GRUPOS, hrefAtivo, type IconeNavegacao, type ItemNavegacao } from '@/app/(app)/navegacao'
 
 const ICONES: Record<IconeNavegacao, typeof IconListCheck> = {
+  painel: IconLayoutDashboard,
   fila: IconListCheck,
   ordens: IconFileInvoice,
   clientes: IconUsers,
