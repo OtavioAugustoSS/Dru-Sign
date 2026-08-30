@@ -59,15 +59,43 @@ export interface Livro {
   saldo: string
 }
 
+export interface FiltrosLivro {
+  limite?: number
+  pagina?: number
+  ordem?: 'asc' | 'desc'
+  /** 'entrada' ou 'saida'; qualquer outra coisa vale como "os dois". */
+  tipo?: string
+  /** Uma conta do plano. Vem da tela, entao entra como igualdade e nao como texto livre. */
+  contaId?: string
+  /** Procura no historico e no fornecedor. */
+  q?: string
+}
+
 export async function listarLivro(
   empresaId: string,
   periodo: { de: string; ate: string },
-  paginacao: { limite?: number; pagina?: number; ordem?: 'asc' | 'desc' } = {},
+  filtros: FiltrosLivro = {},
 ): Promise<Livro> {
   const de = lerDataCalendario(periodo.de)
   const ate = lerDataCalendario(periodo.ate)
   if (!de || !ate || de.getTime() > ate.getTime()) throw new ErroDeValidacao('Período inválido.')
-  const onde = { empresaId, data: { gte: de, lte: ate } }
+  const q = filtros.q?.trim() ?? ''
+  const onde = {
+    empresaId,
+    data: { gte: de, lte: ate },
+    ...(filtros.tipo === 'entrada' ? { tipo: 'entrada' as const } : {}),
+    ...(filtros.tipo === 'saida' ? { tipo: 'saida' as const } : {}),
+    ...(filtros.contaId ? { contaId: filtros.contaId } : {}),
+    ...(q === ''
+      ? {}
+      : {
+          OR: [
+            { historico: { contains: q, mode: 'insensitive' as const } },
+            { fornecedor: { contains: q, mode: 'insensitive' as const } },
+          ],
+        }),
+  }
+  const paginacao = filtros
   const limite = paginacao.limite
 
   /*

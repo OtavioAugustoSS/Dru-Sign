@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { IconPlus } from '@tabler/icons-react'
 import { exigirPapel } from '@/infra/auth/usuario-atual'
 import { listarLivro } from '@/infra/caixa/livro'
+import { listarContas } from '@/infra/caixa/plano'
 import { ErroDeValidacao } from '@/domain/precificacao/erros'
 import { formatarDataCalendario, mesCalendario } from '@/domain/ordem/datas'
 import { CabecalhoPagina } from '@/componentes/cabecalho-pagina'
@@ -13,30 +14,51 @@ import { CartaoTabela } from '@/componentes/cartao-tabela'
 import { Paginacao, PaginacaoCompacta, POR_PAGINA, lerPagina } from '@/componentes/paginacao'
 import { contar } from '@/componentes/plural'
 import { EstadoVazio } from '@/componentes/estado-vazio'
-import { FiltroPeriodo } from '@/componentes/filtro-periodo'
+import { AtalhosPeriodo } from '@/componentes/atalhos-periodo'
+import { periodosUsuais } from '@/componentes/periodos'
 import { Dinheiro, valorEmReais } from '@/componentes/dinheiro'
 import { BotaoEstorno } from './botao-estorno'
 
 export const metadata: Metadata = { title: 'Financeiro' }
 
+const TIPOS = [
+  { valor: '', rotulo: 'Entradas e saídas' },
+  { valor: 'entrada', rotulo: 'Só entradas' },
+  { valor: 'saida', rotulo: 'Só saídas' },
+]
+
 export default async function PaginaFinanceiro({
   searchParams,
 }: {
-  searchParams: Promise<{ de?: string; ate?: string; pagina?: string }>
+  searchParams: Promise<{ de?: string; ate?: string; pagina?: string; tipo?: string; conta?: string; q?: string }>
 }) {
   const usuario = await exigirPapel('administracao')
-  const mes = mesCalendario(new Date())
-  const { de = mes.de, ate = mes.ate, pagina: paginaCrua } = await searchParams
+  const agora = new Date()
+  const mes = mesCalendario(agora)
+  const { de = mes.de, ate = mes.ate, pagina: paginaCrua, tipo: tipoCru, conta = '', q = '' } = await searchParams
   const pagina = lerPagina(paginaCrua)
-  let livro
-  let erro: string | null = null
-  try {
-    livro = await listarLivro(usuario.empresaId, { de, ate }, { limite: POR_PAGINA, pagina, ordem: 'desc' })
-  } catch (e) {
-    if (!(e instanceof ErroDeValidacao)) throw e
-    erro = e.message
-    livro = await listarLivro(usuario.empresaId, mes, { limite: POR_PAGINA, pagina, ordem: 'desc' })
-  }
+  const tipo = tipoCru === 'entrada' || tipoCru === 'saida' ? tipoCru : ''
+  const filtros = { limite: POR_PAGINA, pagina, ordem: 'desc' as const, tipo, contaId: conta, q }
+
+  const [contas, resultado] = await Promise.all([
+    listarContas(usuario.empresaId, { incluirInativas: true }),
+    (async () => {
+      try {
+        return { livro: await listarLivro(usuario.empresaId, { de, ate }, filtros), erro: null as string | null }
+      } catch (e) {
+        if (!(e instanceof ErroDeValidacao)) throw e
+        return { livro: await listarLivro(usuario.empresaId, mes, filtros), erro: e.message }
+      }
+    })(),
+  ])
+  const { livro, erro } = resultado
+
+  const periodos = periodosUsuais(agora)
+  // O periodo NAO entra aqui: os atalhos e que o definem, e o resto do filtro
+  // e que precisa sobreviver a troca de periodo.
+  const contexto = { tipo: tipo || undefined, conta: conta || undefined, q: q || undefined }
+  const contextoComPeriodo = { ...contexto, de: livro.de, ate: livro.ate }
+  const filtrando = tipo !== '' || conta !== '' || q !== ''
 
   return (
     <>
@@ -56,14 +78,70 @@ export default async function PaginaFinanceiro({
         }
       />
       <CorpoPagina>
-        <FiltroPeriodo de={livro.de} ate={livro.ate} erro={erro ? `${erro} Mostrando o mês atual.` : null} />
+        <form method="get" className="card mb-3">
+          <div className="card-body">
+            {/* Os atalhos primeiro: "mes passado" e a pergunta mais comum do
+                caixa, e digitar duas datas para isso e trabalho toda vez. */}
+            <div className="mb-3">
+              <AtalhosPeriodo periodos={periodos} de={livro.de} ate={livro.ate} base="/financeiro" parametros={contexto} />
+            </div>
+            <div className="row g-2 align-items-end">
+              <div className="col-6 col-md-2">
+                <label className="form-label" htmlFor="de">De</label>
+                <input id="de" type="date" name="de" className="form-control" defaultValue={livro.de} />
+              </div>
+              <div className="col-6 col-md-2">
+                <label className="form-label" htmlFor="ate">Até</label>
+                <input id="ate" type="date" name="ate" className="form-control" defaultValue={livro.ate} />
+              </div>
+              <div className="col-md-2">
+                <label className="form-label" htmlFor="tipo">Tipo</label>
+                <select id="tipo" name="tipo" className="form-select" defaultValue={tipo}>
+                  {TIPOS.map((t) => <option key={t.valor} value={t.valor}>{t.rotulo}</option>)}
+                </select>
+              </div>
+              <div className="col-md-3">
+                <label className="form-label" htmlFor="conta">Conta</label>
+                <select id="conta" name="conta" className="form-select" defaultValue={conta}>
+                  <option value="">Todas as contas</option>
+                  {contas.map((c) => (
+                    <option key={c.id} value={c.id}>{c.codigo} · {c.nome}{c.ativa ? '' : ' (desativada)'}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="col-md-3">
+                <label className="form-label" htmlFor="q">Buscar</label>
+                <input id="q" type="search" name="q" className="form-control" defaultValue={q} placeholder="Histórico ou fornecedor" />
+              </div>
+              <div className="col-md-2 d-flex gap-2">
+                <button type="submit" className="btn btn-primary">Mostrar</button>
+                {filtrando ? <Link href={`/financeiro?de=${livro.de}&ate=${livro.ate}`} className="btn">Limpar</Link> : null}
+              </div>
+              {erro ? <div className="col-12 text-danger-emphasis small" role="alert">{erro} Mostrando o mês atual.</div> : null}
+            </div>
+          </div>
+        </form>
 
         <div className="row g-3 mb-3">
           <div className="col-md-4">
-            <CartaoIndicador rotulo="Entradas" valor={<Dinheiro valor={livro.entradas} />} testId="entradas" nota="Recebimentos das ordens no período" />
+            {/* Cada cartao filtra a lista pelo que ele soma: clicar em "Saídas"
+                deixa so as saidas na tabela abaixo. */}
+            <CartaoIndicador
+              rotulo="Entradas"
+              valor={<Dinheiro valor={livro.entradas} />}
+              href={`/financeiro?de=${livro.de}&ate=${livro.ate}&tipo=entrada`}
+              testId="entradas"
+              nota="Recebimentos das ordens no período"
+            />
           </div>
           <div className="col-md-4">
-            <CartaoIndicador rotulo="Saídas" valor={<Dinheiro valor={livro.saidas} />} testId="saidas" nota="O que foi lançado como despesa" />
+            <CartaoIndicador
+              rotulo="Saídas"
+              valor={<Dinheiro valor={livro.saidas} />}
+              href={`/financeiro?de=${livro.de}&ate=${livro.ate}&tipo=saida`}
+              testId="saidas"
+              nota="O que foi lançado como despesa"
+            />
           </div>
           <div className="col-md-4">
             {/* O saldo e o unico dos tres que quer dizer bom ou ruim. */}
@@ -81,12 +159,17 @@ export default async function PaginaFinanceiro({
 
         {livro.linhas.length === 0 ? (
           <EstadoVazio
-            titulo="Nenhum lançamento no período"
-            descricao="Entradas nascem dos recebimentos, na ordem. Saídas você lança aqui."
+            titulo={filtrando ? 'Nenhum lançamento com esse filtro' : 'Nenhum lançamento no período'}
+            descricao={
+              filtrando
+                ? 'Tente um período maior, outra conta, ou limpe o filtro.'
+                : 'Entradas nascem dos recebimentos, na ordem. Saídas você lança aqui.'
+            }
             acoes={
-              <Link href="/financeiro/saida" className="btn btn-primary">
-                Nova saída
-              </Link>
+              <>
+                <Link href="/financeiro/saida" className="btn btn-primary">Nova saída</Link>
+                {filtrando ? <Link href={`/financeiro?de=${livro.de}&ate=${livro.ate}`} className="btn">Limpar o filtro</Link> : null}
+              </>
             }
           />
         ) : (
@@ -95,32 +178,20 @@ export default async function PaginaFinanceiro({
             titulo="Lançamentos"
             aoLado={<span className="text-secondary">{contar(livro.total, 'lançamento', 'lançamentos')} no período</span>}
             paginacao={
-              <PaginacaoCompacta
-                pagina={pagina}
-                porPagina={POR_PAGINA}
-                total={livro.total}
-                base="/financeiro"
-                parametros={{ de: livro.de, ate: livro.ate }}
-              />
+              <PaginacaoCompacta pagina={pagina} porPagina={POR_PAGINA} total={livro.total} base="/financeiro" parametros={contextoComPeriodo} />
             }
             rodape={
-              <Paginacao
-                pagina={pagina}
-                porPagina={POR_PAGINA}
-                total={livro.total}
-                base="/financeiro"
-                parametros={{ de: livro.de, ate: livro.ate }}
-              />
+              <Paginacao pagina={pagina} porPagina={POR_PAGINA} total={livro.total} base="/financeiro" parametros={contextoComPeriodo} />
             }
             colunas={
               <>
-                <th>Data</th>
-                <th>Tipo</th>
+                <th style={{ width: '8rem' }}>Data</th>
+                <th style={{ width: '8rem' }}>Tipo</th>
                 <th>Histórico</th>
-                <th>Conta</th>
-                <th>Quem</th>
-                <th className="text-end">Valor</th>
-                <th className="w-1"></th>
+                <th style={{ width: '16rem' }}>Conta</th>
+                <th style={{ width: '10rem' }}>Quem</th>
+                <th className="text-end" style={{ width: '10rem' }}>Valor</th>
+                <th style={{ width: '12rem' }}></th>
               </>
             }
           >

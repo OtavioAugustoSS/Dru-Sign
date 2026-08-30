@@ -134,6 +134,30 @@ test.describe('Dinheiro', () => {
     await expect(linha).toContainText('estornado · lançado em duplicidade', { timeout: 30_000 })
   })
 
+  test('livro-caixa: atalho de periodo, filtro por tipo e busca mudam os totais junto com a lista', async ({ page }) => {
+    await entrar(page)
+    const historico = `Solvente ${Date.now()}`
+    await page.goto('/financeiro/saida')
+    await campoDe(page, 'Valor').fill('137,00')
+    await campoDe(page, 'Conta').selectOption({ label: '2 · Material de impressão' })
+    await campoDe(page, 'Histórico').fill(historico)
+    await page.getByRole('button', { name: 'Lançar saída' }).click()
+    await expect(page).toHaveURL(/\/financeiro$/, { timeout: 30_000 })
+
+    // O atalho vira endereco, e o que esta valendo fica marcado.
+    await page.getByRole('link', { name: 'Este ano' }).click()
+    await expect(page).toHaveURL(/de=\d{4}-01-01&ate=\d{4}-12-31/)
+    await expect(page.getByRole('link', { name: 'Este ano' })).toHaveAttribute('aria-current', 'true')
+
+    // A busca precisa recortar a LISTA e os TOTAIS juntos: total que ignora o
+    // filtro diz "entradas do mes" sobre uma tela que mostra outra coisa.
+    await campoDe(page, 'Buscar').fill(historico)
+    await page.getByRole('button', { name: 'Mostrar' }).click()
+    await expect(page.getByTestId('saidas')).toContainText('R$ 137,00', { timeout: 30_000 })
+    await expect(page.getByTestId('entradas')).toContainText('R$ 0,00')
+    await expect(page.getByRole('table', { name: 'Lançamentos' }).getByRole('row')).toHaveCount(2)
+  })
+
   // Contexto proprio: /entrar redireciona quem ja tem sessao, entao trocar de usuario
   // no meio do teste nao funciona. Mesmo formato do teste de Materiais.
   test('operacao nao ve nem abre o Financeiro', async ({ page }) => {
@@ -150,7 +174,10 @@ test.describe('Dinheiro', () => {
     await page.getByRole('link', { name: 'Plano de contas' }).click()
     await expect(page).toHaveURL(/\/plano-de-contas$/)
     await expect(page.getByRole('row').filter({ hasText: 'Vendas de serviços' })).toContainText('recebe os pagamentos das ordens')
-    await expect(page.getByRole('heading', { name: 'Custos da produção' })).toBeVisible()
+    // Os grupos sao linhas DENTRO da tabela, e nao um cartao por grupo: quatro
+    // cartoes empilhados custavam 1.700px de rolagem para quinze contas.
+    const tabela = page.getByRole('table', { name: 'Plano de contas' })
+    await expect(tabela.getByRole('row').filter({ hasText: 'Custos da produção' })).toBeVisible()
     await expect(page.getByText('Material de impressão')).toBeVisible()
 
     const nome = `Marketing digital ${Date.now()}`
