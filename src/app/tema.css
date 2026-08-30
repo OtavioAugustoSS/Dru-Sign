@@ -463,3 +463,22 @@ summary:focus-visible,
   font-size: 0.875em;
   color: var(--tblr-secondary);
 }
+
+/* Cartao de indicador que leva a algum lugar. So o suficiente para a pessoa
+ * perceber que da para clicar: a borda acende na primaria e o cursor muda. Sem
+ * levantar, sem sombra crescendo -- sao quatro deles em fila no alto da tela, e
+ * quatro cartoes se mexendo ao passar o mouse e barulho, nao informacao. */
+.cartao-clicavel {
+  transition: border-color 120ms ease-out;
+}
+
+.cartao-clicavel:hover,
+.cartao-clicavel:focus-visible {
+  border-color: var(--tblr-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cartao-clicavel {
+    transition: none;
+  }
+}

@@ -30,6 +30,9 @@ export interface ClienteResumo {
   nome: string
   apelido: string | null
   documento: string | null
+  /* Entra no resumo porque a lista mostra: a loja atende Unai e a regiao, e
+     saber que o cliente e de Bonfinopolis muda o prazo que se promete. */
+  cidade: string | null
   arquivadoEm: Date | null
   telefones: TelefoneResumo[]
 }
@@ -40,7 +43,6 @@ export interface ClienteCompleto extends ClienteResumo {
   contato: string | null
   endereco: string | null
   bairro: string | null
-  cidade: string | null
   uf: string | null
   cep: string | null
   observacoes: string | null
@@ -67,6 +69,9 @@ const SELECAO_RESUMO = {
   apelido: true,
   documento: true,
   arquivadoEm: true,
+  /* A cidade entra na lista porque a loja atende Unai e a regiao: saber que o
+     cliente e de Bonfinopolis muda o prazo que se promete no balcao. */
+  cidade: true,
   telefones: SELECAO_TELEFONE,
 } as const
 
@@ -168,8 +173,12 @@ export async function obterCliente(empresaId: string, id: string): Promise<Clien
   return prisma.cliente.findFirst({ where: { id, empresaId }, select: SELECAO_COMPLETA })
 }
 
+/** De onde veio o cadastro. O sistema antigo trouxe 3.219; o resto nasceu aqui. */
+export type OrigemCliente = 'todos' | 'novos' | 'legado'
+
 export interface OpcoesBusca {
   incluirArquivados?: boolean
+  origem?: OrigemCliente
   limite?: number
   /** 1 e a primeira. Junto com `limite`, decide o trecho que a tela mostra. */
   pagina?: number
@@ -182,6 +191,10 @@ function condicaoDeClientes(empresaId: string, termo: string, opcoes: OpcoesBusc
   const texto = termo.trim()
   const digitos = texto.replace(/\D/g, '')
   const filtroArquivo = opcoes.incluirArquivados ? {} : { arquivadoEm: null }
+  const filtroOrigem =
+    opcoes.origem === 'legado' ? { codigoLegado: { not: null } }
+    : opcoes.origem === 'novos' ? { codigoLegado: null }
+    : {}
 
   const porTexto = texto === '' ? [] : [
     { nome: { contains: texto, mode: 'insensitive' as const } },
@@ -198,7 +211,7 @@ function condicaoDeClientes(empresaId: string, termo: string, opcoes: OpcoesBusc
     : []
   const ou = [...porTexto, ...porDigitos, ...porTelefoneCompleto]
 
-  return { empresaId, ...filtroArquivo, ...(ou.length > 0 ? { OR: ou } : {}) }
+  return { empresaId, ...filtroArquivo, ...filtroOrigem, ...(ou.length > 0 ? { OR: ou } : {}) }
 }
 
 /**
@@ -246,4 +259,25 @@ export async function clientesComTelefone(
     orderBy: { nome: 'asc' },
     select: SELECAO_RESUMO,
   })
+}
+
+
+/**
+ * Os numeros do alto da tela de clientes.
+ *
+ * Cada um e tambem um filtro: o cartao leva para a lista ja filtrada, entao o
+ * numero nao e enfeite -- e a porta para a lista que ele conta.
+ */
+export async function contagensDeClientes(empresaId: string): Promise<{
+  total: number
+  doLegado: number
+  cadastradosAqui: number
+  arquivados: number
+}> {
+  const [total, doLegado, arquivados] = await Promise.all([
+    prisma.cliente.count({ where: { empresaId, arquivadoEm: null } }),
+    prisma.cliente.count({ where: { empresaId, arquivadoEm: null, codigoLegado: { not: null } } }),
+    prisma.cliente.count({ where: { empresaId, arquivadoEm: { not: null } } }),
+  ])
+  return { total, doLegado, cadastradosAqui: total - doLegado, arquivados }
 }

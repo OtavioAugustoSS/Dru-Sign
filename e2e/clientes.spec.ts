@@ -11,8 +11,8 @@ test.describe('Clientes', () => {
     await page.goto('/clientes?q=bretas')
     await expect(page.getByRole('link', { name: 'CENCOSUD BRASIL COMERCIAL' })).toBeVisible()
 
-    await page.getByRole('searchbox', { name: 'Buscar cliente' }).fill('factu')
-    await page.getByRole('searchbox', { name: 'Buscar cliente' }).press('Enter')
+    await page.getByRole('searchbox', { name: 'Buscar' }).fill('factu')
+    await page.getByRole('searchbox', { name: 'Buscar' }).press('Enter')
     await expect(page.getByRole('link', { name: /ASSOCIAÇÃO DE ENSINO/ })).toBeVisible()
   })
 

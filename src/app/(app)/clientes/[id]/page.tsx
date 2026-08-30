@@ -129,6 +129,7 @@ export default async function PaginaFichaCliente({ params }: { params: Promise<{
 
           <div className="col-xl-8">
             <CartaoTabela
+              className="h-100"
               rotulo={`Ordens de ${c.nome}`}
               titulo="Ordens"
               aoLado={novas.length > 0 ? <span className="text-secondary">{valorEmReais(totalNovo)}</span> : null}

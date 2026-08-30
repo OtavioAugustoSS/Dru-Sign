@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import Link from 'next/link'
 import { TEXTO, type Tom } from './situacao'
 
 interface Props {
@@ -12,6 +13,12 @@ interface Props {
   tom?: Tom
   /** So onde o teste de ponta a ponta ja depende do valor. */
   testId?: string
+  /**
+   * Para onde o cartao leva. Quando existe, o cartao inteiro vira alvo de
+   * clique -- e o numero deixa de ser enfeite para virar a porta da lista que
+   * ele conta.
+   */
+  href?: string
 }
 
 /**
@@ -23,16 +30,23 @@ interface Props {
  * resolve isso de uma vez -- todos os cartoes da fileira tem a mesma altura,
  * tenham nota ou nao.
  */
-export function CartaoIndicador({ rotulo, valor, nota, tom, testId }: Props) {
-  return (
-    <div className="card card-sm h-100">
-      <div className="card-body">
-        <div className="subheader">{rotulo}</div>
-        <div className={`h2 mb-0 digitos${tom ? ` ${TEXTO[tom]}` : ''}`} data-testid={testId}>
-          {valor}
-        </div>
-        {nota ? <div className="text-secondary small mt-1">{nota}</div> : null}
+export function CartaoIndicador({ rotulo, valor, nota, tom, testId, href }: Props) {
+  const conteudo = (
+    <div className="card-body">
+      <div className="subheader">{rotulo}</div>
+      <div className={`h2 mb-0 digitos${tom ? ` ${TEXTO[tom]}` : ''}`} data-testid={testId}>
+        {valor}
       </div>
+      {nota ? <div className="text-secondary small mt-1">{nota}</div> : null}
     </div>
   )
+
+  if (href) {
+    return (
+      <Link href={href} className="card card-sm h-100 cartao-clicavel text-reset text-decoration-none">
+        {conteudo}
+      </Link>
+    )
+  }
+  return <div className="card card-sm h-100">{conteudo}</div>
 }
