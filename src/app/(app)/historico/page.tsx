@@ -66,8 +66,8 @@ export default async function PaginaHistorico({
               <Link href="/historico" className="btn">Limpar</Link>
             </div>
             {erro ? (
-              <div className="col-12 text-danger small" role="alert">
-                {erro} — ignorando o período.
+              <div className="col-12 text-danger-emphasis small" role="alert">
+                {erro} Mostrando sem filtro de data.
               </div>
             ) : null}
           </div>

@@ -49,7 +49,7 @@ export default async function PaginaFinanceiro({ searchParams }: { searchParams:
         }
       />
       <CorpoPagina>
-        <FiltroPeriodo de={livro.de} ate={livro.ate} erro={erro ? `${erro} — mostrando o mês atual.` : null} />
+        <FiltroPeriodo de={livro.de} ate={livro.ate} erro={erro ? `${erro} Mostrando o mês atual.` : null} />
 
         <div className="row g-3 mb-3">
           <div className="col-md-4">

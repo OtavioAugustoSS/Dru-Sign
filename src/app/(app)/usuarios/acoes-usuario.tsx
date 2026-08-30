@@ -36,7 +36,7 @@ export function AcoesUsuario(p: Props) {
         <input type="password" className="form-control form-control-sm" value={senha} onChange={(e) => setSenha(e.target.value)} aria-label={`Nova senha de ${p.nome}`} autoComplete="new-password" autoFocus />
         <button type="submit" className="btn btn-primary btn-sm" disabled={pendente}>Gravar senha</button>
         <button type="button" className="btn btn-link btn-sm" onClick={() => setAberto('nenhum')}>Voltar</button>
-        {erro ? <span className="text-danger small" role="alert">{erro}</span> : null}
+        {erro ? <span className="text-danger-emphasis small" role="alert">{erro}</span> : null}
       </form>
     )
   }
@@ -50,7 +50,7 @@ export function AcoesUsuario(p: Props) {
         </select>
         <button type="submit" className="btn btn-primary btn-sm" disabled={pendente}>Gravar</button>
         <button type="button" className="btn btn-link btn-sm" onClick={() => setAberto('nenhum')}>Voltar</button>
-        {erro ? <span className="text-danger small" role="alert">{erro}</span> : null}
+        {erro ? <span className="text-danger-emphasis small" role="alert">{erro}</span> : null}
       </form>
     )
   }
@@ -65,7 +65,7 @@ export function AcoesUsuario(p: Props) {
           {p.ativo ? 'Desativar' : 'Reativar'}
         </button>
       )}
-      {erro ? <span className="text-danger small" role="alert">{erro}</span> : null}
+      {erro ? <span className="text-danger-emphasis small" role="alert">{erro}</span> : null}
     </span>
   )
 }

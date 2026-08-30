@@ -56,7 +56,7 @@ export default async function PaginaOperacao({ searchParams }: { searchParams: P
             <div className="col-12 form-hint">
               {dados.de ? `Período de ${dados.de} a ${dados.ate}.` : 'Sem período: tudo o que existe no sistema.'}
             </div>
-            {erro ? <div className="col-12 text-danger-emphasis small" role="alert">{erro} — mostrando tudo.</div> : null}
+            {erro ? <div className="col-12 text-danger-emphasis small" role="alert">{erro} Mostrando tudo.</div> : null}
           </div>
         </form>
 

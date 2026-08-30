@@ -17,30 +17,30 @@ const MINIMO_SENHA = 8
 
 function nomeLimpo(nome: string): string {
   const n = nome.trim().replace(/\s+/g, ' ').slice(0, 120)
-  if (n === '') throw new ErroDeValidacao('informe o nome')
+  if (n === '') throw new ErroDeValidacao('Informe o nome.')
   return n
 }
 
 /** Login e minusculo e sem espaco: quem digita no balcao nao pensa em maiuscula. */
 function loginLimpo(login: string): string {
   const l = login.trim().toLowerCase()
-  if (!/^[a-z0-9._-]{2,64}$/.test(l)) throw new ErroDeValidacao('login: 2 a 64 letras, números, ponto, hífen ou sublinhado, sem espaço')
+  if (!/^[a-z0-9._-]{2,64}$/.test(l)) throw new ErroDeValidacao('O login aceita de 2 a 64 letras, números, ponto, hífen ou sublinhado, sem espaço.')
   return l
 }
 
 function papelValido(papel: string): PapelUsuario {
-  if (papel !== 'administracao' && papel !== 'operacao') throw new ErroDeValidacao('escolha o papel')
+  if (papel !== 'administracao' && papel !== 'operacao') throw new ErroDeValidacao('Escolha o papel.')
   return papel
 }
 
 function senhaValida(senha: string): string {
-  if (senha.length < MINIMO_SENHA) throw new ErroDeValidacao(`a senha precisa de pelo menos ${MINIMO_SENHA} caracteres`)
+  if (senha.length < MINIMO_SENHA) throw new ErroDeValidacao(`A senha precisa de pelo menos ${MINIMO_SENHA} caracteres.`)
   return senha
 }
 
 async function exigirUsuarioDaEmpresa(empresaId: string, id: string) {
   const u = await prisma.usuario.findFirst({ where: { id, empresaId }, select: { id: true, papel: true, ativo: true } })
-  if (!u) throw new ErroDeValidacao('usuário não encontrado')
+  if (!u) throw new ErroDeValidacao('Usuário não encontrado.')
   return u
 }
 
@@ -61,7 +61,7 @@ export async function criarUsuario(empresaId: string, dados: { nome: string; log
   // O login e unico no banco inteiro (@unique no schema), nao por empresa: conferir antes
   // da a mensagem certa em vez do P2002.
   const repetido = await prisma.usuario.findUnique({ where: { login }, select: { id: true } })
-  if (repetido) throw new ErroDeValidacao('já existe usuário com esse login')
+  if (repetido) throw new ErroDeValidacao('Já existe um usuário com esse login.')
   return prisma.usuario.create({ data: { empresaId, nome, login, papel, senhaHash }, select: { id: true } })
 }
 
@@ -79,10 +79,10 @@ export async function trocarSenha(empresaId: string, id: string, senha: string):
 export async function alterarAtivoUsuario(empresaId: string, id: string, ativo: boolean, usuarioAtualId: string): Promise<void> {
   const alvo = await exigirUsuarioDaEmpresa(empresaId, id)
   if (!ativo) {
-    if (id === usuarioAtualId) throw new ErroDeValidacao('você não pode desativar o seu próprio acesso')
+    if (id === usuarioAtualId) throw new ErroDeValidacao('Você não pode desativar o seu próprio acesso.')
     if (alvo.papel === 'administracao') {
       const outras = await prisma.usuario.count({ where: { empresaId, papel: 'administracao', ativo: true, id: { not: id } } })
-      if (outras === 0) throw new ErroDeValidacao('esta é a única administração ativa; promova outra pessoa antes')
+      if (outras === 0) throw new ErroDeValidacao('Esta é a única administração ativa. Promova outra pessoa antes de desativar.')
     }
   }
   await prisma.usuario.update({ where: { id }, data: { ativo } })

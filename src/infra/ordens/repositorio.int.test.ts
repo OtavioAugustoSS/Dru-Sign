@@ -190,7 +190,7 @@ describe('ordem de servico (banco real)', () => {
   it('item invalido e recusado pelo dominio antes de gravar', async () => {
     const ordem = await criarOrdem(ctx(), { estado: 'aberta' })
     await expect(adicionarItem(ctx(), ordem.id, ordem.versao, { ...UNIDADE('A', 0, '1.00') })).rejects.toThrow(/quantidade/)
-    await expect(adicionarItem(ctx(), ordem.id, ordem.versao, { ...UNIDADE('A', 1, '1.00'), unidadeCobranca: 'm2' })).rejects.toThrow(/altura e largura/)
+    await expect(adicionarItem(ctx(), ordem.id, ordem.versao, { ...UNIDADE('A', 1, '1.00'), unidadeCobranca: 'm2' })).rejects.toThrow(/altura e largura/i)
     expect(await prisma.itemOrdem.count({ where: { ordemId: ordem.id } })).toBe(0)
   })
 

@@ -44,8 +44,8 @@ export function FormAjuste({ ordemId, versao, precoFinal, motivo }: { ordemId: s
       <label className="form-label mb-0" htmlFor="motivoAjuste">Motivo do ajuste</label>
       <input id="motivoAjuste" className="form-control" value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="arredondamento comercial, cliente antigo…" required />
       <button type="submit" className="btn" disabled={pendente}>{pendente ? SALVANDO : 'Ajustar preço'}</button>
-      {invalido ? <div className="text-danger small" role="alert">Preço inválido. Use 2528,00 ou 2528.</div> : null}
-      {resposta && !resposta.ok && !resposta.conflito ? <div className="text-danger small" role="alert">{resposta.erro}</div> : null}
+      {invalido ? <div className="text-danger-emphasis small" role="alert">Preço inválido. Use 2528,00 ou 2528.</div> : null}
+      {resposta && !resposta.ok && !resposta.conflito ? <div className="text-danger-emphasis small" role="alert">{resposta.erro}</div> : null}
     </form>
   )
 }

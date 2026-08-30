@@ -9,7 +9,7 @@ import type { ItemCobranca, ResultadoItem } from './tipos'
  */
 function validarComum(item: ItemCobranca): void {
   if (item.quantidade <= 0) {
-    throw new ErroDeValidacao('quantidade precisa ser maior que zero')
+    throw new ErroDeValidacao('A quantidade precisa ser maior que zero.')
   }
   if (dinheiro(item.valorUnitario).lt(0)) {
     throw new ErroDeValidacao('O valor unitário não pode ser negativo.')
@@ -22,7 +22,7 @@ export function calcularArea(item: ItemCobranca): ResultadoItem {
     throw new ErroDeValidacao('Para cobrar por m², informe altura e largura.')
   }
   if (dinheiro(item.altura).lte(0) || dinheiro(item.largura).lte(0)) {
-    throw new ErroDeValidacao('altura e largura precisam ser maiores que zero')
+    throw new ErroDeValidacao('Altura e largura precisam ser maiores que zero.')
   }
   const medida = dinheiro(item.altura).times(dinheiro(item.largura))
   const total = arredondarCentavos(
@@ -45,7 +45,7 @@ export function calcularMetroLinear(item: ItemCobranca): ResultadoItem {
     throw new ErroDeValidacao('Para cobrar por metro linear, informe altura e largura.')
   }
   if (dinheiro(item.altura).lte(0) || dinheiro(item.largura).lte(0)) {
-    throw new ErroDeValidacao('altura e largura precisam ser maiores que zero')
+    throw new ErroDeValidacao('Altura e largura precisam ser maiores que zero.')
   }
   const medida = dinheiro(item.altura).plus(dinheiro(item.largura)).times(2)
   const total = arredondarCentavos(

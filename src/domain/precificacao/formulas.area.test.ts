@@ -42,6 +42,6 @@ describe('calcularArea', () => {
   it('rejeita dimensao zero ou negativa', () => {
     expect(() =>
       calcularArea({ unidade: 'm2', altura: 0, largura: 0.5, valorUnitario: 10, quantidade: 1 }),
-    ).toThrow('altura e largura precisam ser maiores que zero')
+    ).toThrow('Altura e largura precisam ser maiores que zero.')
   })
 })

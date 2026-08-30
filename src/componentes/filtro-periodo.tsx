@@ -54,7 +54,7 @@ export function FiltroPeriodo({
         </div>
         {aoLado ? <div className="col-auto">{aoLado}</div> : null}
         {erro ? (
-          <div className="col-12 text-danger small" role="alert">
+          <div className="col-12 text-danger-emphasis small" role="alert">
             {erro}
           </div>
         ) : null}

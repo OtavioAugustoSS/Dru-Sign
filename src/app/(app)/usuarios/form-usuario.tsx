@@ -38,7 +38,7 @@ export function FormUsuario() {
       <div className="col-md-2"><label className="form-label" htmlFor="senhaUsuario">Senha inicial</label><input id="senhaUsuario" type="password" className="form-control" value={senha} onChange={(e) => setSenha(e.target.value)} autoComplete="new-password" /></div>
       <div className="col-md-2"><button type="submit" className="btn btn-primary w-100" disabled={pendente}>{pendente ? SALVANDO : 'Criar usuário'}</button></div>
       <div className="col-12 form-hint">A pessoa entra com essa senha e troca depois. Mínimo de 8 caracteres.</div>
-      {erro ? <div className="col-12 text-danger small" role="alert">{erro}</div> : null}
+      {erro ? <div className="col-12 text-danger-emphasis small" role="alert">{erro}</div> : null}
     </form>
   )
 }

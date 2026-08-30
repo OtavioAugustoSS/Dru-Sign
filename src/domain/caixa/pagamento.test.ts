@@ -53,20 +53,20 @@ describe('validarRecebimento', () => {
     expect(() => validarRecebimento({ valor: '100', forma: 'pix', data: '2026-08-29' }, { ...situacao, totalRecebido: '80.00' })).toThrow(/R\$ 70,00/)
   })
   it.each([
-    [{ valor: '', forma: 'pix', data: '2026-08-29' }, /valor/],
+    [{ valor: '', forma: 'pix', data: '2026-08-29' }, /valor/i],
     [{ valor: '0', forma: 'pix', data: '2026-08-29' }, /maior que zero/],
-    [{ valor: 'abc', forma: 'pix', data: '2026-08-29' }, /valor/],
-    [{ valor: '10', forma: '', data: '2026-08-29' }, /escolha a forma de pagamento/],
-    [{ valor: '10', forma: 'avista', data: '2026-08-29' }, /escolha a forma de pagamento/],
-    [{ valor: '10', forma: 'pix', data: '29/08/2026' }, /data/],
-    [{ valor: '10', forma: 'pix', data: '' }, /data/],
+    [{ valor: 'abc', forma: 'pix', data: '2026-08-29' }, /valor/i],
+    [{ valor: '10', forma: '', data: '2026-08-29' }, /escolha a forma de pagamento/i],
+    [{ valor: '10', forma: 'avista', data: '2026-08-29' }, /escolha a forma de pagamento/i],
+    [{ valor: '10', forma: 'pix', data: '29/08/2026' }, /data/i],
+    [{ valor: '10', forma: 'pix', data: '' }, /data/i],
   ])('recusa %j', (dados: { valor: string; forma: string; data: string }, erro: RegExp) => {
     expect(() => validarRecebimento(dados, situacao)).toThrow(erro)
   })
   it('recusa por estado: orcamento, cancelada e ordem sem valor', () => {
-    expect(() => validarRecebimento({ valor: '10', forma: 'pix', data: '2026-08-29' }, { ...situacao, estadoProducao: 'orcamento' })).toThrow(/aprove o orçamento/)
-    expect(() => validarRecebimento({ valor: '10', forma: 'pix', data: '2026-08-29' }, { ...situacao, estadoProducao: 'cancelada' })).toThrow(/cancelada/)
-    expect(() => validarRecebimento({ valor: '10', forma: 'pix', data: '2026-08-29' }, { ...situacao, precoFinal: '0.00' })).toThrow(/não tem valor a receber/)
-    expect(() => validarRecebimento({ valor: '10', forma: 'pix', data: '2026-08-29' }, { ...situacao, totalRecebido: '150.00' })).toThrow(/já está paga/)
+    expect(() => validarRecebimento({ valor: '10', forma: 'pix', data: '2026-08-29' }, { ...situacao, estadoProducao: 'orcamento' })).toThrow(/aprove o orçamento/i)
+    expect(() => validarRecebimento({ valor: '10', forma: 'pix', data: '2026-08-29' }, { ...situacao, estadoProducao: 'cancelada' })).toThrow(/cancelada/i)
+    expect(() => validarRecebimento({ valor: '10', forma: 'pix', data: '2026-08-29' }, { ...situacao, precoFinal: '0.00' })).toThrow(/não tem valor a receber/i)
+    expect(() => validarRecebimento({ valor: '10', forma: 'pix', data: '2026-08-29' }, { ...situacao, totalRecebido: '150.00' })).toThrow(/já está paga/i)
   })
 })

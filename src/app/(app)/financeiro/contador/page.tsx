@@ -94,7 +94,7 @@ export default async function PaginaContador({ searchParams }: { searchParams: P
             </div>
             <div className="col-auto"><button type="submit" className="btn btn-primary">Mostrar</button></div>
             {erro ? (
-              <div className="col-12 text-danger-emphasis small" role="alert">{erro} — mostrando o mês atual.</div>
+              <div className="col-12 text-danger-emphasis small" role="alert">{erro} Mostrando o mês atual.</div>
             ) : null}
           </div>
         </form>

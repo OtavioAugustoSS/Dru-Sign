@@ -17,7 +17,7 @@ export async function carregarOperacao(empresaId: string, periodo?: { de: string
   let filtro = {}
   if (periodo) {
     const limites = limitesDoDia(periodo.de, periodo.ate)
-    if (!limites) throw new ErroDeValidacao('período inválido')
+    if (!limites) throw new ErroDeValidacao('Período inválido.')
     filtro = { abertaEm: { gte: limites.inicio, lt: limites.fim } }
   }
   const ordens = await prisma.ordemServico.findMany({

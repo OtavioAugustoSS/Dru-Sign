@@ -191,7 +191,7 @@ function colunasItem(ctx: Contexto, dados: DadosItem) {
 }
 
 export async function adicionarItem(ctx: Contexto, ordemId: string, versao: number, dados: DadosItem): Promise<Totais> {
-  if (dados.descricao.trim() === '') throw new ErroDeValidacao('descreva o item')
+  if (dados.descricao.trim() === '') throw new ErroDeValidacao('Descreva o item.')
   const colunas = colunasItem(ctx, dados) // lanca ErroDeValidacao antes de abrir a transacao
   return executarUmaVez(ctx, 'item.adicionar', async (tx) => {
     await carregarEditavel(tx, ctx, ordemId, versao)

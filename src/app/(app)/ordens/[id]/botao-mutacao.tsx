@@ -35,7 +35,7 @@ export function BotaoMutacao({ acao, rotulo, className = 'btn', confirmar }: Pro
         }}>
         {rotulo}
       </button>
-      {erro ? <span className="text-danger small" role="alert">{erro}</span> : null}
+      {erro ? <span className="text-danger-emphasis small" role="alert">{erro}</span> : null}
     </span>
   )
 }

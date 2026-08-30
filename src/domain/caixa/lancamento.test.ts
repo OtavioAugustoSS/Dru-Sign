@@ -14,22 +14,22 @@ describe('validarSaida', () => {
   it('parcela vazia e null; parcela sem total assume 1/1; total sem parcela e recusado', () => {
     expect(validarSaida({ valor: '10', data: '2026-08-29', historico: 'Agua', parcela: '', totalParcelas: '' }, despesa)).toMatchObject({ parcela: null, totalParcelas: null })
     expect(validarSaida({ valor: '10', data: '2026-08-29', historico: 'Agua', parcela: '1', totalParcelas: '' }, despesa)).toMatchObject({ parcela: 1, totalParcelas: 1 })
-    expect(() => validarSaida({ valor: '10', data: '2026-08-29', historico: 'Agua', parcela: '', totalParcelas: '3' }, despesa)).toThrow(/parcela/)
-    expect(() => validarSaida({ valor: '10', data: '2026-08-29', historico: 'Agua', parcela: '4', totalParcelas: '3' }, despesa)).toThrow(/parcela/)
-    expect(() => validarSaida({ valor: '10', data: '2026-08-29', historico: 'Agua', parcela: '0', totalParcelas: '3' }, despesa)).toThrow(/parcela/)
+    expect(() => validarSaida({ valor: '10', data: '2026-08-29', historico: 'Agua', parcela: '', totalParcelas: '3' }, despesa)).toThrow(/parcela/i)
+    expect(() => validarSaida({ valor: '10', data: '2026-08-29', historico: 'Agua', parcela: '4', totalParcelas: '3' }, despesa)).toThrow(/parcela/i)
+    expect(() => validarSaida({ valor: '10', data: '2026-08-29', historico: 'Agua', parcela: '0', totalParcelas: '3' }, despesa)).toThrow(/parcela/i)
   })
   it.each([
-    [{ valor: '', data: '2026-08-29', historico: 'Agua', parcela: '', totalParcelas: '' }, /valor/],
+    [{ valor: '', data: '2026-08-29', historico: 'Agua', parcela: '', totalParcelas: '' }, /valor/i],
     [{ valor: '0', data: '2026-08-29', historico: 'Agua', parcela: '', totalParcelas: '' }, /maior que zero/],
-    [{ valor: '10', data: '', historico: 'Agua', parcela: '', totalParcelas: '' }, /data/],
-    [{ valor: '10', data: '2026-08-29', historico: '   ', parcela: '', totalParcelas: '' }, /histórico/],
+    [{ valor: '10', data: '', historico: 'Agua', parcela: '', totalParcelas: '' }, /data/i],
+    [{ valor: '10', data: '2026-08-29', historico: '   ', parcela: '', totalParcelas: '' }, /histórico/i],
   ])('recusa %j', (dados: { valor: string; data: string; historico: string; parcela: string; totalParcelas: string }, erro: RegExp) => {
     expect(() => validarSaida(dados, despesa)).toThrow(erro)
   })
   it('recusa conta de receita e conta desativada', () => {
     const dados = { valor: '10', data: '2026-08-29', historico: 'Agua', parcela: '', totalParcelas: '' }
-    expect(() => validarSaida(dados, { tipo: 'receita', ativa: true })).toThrow(/conta de despesa/)
-    expect(() => validarSaida(dados, { tipo: 'despesa', ativa: false })).toThrow(/desativada/)
+    expect(() => validarSaida(dados, { tipo: 'receita', ativa: true })).toThrow(/conta de despesa/i)
+    expect(() => validarSaida(dados, { tipo: 'despesa', ativa: false })).toThrow(/desativada/i)
   })
 })
 

@@ -107,7 +107,7 @@ export function FormCabecalho(p: Props) {
         <button type="submit" className="btn" disabled={pendente}>{pendente ? SALVANDO : 'Salvar cabeçalho'}</button>
         <span className="small text-secondary">Ctrl+S</span>
         {resposta?.ok ? <span className="text-success small">Salvo.</span> : null}
-        {resposta && !resposta.ok && !resposta.conflito ? <span className="text-danger small" role="alert">{resposta.erro}</span> : null}
+        {resposta && !resposta.ok && !resposta.conflito ? <span className="text-danger-emphasis small" role="alert">{resposta.erro}</span> : null}
       </div>
     </form>
   )

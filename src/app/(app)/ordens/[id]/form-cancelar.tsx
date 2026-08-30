@@ -14,7 +14,7 @@ export function FormCancelar({ ordemId, versao }: { ordemId: string; versao: num
   const [pendente, iniciar] = useTransition()
   const chave = useRef(gerarChave())
 
-  if (!aberto) return <button type="button" className="btn btn-link text-danger px-0" onClick={() => setAberto(true)}>Cancelar ordem</button>
+  if (!aberto) return <button type="button" className="btn btn-link text-danger-emphasis px-0" onClick={() => setAberto(true)}>Cancelar ordem</button>
   return (
     <form className="d-flex flex-column gap-2" onSubmit={(e) => {
       e.preventDefault()
@@ -31,7 +31,7 @@ export function FormCancelar({ ordemId, versao }: { ordemId: string; versao: num
         <button type="submit" className="btn btn-danger" disabled={pendente}>Confirmar cancelamento</button>
         <button type="button" className="btn btn-link" onClick={() => setAberto(false)}>Voltar</button>
       </div>
-      {erro ? <div className="text-danger small" role="alert">{erro}</div> : null}
+      {erro ? <div className="text-danger-emphasis small" role="alert">{erro}</div> : null}
     </form>
   )
 }

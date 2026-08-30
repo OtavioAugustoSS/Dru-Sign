@@ -50,19 +50,19 @@ export interface RecebimentoValidado {
 const TOLERANCIA = dinheiro('0.01')
 
 export function validarRecebimento(dados: DadosRecebimentoDigitado, s: SituacaoDaOrdem): RecebimentoValidado {
-  if (s.estadoProducao === 'orcamento') throw new ErroDeValidacao('aprove o orçamento antes de receber')
-  if (s.estadoProducao === 'cancelada') throw new ErroDeValidacao('ordem cancelada não recebe')
+  if (s.estadoProducao === 'orcamento') throw new ErroDeValidacao('Aprove o orçamento antes de receber.')
+  if (s.estadoProducao === 'cancelada') throw new ErroDeValidacao('Ordem cancelada não recebe pagamento.')
   const preco = dinheiro(s.precoFinal)
-  if (preco.lte(0)) throw new ErroDeValidacao('a ordem não tem valor a receber')
+  if (preco.lte(0)) throw new ErroDeValidacao('Esta ordem não tem valor a receber.')
   const saldo = preco.minus(dinheiro(s.totalRecebido))
-  if (saldo.lte(0)) throw new ErroDeValidacao('a ordem já está paga')
+  if (saldo.lte(0)) throw new ErroDeValidacao('Esta ordem já está paga.')
 
   const valor = interpretarMoeda(dados.valor)
-  if (valor === null) throw new ErroDeValidacao('informe o valor recebido')
-  if (valor.lte(0)) throw new ErroDeValidacao('o valor precisa ser maior que zero')
-  if (valor.gt(saldo.plus(TOLERANCIA))) throw new ErroDeValidacao(`valor maior que o saldo a receber (${formatarMoeda(saldo)})`)
-  if (!ehFormaPagamento(dados.forma)) throw new ErroDeValidacao('escolha a forma de pagamento')
+  if (valor === null) throw new ErroDeValidacao('Informe o valor recebido.')
+  if (valor.lte(0)) throw new ErroDeValidacao('O valor precisa ser maior que zero.')
+  if (valor.gt(saldo.plus(TOLERANCIA))) throw new ErroDeValidacao(`O valor é maior que o saldo a receber (${formatarMoeda(saldo)}).`)
+  if (!ehFormaPagamento(dados.forma)) throw new ErroDeValidacao('Escolha a forma de pagamento.')
   const data = lerDataCalendario(dados.data)
-  if (!data) throw new ErroDeValidacao('data do recebimento inválida')
+  if (!data) throw new ErroDeValidacao('Data do recebimento inválida.')
   return { valor: arredondarCentavos(valor), forma: dados.forma, data }
 }

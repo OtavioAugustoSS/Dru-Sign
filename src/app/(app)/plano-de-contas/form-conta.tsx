@@ -37,7 +37,7 @@ export function FormConta({ grupos }: { grupos: string[] }) {
         <datalist id="grupos">{grupos.map((g) => <option key={g} value={g} />)}</datalist>
       </div>
       <div className="col-md-2"><button type="submit" className="btn btn-primary w-100" disabled={pendente}>Criar conta</button></div>
-      {erro ? <div className="col-12 text-danger small" role="alert">{erro}</div> : null}
+      {erro ? <div className="col-12 text-danger-emphasis small" role="alert">{erro}</div> : null}
     </form>
   )
 }

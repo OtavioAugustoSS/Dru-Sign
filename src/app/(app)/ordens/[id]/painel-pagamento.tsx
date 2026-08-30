@@ -109,7 +109,7 @@ export function PainelPagamento(p: Props) {
               Só receber — a ordem continua aberta
             </button>
           ) : null}
-          {erro ? <div className="text-danger small" role="alert">{erro}</div> : null}
+          {erro ? <div className="text-danger-emphasis small" role="alert">{erro}</div> : null}
         </form>
       ) : null}
 
@@ -117,7 +117,7 @@ export function PainelPagamento(p: Props) {
         <div className="card-body border-top">
           <button type="button" className="btn" disabled={pendente} onClick={concluir}>Serviço finalizado</button>
           <div className="form-hint">Marca a produção como pronta. Não mexe em dinheiro.</div>
-          {!p.administracao && erro ? <div className="text-danger small" role="alert">{erro}</div> : null}
+          {!p.administracao && erro ? <div className="text-danger-emphasis small" role="alert">{erro}</div> : null}
         </div>
       ) : null}
 

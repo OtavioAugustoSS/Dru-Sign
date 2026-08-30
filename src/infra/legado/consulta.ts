@@ -73,7 +73,7 @@ export async function buscarHistorico(empresaId: string, filtros: FiltrosHistori
   if (filtros.de && filtros.ate) {
     const d = lerDataCalendario(filtros.de)
     const a = lerDataCalendario(filtros.ate)
-    if (!d || !a || d.getTime() > a.getTime()) throw new ErroDeValidacao('período inválido')
+    if (!d || !a || d.getTime() > a.getTime()) throw new ErroDeValidacao('Período inválido.')
     periodo = { dataEntrada: { gte: d, lte: a } }
   }
   const where = {

@@ -26,7 +26,7 @@ export function BotaoEstorno({ lancamentoId }: { lancamentoId: string }) {
       <input className="form-control form-control-sm" value={motivo} onChange={(e) => setMotivo(e.target.value)} placeholder="Motivo do estorno" aria-label="Motivo do estorno" required autoFocus />
       <button type="submit" className="btn btn-danger btn-sm" disabled={pendente}>Confirmar</button>
       <button type="button" className="btn btn-link btn-sm" onClick={() => setAberto(false)}>Voltar</button>
-      {erro ? <span className="text-danger small" role="alert">{erro}</span> : null}
+      {erro ? <span className="text-danger-emphasis small" role="alert">{erro}</span> : null}
     </form>
   )
 }

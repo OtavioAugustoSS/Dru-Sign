@@ -83,7 +83,7 @@ export const TOM_TIPO_CONTA: Record<TipoConta, Tom> = {
  * nada tem. O que precisa saltar e o atrasado.
  */
 export const TEXTO_URGENCIA: Record<GrupoUrgencia, string> = {
-  atrasada: 'text-danger',
+  atrasada: 'text-danger-emphasis',
   hoje: 'text-warning',
   semana: '',
   sem_data: 'text-secondary',

@@ -32,7 +32,7 @@ describe('significado de cor', () => {
 
   it('urgencia cobre os quatro grupos, e so "esta semana" fica sem cor propria', () => {
     expect(Object.keys(TEXTO_URGENCIA).sort()).toEqual(['atrasada', 'hoje', 'sem_data', 'semana'])
-    expect(TEXTO_URGENCIA.atrasada).toBe('text-danger')
+    expect(TEXTO_URGENCIA.atrasada).toBe('text-danger-emphasis')
     // Se tudo tem cor, nada tem: o grupo normal fica com a cor do corpo.
     expect(TEXTO_URGENCIA.semana).toBe('')
   })

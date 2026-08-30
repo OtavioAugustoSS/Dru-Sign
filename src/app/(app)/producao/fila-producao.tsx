@@ -38,7 +38,7 @@ export function FilaDeProducao({ fila }: { fila: FilaProducao }) {
             <span className="fs-3">
               {fila.total} em produção
               {fila.atrasadas > 0 ? (
-                <span className="text-danger fw-bold ms-2">
+                <span className="text-danger-emphasis fw-bold ms-2">
                   · {fila.atrasadas} atrasada{fila.atrasadas > 1 ? 's' : ''}
                 </span>
               ) : null}
@@ -93,7 +93,7 @@ function Cartao({ ordem, atrasada }: { ordem: OrdemDaProducao; atrasada: boolean
               <NumeroOs numero={ordem.numero} />
             </Link>
             {ordem.prometidaPara ? (
-              <span className={`fs-3 ${atrasada ? 'text-danger fw-bold' : ''}`}>
+              <span className={`fs-3 ${atrasada ? 'text-danger-emphasis fw-bold' : ''}`}>
                 {formatarDataCalendario(new Date(ordem.prometidaPara))}
               </span>
             ) : (

@@ -32,6 +32,6 @@ describe('calcularUnidade', () => {
   it('rejeita quantidade zero', () => {
     expect(() =>
       calcularUnidade({ unidade: 'unidade', valorUnitario: 10, quantidade: 0 }),
-    ).toThrow('quantidade precisa ser maior que zero')
+    ).toThrow('A quantidade precisa ser maior que zero.')
   })
 })

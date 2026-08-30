@@ -58,7 +58,7 @@ export function FormEmpresa({ empresa }: { empresa: EmpresaTela }) {
       <div className="card-footer d-flex align-items-center gap-2">
         <button type="submit" className="btn btn-primary" disabled={pendente}>{pendente ? SALVANDO : 'Salvar'}</button>
         {resposta === 'salvo' ? <span className="text-success small" role="status">Salvo.</span> : null}
-        {resposta !== 'salvo' && resposta !== 'nenhuma' ? <span className="text-danger small" role="alert">{resposta}</span> : null}
+        {resposta !== 'salvo' && resposta !== 'nenhuma' ? <span className="text-danger-emphasis small" role="alert">{resposta}</span> : null}
       </div>
     </form>
   )

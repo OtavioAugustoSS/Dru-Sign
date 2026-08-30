@@ -27,7 +27,7 @@ export function BotaoFinalizado({ ordemId, versao }: { ordemId: string; versao: 
         }}>
         {pendente ? SALVANDO : 'Serviço finalizado'}
       </button>
-      {erro ? <div className="text-danger mt-2" role="alert">{erro}</div> : null}
+      {erro ? <div className="text-danger-emphasis mt-2" role="alert">{erro}</div> : null}
     </>
   )
 }

@@ -76,7 +76,7 @@ export async function registrarRecebimento(ctx: Contexto, ordemId: string, versa
       { precoFinal: paraDominio(ordem.precoFinal).toFixed(), totalRecebido: antes.totalRecebido.toFixed(), estadoProducao: estado },
     )
     const empresa = await tx.empresa.findUniqueOrThrow({ where: { id: ctx.empresaId }, select: { contaRecebimentoId: true } })
-    if (!empresa.contaRecebimentoId) throw new ErroDeValidacao('defina no plano de contas a conta que recebe as vendas')
+    if (!empresa.contaRecebimentoId) throw new ErroDeValidacao('Nenhuma conta recebe as vendas. Escolha no plano de contas a conta que recebe as vendas.')
 
     const lancamento = await tx.lancamentoCaixa.create({
       data: {
@@ -111,12 +111,12 @@ export async function concluirOrdem(ctx: Contexto, ordemId: string, versao: numb
 /** Erro de dinheiro se estorna, nunca se edita nem se apaga: recebimento e lancamento marcados juntos. */
 export async function estornarRecebimento(ctx: Contexto, ordemId: string, versao: number, recebimentoId: string, motivo: string): Promise<ResultadoDinheiro> {
   const motivoLimpo = motivo.trim().slice(0, 160)
-  if (motivoLimpo === '') throw new ErroDeValidacao('o motivo do estorno é obrigatório')
+  if (motivoLimpo === '') throw new ErroDeValidacao('Informe o motivo do estorno.')
   return executarUmaVez(ctx, 'recebimento.estornar', async (tx) => {
     const ordem = await carregarComTrava(tx, ctx, ordemId, versao)
     const rec = await tx.recebimento.findFirst({ where: { id: recebimentoId, ordemId: ordem.id, empresaId: ctx.empresaId }, select: { id: true, lancamentoId: true, estornadoEm: true } })
-    if (!rec) throw new ErroDeValidacao('recebimento não encontrado')
-    if (rec.estornadoEm) throw new ErroDeValidacao('recebimento já estornado')
+    if (!rec) throw new ErroDeValidacao('Recebimento não encontrado.')
+    if (rec.estornadoEm) throw new ErroDeValidacao('Este recebimento já foi estornado.')
     const marca = { estornadoEm: new Date(), estornadoPorId: ctx.usuarioId, motivoEstorno: motivoLimpo }
     await tx.recebimento.update({ where: { id: rec.id }, data: marca })
     await tx.lancamentoCaixa.update({ where: { id: rec.lancamentoId }, data: marca })

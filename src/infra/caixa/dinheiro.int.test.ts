@@ -77,7 +77,7 @@ describe('concluir e receber (banco real)', () => {
   it('sem conta de recebimento na empresa, nada e gravado e a mensagem explica', async () => {
     await prisma.empresa.update({ where: { id: base.empresaId }, data: { contaRecebimentoId: null } })
     const o = await ordemComItem('150.00')
-    await expect(registrarRecebimento(ctx(), o.id, o.versao, { valor: '150', forma: 'pix', data: '2026-08-29', concluir: true })).rejects.toThrow(/conta que recebe as vendas/)
+    await expect(registrarRecebimento(ctx(), o.id, o.versao, { valor: '150', forma: 'pix', data: '2026-08-29', concluir: true })).rejects.toThrow(/conta que recebe as vendas/i)
     const ordem = await prisma.ordemServico.findUniqueOrThrow({ where: { id: o.id } })
     expect(ordem.estadoProducao).toBe('aberta')
     expect(ordem.versao).toBe(o.versao)
@@ -109,7 +109,7 @@ describe('concluir e receber (banco real)', () => {
     const o = await ordemComItem('150.00')
     await expect(registrarRecebimento(ctx(), o.id, o.versao - 1, { valor: '10', forma: 'pix', data: '2026-08-29', concluir: false })).rejects.toThrow(ConflitoVersao)
     const orc = await ordemComItem('90.00', 'orcamento')
-    await expect(registrarRecebimento(ctx(), orc.id, orc.versao, { valor: '10', forma: 'pix', data: '2026-08-29', concluir: false })).rejects.toThrow(/aprove o orçamento/)
+    await expect(registrarRecebimento(ctx(), orc.id, orc.versao, { valor: '10', forma: 'pix', data: '2026-08-29', concluir: false })).rejects.toThrow(/aprove o orçamento/i)
     await expect(registrarRecebimento(ctx(), orc.id, orc.versao, { valor: '10', forma: 'pix', data: '2026-08-29', concluir: true })).rejects.toThrow(OrdemNaoEditavel)
   })
 
@@ -127,7 +127,7 @@ describe('concluir e receber (banco real)', () => {
     const o = await ordemComItem('150.00')
     const r = await registrarRecebimento(ctx(), o.id, o.versao, { valor: '150', forma: 'pix', data: '2026-08-29', concluir: true })
     const rec = await prisma.recebimento.findFirstOrThrow({ where: { ordemId: o.id } })
-    await expect(estornarRecebimento(ctx(), o.id, r.versao, rec.id, '  ')).rejects.toThrow(/motivo/)
+    await expect(estornarRecebimento(ctx(), o.id, r.versao, rec.id, '  ')).rejects.toThrow(/motivo/i)
     const e = await estornarRecebimento(ctx(), o.id, r.versao, rec.id, 'valor digitado errado')
     expect(e).toMatchObject({ versao: r.versao + 1, estadoProducao: 'concluida', estadoPagamento: 'nao_pago', totalRecebido: '0.00', saldo: '150.00' })
     const depois = await prisma.recebimento.findUniqueOrThrow({ where: { id: rec.id }, include: { lancamento: true } })
@@ -135,7 +135,7 @@ describe('concluir e receber (banco real)', () => {
     expect(depois.estornadoEm).not.toBeNull()
     expect(depois.lancamento.estornadoEm).not.toBeNull()
     expect(depois.lancamento.motivoEstorno).toBe('valor digitado errado')
-    await expect(estornarRecebimento(ctx(), o.id, e.versao, rec.id, 'de novo')).rejects.toThrow(/já estornado/)
+    await expect(estornarRecebimento(ctx(), o.id, e.versao, rec.id, 'de novo')).rejects.toThrow(/já (foi )?estornado/i)
     expect(await prisma.recebimento.count({ where: { ordemId: o.id } })).toBe(1) // nada apagado
   })
 
@@ -160,22 +160,22 @@ describe('livro-caixa e plano (banco real)', () => {
     ])
     expect(livro).toMatchObject({ entradas: '300.00', saidas: '45.90', saldo: '254.10' })
 
-    await expect(estornarLancamento(ctx(), s.id, '')).rejects.toThrow(/motivo/)
+    await expect(estornarLancamento(ctx(), s.id, '')).rejects.toThrow(/motivo/i)
     await estornarLancamento(ctx(), s.id, 'lancado em duplicidade')
     const depois = await listarLivro(base.empresaId, { de: '2026-08-01', ate: '2026-08-31' })
     expect(depois.linhas[1]).toMatchObject({ estornadoEm: expect.any(String), motivoEstorno: 'lancado em duplicidade' })
     expect(depois).toMatchObject({ entradas: '300.00', saidas: '0.00', saldo: '300.00' })
 
     const entrada = depois.linhas[0]!
-    await expect(estornarLancamento(ctx(), entrada.id, 'x')).rejects.toThrow(/pelo recebimento/)
+    await expect(estornarLancamento(ctx(), entrada.id, 'x')).rejects.toThrow(/pelo recebimento/i)
   })
 
   it('saida recusa conta de receita, conta de outra empresa e periodo invertido', async () => {
     await expect(registrarSaida(ctx(), { valor: '10', data: '2026-08-12', historico: 'x', contaId: contaVendas, fornecedor: '', parcela: '', totalParcelas: '' })).rejects.toThrow(/conta de despesa/)
     const outra = await prisma.empresa.create({ data: { razaoSocial: 'Outra' } })
     const alheia = await prisma.contaPlano.create({ data: { empresaId: outra.id, codigo: 1, nome: 'LUZ', tipo: 'despesa', grupo: 'G' } })
-    await expect(registrarSaida(ctx(), { valor: '10', data: '2026-08-12', historico: 'x', contaId: alheia.id, fornecedor: '', parcela: '', totalParcelas: '' })).rejects.toThrow(/conta não encontrada/)
-    await expect(listarLivro(base.empresaId, { de: '2026-08-31', ate: '2026-08-01' })).rejects.toThrow(/período/)
+    await expect(registrarSaida(ctx(), { valor: '10', data: '2026-08-12', historico: 'x', contaId: alheia.id, fornecedor: '', parcela: '', totalParcelas: '' })).rejects.toThrow(/conta não encontrada/i)
+    await expect(listarLivro(base.empresaId, { de: '2026-08-31', ate: '2026-08-01' })).rejects.toThrow(/período/i)
   })
 
   it('plano: lista por grupo, cria com o proximo codigo, recusa nome repetido, desativa e troca a conta de vendas', async () => {
@@ -183,7 +183,7 @@ describe('livro-caixa e plano (banco real)', () => {
     expect(antes.map((c) => [c.grupo, c.codigo, c.recebeVendas])).toEqual([['CUSTO GERAL', 3, false], ['RECEITA GERAL', 1, true]])
     const nova = await criarConta(base.empresaId, { nome: '  Marketing digital ', tipo: 'despesa', grupo: 'DESPESAS' })
     expect(await prisma.contaPlano.findUniqueOrThrow({ where: { id: nova.id } })).toMatchObject({ codigo: 4, nome: 'Marketing digital', tipo: 'despesa', grupo: 'DESPESAS', ativa: true })
-    await expect(criarConta(base.empresaId, { nome: 'marketing DIGITAL', tipo: 'despesa', grupo: 'DESPESAS' })).rejects.toThrow(/já existe/)
+    await expect(criarConta(base.empresaId, { nome: 'marketing DIGITAL', tipo: 'despesa', grupo: 'DESPESAS' })).rejects.toThrow(/já existe/i)
     await expect(criarConta(base.empresaId, { nome: 'X', tipo: 'lucro', grupo: 'DESPESAS' })).rejects.toThrow(/tipo/)
     await expect(criarConta(base.empresaId, { nome: '', tipo: 'despesa', grupo: 'DESPESAS' })).rejects.toThrow(/nome/)
 

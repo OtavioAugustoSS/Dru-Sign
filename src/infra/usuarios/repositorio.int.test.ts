@@ -25,16 +25,16 @@ describe('usuarios (banco real)', () => {
     expect(lista.map((u) => [u.login, u.papel, u.ativo])).toEqual([['odete', 'administracao', true], ['pedro', 'operacao', true]])
     expect(JSON.stringify(lista)).not.toContain('argon2')
 
-    await expect(criarUsuario(empresaId, { nome: 'Outro', login: 'PEDRO', papel: 'operacao', senha: 'senha-boa-123' })).rejects.toThrow(/já existe/)
+    await expect(criarUsuario(empresaId, { nome: 'Outro', login: 'PEDRO', papel: 'operacao', senha: 'senha-boa-123' })).rejects.toThrow(/já existe/i)
   })
 
   it.each([
-    [{ nome: '', login: 'x', papel: 'operacao', senha: 'senha-boa-123' }, /nome/],
-    [{ nome: 'X', login: '', papel: 'operacao', senha: 'senha-boa-123' }, /login/],
-    [{ nome: 'X', login: 'com espaco', papel: 'operacao', senha: 'senha-boa-123' }, /login/],
-    [{ nome: 'X', login: 'xx', papel: 'chefe', senha: 'senha-boa-123' }, /papel/],
-    [{ nome: 'X', login: 'xx', papel: '', senha: 'senha-boa-123' }, /papel/],
-    [{ nome: 'X', login: 'xx', papel: 'operacao', senha: 'curta' }, /senha/],
+    [{ nome: '', login: 'x', papel: 'operacao', senha: 'senha-boa-123' }, /nome/i],
+    [{ nome: 'X', login: '', papel: 'operacao', senha: 'senha-boa-123' }, /login/i],
+    [{ nome: 'X', login: 'com espaco', papel: 'operacao', senha: 'senha-boa-123' }, /login/i],
+    [{ nome: 'X', login: 'xx', papel: 'chefe', senha: 'senha-boa-123' }, /papel/i],
+    [{ nome: 'X', login: 'xx', papel: '', senha: 'senha-boa-123' }, /papel/i],
+    [{ nome: 'X', login: 'xx', papel: 'operacao', senha: 'curta' }, /senha/i],
   ])('recusa %j', async (dados: { nome: string; login: string; papel: string; senha: string }, erro: RegExp) => {
     await expect(criarUsuario(empresaId, dados)).rejects.toThrow(erro)
   })
@@ -49,7 +49,7 @@ describe('usuarios (banco real)', () => {
     const depois = await prisma.usuario.findUniqueOrThrow({ where: { id: p.id } })
     expect(depois.senhaHash).not.toBe(antes)
     expect(await verificarSenha(depois.senhaHash, 'outra-senha-boa')).toBe(true)
-    await expect(trocarSenha(empresaId, p.id, 'curta')).rejects.toThrow(/senha/)
+    await expect(trocarSenha(empresaId, p.id, 'curta')).rejects.toThrow(/senha/i)
   })
 
   it('desativa e reativa, mas ninguem se desativa e a ultima administracao ativa nao sai', async () => {
@@ -71,8 +71,8 @@ describe('usuarios (banco real)', () => {
     const outra = await prisma.empresa.create({ data: { razaoSocial: 'Outra' } })
     const alheio = await prisma.usuario.create({ data: { empresaId: outra.id, nome: 'Estranho', login: 'estranho', senhaHash: 'x' } })
     expect((await listarUsuarios(empresaId)).map((u) => u.id)).toEqual([odeteId])
-    await expect(alterarUsuario(empresaId, alheio.id, { nome: 'X', papel: 'operacao' })).rejects.toThrow(/não encontrado/)
-    await expect(trocarSenha(empresaId, alheio.id, 'senha-boa-123')).rejects.toThrow(/não encontrado/)
-    await expect(alterarAtivoUsuario(empresaId, alheio.id, false, odeteId)).rejects.toThrow(/não encontrado/)
+    await expect(alterarUsuario(empresaId, alheio.id, { nome: 'X', papel: 'operacao' })).rejects.toThrow(/não encontrado/i)
+    await expect(trocarSenha(empresaId, alheio.id, 'senha-boa-123')).rejects.toThrow(/não encontrado/i)
+    await expect(alterarAtivoUsuario(empresaId, alheio.id, false, odeteId)).rejects.toThrow(/não encontrado/i)
   })
 })

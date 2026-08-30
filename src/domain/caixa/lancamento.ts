@@ -30,25 +30,25 @@ export interface SaidaValidada {
 function inteiroOuNull(texto: string, rotulo: string): number | null {
   const t = texto.trim()
   if (t === '') return null
-  if (!/^\d{1,2}$/.test(t) || Number(t) === 0) throw new ErroDeValidacao(`${rotulo} inválida`)
+  if (!/^\d{1,2}$/.test(t) || Number(t) === 0) throw new ErroDeValidacao(`${rotulo} inválida.`)
   return Number(t)
 }
 
 export function validarSaida(dados: DadosSaidaDigitada, conta: { tipo: TipoConta; ativa: boolean }): SaidaValidada {
-  if (conta.tipo !== 'despesa') throw new ErroDeValidacao('saída pede uma conta de despesa')
-  if (!conta.ativa) throw new ErroDeValidacao('esta conta está desativada')
+  if (conta.tipo !== 'despesa') throw new ErroDeValidacao('Uma saída precisa de uma conta de despesa.')
+  if (!conta.ativa) throw new ErroDeValidacao('Esta conta está desativada.')
   const valor = interpretarMoeda(dados.valor)
-  if (valor === null) throw new ErroDeValidacao('informe o valor')
-  if (valor.lte(0)) throw new ErroDeValidacao('o valor precisa ser maior que zero')
+  if (valor === null) throw new ErroDeValidacao('Informe o valor.')
+  if (valor.lte(0)) throw new ErroDeValidacao('O valor precisa ser maior que zero.')
   const data = lerDataCalendario(dados.data)
-  if (!data) throw new ErroDeValidacao('data inválida')
+  if (!data) throw new ErroDeValidacao('Data inválida.')
   const historico = dados.historico.trim().replace(/\s+/g, ' ').slice(0, 160)
-  if (historico === '') throw new ErroDeValidacao('descreva o histórico')
-  const parcela = inteiroOuNull(dados.parcela, 'parcela')
-  let totalParcelas = inteiroOuNull(dados.totalParcelas, 'quantidade de parcelas')
-  if (parcela === null && totalParcelas !== null) throw new ErroDeValidacao('informe a parcela (ex.: 2 de 3)')
+  if (historico === '') throw new ErroDeValidacao('Descreva o histórico.')
+  const parcela = inteiroOuNull(dados.parcela, 'Parcela')
+  let totalParcelas = inteiroOuNull(dados.totalParcelas, 'Quantidade de parcelas')
+  if (parcela === null && totalParcelas !== null) throw new ErroDeValidacao('Informe a parcela, por exemplo 2 de 3.')
   if (parcela !== null && totalParcelas === null) totalParcelas = 1
-  if (parcela !== null && totalParcelas !== null && parcela > totalParcelas) throw new ErroDeValidacao('parcela maior que o total de parcelas')
+  if (parcela !== null && totalParcelas !== null && parcela > totalParcelas) throw new ErroDeValidacao('A parcela não pode ser maior que o total de parcelas.')
   return { valor: arredondarCentavos(valor), data, historico, parcela, totalParcelas }
 }
 

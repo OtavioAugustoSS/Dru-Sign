@@ -134,8 +134,8 @@ export function EntradaLinha({ ordemId, versao, catalogo }: Props) {
         ) : (
           <span className="small text-secondary">Digite como no papel: quantidade, o que é, medida e valor. Acréscimo começa com +.</span>
         )}
-        {mostrarPendencia && resolvido && resolvido.pendencias[0] ? <div className="text-danger mt-1" role="alert">{ROTULO_PENDENCIA[resolvido.pendencias[0]]}</div> : null}
-        {erro ? <div className="text-danger mt-1" role="alert">{erro} Enter para tentar de novo.</div> : null}
+        {mostrarPendencia && resolvido && resolvido.pendencias[0] ? <div className="text-danger-emphasis mt-1" role="alert">{ROTULO_PENDENCIA[resolvido.pendencias[0]]}</div> : null}
+        {erro ? <div className="text-danger-emphasis mt-1" role="alert">{erro} Enter para tentar de novo.</div> : null}
       </div>
     </div>
   )

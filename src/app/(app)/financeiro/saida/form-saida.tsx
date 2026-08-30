@@ -61,7 +61,7 @@ export function FormSaida({ hoje, contas }: Props) {
       <div className="card-footer d-flex align-items-center gap-2">
         <button type="submit" className="btn btn-primary" disabled={pendente}>{pendente ? SALVANDO : 'Lançar saída'}</button>
         <a href="/financeiro" className="btn btn-link">Cancelar</a>
-        {erro ? <span className="text-danger small" role="alert">{erro}</span> : null}
+        {erro ? <span className="text-danger-emphasis small" role="alert">{erro}</span> : null}
       </div>
     </form>
   )

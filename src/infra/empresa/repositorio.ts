@@ -33,24 +33,24 @@ function telefone(v: string): string | null {
   const t = v.trim()
   if (t === '') return null
   const { normalizado } = normalizarTelefone(t)
-  if (normalizado === null) throw new ErroDeValidacao(`telefone inválido: ${t}`)
+  if (normalizado === null) throw new ErroDeValidacao(`Telefone inválido: ${t}`)
   return normalizado
 }
 
 /** O que sai no cabecalho do impresso (spec, tela 15). So a razao social e obrigatoria. */
 export async function salvarEmpresa(empresaId: string, dados: Record<keyof EmpresaTela, string>): Promise<void> {
   const razaoSocial = texto(dados.razaoSocial, 160)
-  if (razaoSocial === null) throw new ErroDeValidacao('a razão social é obrigatória')
+  if (razaoSocial === null) throw new ErroDeValidacao('Informe a razão social.')
 
   // normalizarDocumento devolve { digitos, tipo } ou null; aqui so CNPJ serve.
   let cnpj: string | null = null
   if (dados.cnpj.trim() !== '') {
     const d = normalizarDocumento(dados.cnpj)
-    if (d === null || d.tipo !== 'cnpj') throw new ErroDeValidacao('CNPJ inválido')
+    if (d === null || d.tipo !== 'cnpj') throw new ErroDeValidacao('CNPJ inválido.')
     cnpj = d.digitos
   }
   const uf = texto(dados.uf.toUpperCase(), 2)
-  if (uf !== null && !/^[A-Z]{2}$/.test(uf)) throw new ErroDeValidacao('UF inválida')
+  if (uf !== null && !/^[A-Z]{2}$/.test(uf)) throw new ErroDeValidacao('UF inválida.')
 
   await prisma.empresa.update({
     where: { id: empresaId },

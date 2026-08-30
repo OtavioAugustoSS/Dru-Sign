@@ -18,7 +18,7 @@ export function AcoesConta({ contaId, ativa, receita, recebeVendas }: { contaId:
     <span className="d-inline-flex align-items-center gap-2">
       {receita && ativa && !recebeVendas ? <button type="button" className="btn btn-sm" disabled={pendente} onClick={() => rodar(() => definirContaRecebimentoAction(contaId))}>Usar para recebimentos</button> : null}
       <button type="button" className="btn btn-sm btn-ghost-secondary" disabled={pendente} onClick={() => rodar(() => alterarAtivaAction(contaId, !ativa))}>{ativa ? 'Desativar' : 'Reativar'}</button>
-      {erro ? <span className="text-danger small" role="alert">{erro}</span> : null}
+      {erro ? <span className="text-danger-emphasis small" role="alert">{erro}</span> : null}
     </span>
   )
 }

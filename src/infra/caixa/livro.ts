@@ -20,7 +20,7 @@ export interface DadosSaida {
 export async function registrarSaida(ctx: Contexto, dados: DadosSaida): Promise<{ id: string }> {
   return executarUmaVez(ctx, 'caixa.saida', async (tx) => {
     const conta = await tx.contaPlano.findFirst({ where: { id: dados.contaId, empresaId: ctx.empresaId }, select: { id: true, tipo: true, ativa: true } })
-    if (!conta) throw new ErroDeValidacao('conta não encontrada')
+    if (!conta) throw new ErroDeValidacao('Conta não encontrada.')
     const s = validarSaida(dados, conta)
     return tx.lancamentoCaixa.create({
       data: {
@@ -35,12 +35,12 @@ export async function registrarSaida(ctx: Contexto, dados: DadosSaida): Promise<
 /** So saida: a entrada se estorna pelo recebimento, na ordem, para os dois andarem juntos. */
 export async function estornarLancamento(ctx: Contexto, lancamentoId: string, motivo: string): Promise<{ id: string }> {
   const motivoLimpo = motivo.trim().slice(0, 160)
-  if (motivoLimpo === '') throw new ErroDeValidacao('o motivo do estorno é obrigatório')
+  if (motivoLimpo === '') throw new ErroDeValidacao('Informe o motivo do estorno.')
   return executarUmaVez(ctx, 'caixa.estornar', async (tx) => {
     const l = await tx.lancamentoCaixa.findFirst({ where: { id: lancamentoId, empresaId: ctx.empresaId }, select: { id: true, tipo: true, estornadoEm: true } })
-    if (!l) throw new ErroDeValidacao('lançamento não encontrado')
-    if (l.tipo === 'entrada') throw new ErroDeValidacao('entrada se estorna pelo recebimento, na ordem')
-    if (l.estornadoEm) throw new ErroDeValidacao('lançamento já estornado')
+    if (!l) throw new ErroDeValidacao('Lançamento não encontrado.')
+    if (l.tipo === 'entrada') throw new ErroDeValidacao('Entrada de caixa se estorna pelo recebimento, dentro da ordem.')
+    if (l.estornadoEm) throw new ErroDeValidacao('Este lançamento já foi estornado.')
     await tx.lancamentoCaixa.update({ where: { id: l.id }, data: { estornadoEm: new Date(), estornadoPorId: ctx.usuarioId, motivoEstorno: motivoLimpo } })
     return { id: l.id }
   })
@@ -60,7 +60,7 @@ export interface Livro {
 export async function listarLivro(empresaId: string, periodo: { de: string; ate: string }): Promise<Livro> {
   const de = lerDataCalendario(periodo.de)
   const ate = lerDataCalendario(periodo.ate)
-  if (!de || !ate || de.getTime() > ate.getTime()) throw new ErroDeValidacao('período inválido')
+  if (!de || !ate || de.getTime() > ate.getTime()) throw new ErroDeValidacao('Período inválido.')
   const lancamentos = await prisma.lancamentoCaixa.findMany({
     where: { empresaId, data: { gte: de, lte: ate } },
     orderBy: [{ data: 'asc' }, { criadoEm: 'asc' }],

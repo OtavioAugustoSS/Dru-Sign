@@ -167,3 +167,27 @@
   max-width: 56ch;
   margin-inline: auto;
 }
+
+/* Vermelho de MENSAGEM DE ERRO.
+ *
+ * As mensagens de validacao usavam `.text-danger`, a cor cheia: 4,66:1 no claro
+ * (no limite) e 3,15:1 no escuro (reprova). Trocadas para `.text-danger-emphasis`,
+ * que e a cor de texto do Bootstrap e passa nos dois -- so que o valor de fabrica
+ * no claro e #561717, um marrom quase preto: 13,72:1 de contraste e nenhuma
+ * leitura de erro. A mensagem sumia dentro do formulario como se fosse uma nota.
+ *
+ * Entao a cor de texto do vermelho passa a ser declarada aqui, como ja e a
+ * primaria: vermelho de verdade nos dois temas, e com folga sobre o minimo.
+ * O token tambem alimenta `.bg-danger-lt` acima, entao vale para o selo.
+ *
+ * Medido (WCAG 2.1 relative luminance):
+ *   claro  #B42318 sobre o corpo #F9FAFB ..... 6,40:1  texto OK
+ *   escuro #F87171 sobre o corpo #111827 ..... 6,39:1  texto OK
+ */
+:root {
+  --tblr-danger-text-emphasis: #B42318;
+}
+
+[data-bs-theme='dark'] {
+  --tblr-danger-text-emphasis: #F87171;
+}
