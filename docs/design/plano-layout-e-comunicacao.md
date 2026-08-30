@@ -907,19 +907,19 @@ uma cor *significa* no sistema, e essa é decisão sua.
 O que o Otavio pediu e ainda não foi feito. Ordem de cima para baixo é a que eu
 proponho; ele decide.
 
-### F1. Números no alto de cada tela de lista
+### F1. Números no alto de cada tela de lista ✅
 Cartões com o que aquela tela conta, **clicáveis**, levando à lista já filtrada.
 Feito em `/clientes` (cadastros ativos, cadastrados aqui, do sistema antigo,
 arquivados). Falta: ordens, livro-caixa, produção, materiais, usuários,
 histórico.
 
-### F2. Uma tela de painel
+### F2. Uma tela de painel ✅
 Todos os números do sistema num lugar só, cada um levando para a tela que o
 detalha. Convive com a F1 em vez de substituí-la: a F1 serve quem já está na
 tela, o painel serve quem está começando o dia. **A "Fila de trabalho" hoje já é
 metade disso** — a decisão é se ela vira o painel ou se nasce uma tela ao lado.
 
-### F3. Toda grade com o mesmo tratamento
+### F3. Toda grade com o mesmo tratamento ✅
 Paginação, filtro e ordenação em todas as tabelas, do mesmo jeito. Hoje varia:
 `/ordens` e `/clientes` têm cartão de filtro e paginação; `/materiais`,
 `/usuarios` e `/plano-de-contas` não têm nem uma coisa nem outra. Ordenação por
@@ -943,11 +943,11 @@ legado, e aí a decisão é de negócio, não de layout:
 
 Hoje **1.978 dos 3.238 já estão arquivados** e 1.241 do legado seguem ativos.
 
-### F5. Materiais e preços
+### F5. Materiais e preços ✅ (catálogo limpo, esperando as precificações)
 O Otavio vai mandar as precificações. Os 18 materiais que existem hoje são todos
 artefato de teste do e2e e saem antes.
 
-### F6. Limpeza dos dados de teste
+### F6. Limpeza dos dados de teste ✅
 Ensaio feito, **zero referências presas**: 12 usuários "Fulano de Teste", 18
 materiais e 19 clientes com "e2e" no nome. O script `scripts/_limpar.ts` está
 pronto; falta o Otavio autorizar a execução.
@@ -981,3 +981,27 @@ Foi assim que três testes de ponta a ponta quebraram, e eles estavam certos.
 
 O catálogo está vazio hoje, então o problema não aparece. Ele aparece no dia em
 que as precificações entrarem — e aí aparece em toda ordem.
+
+
+---
+
+## O que ficou para o Otavio decidir
+
+Três coisas, e as três são de negócio — não de layout.
+
+### 1. O material casa por uma palavra só (F7)
+Vira problema no dia em que as precificações entrarem, e aí vira em toda ordem.
+As opções estão na F7.
+
+### 2. O que "arquivado" significa para o legado (F4)
+1.241 cadastros do sistema antigo seguem ativos na busca do balcão.
+
+### 3. O e2e roda contra o banco de DESENVOLVIMENTO
+É a raiz de tudo o que sujou o banco nesta sessão: as 252 ordens apagadas, os 19
+clientes "e2e", os 18 materiais de teste — e o endereço e o CNPJ da loja, que o
+teste substituía por valores fictícios a cada rodada.
+
+Remendei o teste da empresa para devolver o que achou, mas é remendo. O conserto
+é o `e2e` usar o banco de teste, como o `test:int` já faz: `playwright.config.ts`
+sobe `next dev` na 3000 contra o `.env.local`, e bastaria subir contra o
+`.env.test.local` com o TRUNCATE que o harness de integração já tem.
