@@ -616,8 +616,34 @@ Ordem por tráfego e por gravidade do que foi encontrado.
   redireciona para `/entrar?proximo=…` antes de chegar nele. Quem vê é quem já
   entrou. O erro no console nessa tela é o próprio HTTP 404 da resposta, não
   um defeito.
-- [ ] **T14. `/ordens/[id]/impresso`.** Conferir que o tema escuro **não** vaza para
+- [x] **T14. `/ordens/[id]/impresso`.** Conferir que o tema escuro **não** vaza para
   o papel, e que a impressão continua saindo igual.
+
+  **Vazava.** Quem usa o tema escuro imprimia com 40% da folha em preto. A folha
+  em si sempre foi branca com tinta preta (o `impresso.css` usa cor fixa, não
+  variável de tema), mas na impressão a `.impresso-raiz` perde o
+  `min-height: 100vh` e encolhe até a altura do conteúdo — o que sobra da folha
+  passa a ser o fundo do `body`, que no escuro é `#121212`. Medido pixel a pixel
+  na captura em `media: print`: **525.600 dos 1.296.000 pixeis da página**, tudo
+  abaixo de y=535. `html, body { background: #fff }` no bloco de impressão. Depois
+  da correção, as duas folhas — tema claro e tema escuro — têm **zero pixel de
+  diferença**.
+
+  Dois outros achados, ambos na barra de ações acima da folha, nenhum na vistoria:
+
+  - Os três botões são do Bootstrap e seguiam o tema escuro: ficavam escuros
+    sobre a mesa cinza-clara da folha, e o de "vias" media **2,14:1** no escuro
+    (4,08 no claro — reprovava nos dois). O layout do impresso passa a fixar
+    `data-bs-theme="light"`, o que alinha os botões ao papel numa linha só, em
+    vez de corrigir cada botão. Agora: 10,31 / 6,76 / 10,31, iguais nos dois temas.
+  - O botão de vias era um **link de mão única** escrito "2 vias". Depois de
+    clicar, continuava apontando para `?vias=2`: não havia volta para uma via só,
+    e o rótulo não dizia em qual dos dois estados a folha estava. Agora alterna, e
+    o rótulo diz o que o clique faz — "Incluir a via da loja" / "Tirar a via da
+    loja" — nas mesmas palavras impressas no alto de cada via.
+
+  O e2e `impresso.spec.ts` não usa o rótulo do botão (navega direto para
+  `?vias=2`), então segue valendo sem mudança.
 
 ### Fechamento
 
