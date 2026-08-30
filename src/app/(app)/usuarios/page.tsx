@@ -18,9 +18,14 @@ export default async function PaginaUsuarios() {
 
   return (
     <>
-      <CabecalhoPagina pretitulo="Administração" titulo="Usuários" />
+      <CabecalhoPagina pretitulo="Configuração" titulo="Usuários" />
       <CorpoPagina>
-        <div className="card mb-3"><div className="card-body"><FormUsuario /></div></div>
+        {/* Cabecalho no cartao de criacao, como em Materiais e no Plano de contas:
+            sem ele o formulario aparecia solto no topo, sem dizer o que cria. */}
+        <div className="card mb-3">
+          <div className="card-header"><h2 className="card-title">Novo usuário</h2></div>
+          <div className="card-body"><FormUsuario /></div>
+        </div>
         <CartaoTabela
           rotulo="Usuários"
           colunas={

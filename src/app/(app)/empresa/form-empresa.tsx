@@ -45,12 +45,12 @@ export function FormEmpresa({ empresa }: { empresa: EmpresaTela }) {
       <div className="card-body row g-3">
         <div className="col-md-6"><label className="form-label" htmlFor="razaoSocial">Razão social</label><input id="razaoSocial" className="form-control" {...em('razaoSocial')} /></div>
         <div className="col-md-6"><label className="form-label" htmlFor="nomeFantasia">Nome fantasia</label><input id="nomeFantasia" className="form-control" {...em('nomeFantasia')} placeholder="DruSign" /></div>
-        <div className="col-md-4"><label className="form-label" htmlFor="cnpj">CNPJ</label><input id="cnpj" className="form-control numero" inputMode="numeric" {...em('cnpj')} /></div>
-        <div className="col-md-4"><label className="form-label" htmlFor="telefone1">Telefone</label><input id="telefone1" className="form-control numero" inputMode="tel" {...em('telefone1')} /></div>
-        <div className="col-md-4"><label className="form-label" htmlFor="telefone2">Outro telefone</label><input id="telefone2" className="form-control numero" inputMode="tel" {...em('telefone2')} /></div>
+        <div className="col-md-4"><label className="form-label" htmlFor="cnpj">CNPJ</label><input id="cnpj" className="form-control digitos" inputMode="numeric" {...em('cnpj')} /></div>
+        <div className="col-md-4"><label className="form-label" htmlFor="telefone1">Telefone</label><input id="telefone1" className="form-control digitos" inputMode="tel" {...em('telefone1')} /></div>
+        <div className="col-md-4"><label className="form-label" htmlFor="telefone2">Outro telefone</label><input id="telefone2" className="form-control digitos" inputMode="tel" {...em('telefone2')} /></div>
         <div className="col-md-6"><label className="form-label" htmlFor="endereco">Endereço</label><input id="endereco" className="form-control" {...em('endereco')} /></div>
         <div className="col-md-3"><label className="form-label" htmlFor="bairro">Bairro</label><input id="bairro" className="form-control" {...em('bairro')} /></div>
-        <div className="col-md-3"><label className="form-label" htmlFor="cep">CEP</label><input id="cep" className="form-control numero" inputMode="numeric" {...em('cep')} /></div>
+        <div className="col-md-3"><label className="form-label" htmlFor="cep">CEP</label><input id="cep" className="form-control digitos" inputMode="numeric" {...em('cep')} /></div>
         <div className="col-md-6"><label className="form-label" htmlFor="cidade">Cidade</label><input id="cidade" className="form-control" {...em('cidade')} /></div>
         <div className="col-md-2"><label className="form-label" htmlFor="uf">UF</label><input id="uf" className="form-control" maxLength={2} {...em('uf')} /></div>
         <div className="col-12 form-hint">É o que sai no cabeçalho do impresso da ordem. O que ficar em branco simplesmente não aparece lá.</div>

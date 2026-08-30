@@ -565,8 +565,23 @@ Ordem por tráfego e por gravidade do que foi encontrado.
   moldura repetida. É lista de referência, que se varre com o olho; dobrar os
   grupos esconderia justamente o que se veio ver.
 
-- [ ] **T12. `/usuarios` + `/empresa`.** O link de texto "Imprimir" apontando para
-  `/ordens`. O formulário de criação sem cabeçalho, diferente de `/materiais`.
+- [x] **T12. `/usuarios` + `/empresa`.** ✅ Feito.
+
+  - **O link mentia:** dizia "Imprimir" e levava para a lista de ordens. O texto
+    prometia uma ação e o destino era outro lugar. Agora o link diz "Ordens", que
+    é para onde vai, e a instrução de imprimir ficou em palavras.
+  - **O formulário de criar usuário não tinha cabeçalho**, diferente de Materiais e
+    do Plano de contas: aparecia solto no topo sem dizer o que cria. Ganhou
+    "Novo usuário".
+  - Pretítulo das duas: "Administração" → "Configuração", o grupo real do menu.
+
+  **Achado na captura, fora do que o plano previa:** CNPJ, os dois telefones e o
+  CEP estavam **alinhados à direita** dentro do campo, porque usavam a classe das
+  colunas de dinheiro. Identificador se lê e se digita da esquerda — o cursor
+  começava no canto errado. Trocados pela classe `.digitos`, que dá largura fixa de
+  dígito sem forçar alinhamento. Campo de dinheiro continua à direita, que é onde
+  faz sentido: é assim que as casas decimais se alinham.
+
 - [ ] **T13. `/entrar`, `error.tsx`, `not-found.tsx`.** As três telas sem casca.
   Conferir que funcionam nos dois temas.
 - [ ] **T14. `/ordens/[id]/impresso`.** Conferir que o tema escuro **não** vaza para
