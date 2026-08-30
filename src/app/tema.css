@@ -730,11 +730,14 @@ a.grafico-lista-linha:hover {
   white-space: nowrap;
 }
 
+/* O trilho e a escala: e contra ele que se le "esta barra e um terco daquela".
+ * Com `--tblr-bg-surface-secondary` ele dava 1,05:1 contra o fundo do cartao --
+ * invisivel, e a barra virava um risco solto no meio do nada. */
 .grafico-lista-trilho {
   display: block;
   height: 0.5rem;
   border-radius: 999px;
-  background: var(--tblr-bg-surface-secondary);
+  background: var(--tblr-border-color);
   overflow: hidden;
 }
 
