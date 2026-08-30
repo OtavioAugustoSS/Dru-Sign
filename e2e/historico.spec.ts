@@ -6,7 +6,7 @@ test.describe('Histórico', () => {
     await entrar(page)
     await page.getByRole('link', { name: 'Histórico' }).click()
     await expect(page).toHaveURL(/\/historico$/)
-    await expect(page.getByRole('heading', { name: 'Histórico do sistema antigo' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Histórico', exact: true })).toBeVisible()
 
     const tabela = page.getByRole('table', { name: 'Ordens do sistema antigo' })
     if (await tabela.count() === 0) {

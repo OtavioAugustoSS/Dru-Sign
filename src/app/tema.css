@@ -565,3 +565,14 @@ summary:focus-visible,
 th.text-end .coluna-ordenavel {
   justify-content: flex-end;
 }
+
+/* A contagem ao lado do nome da aba. A `.anotacao` ja e o aparte do sistema, e
+ * ela vem com o ponto separador -- aqui ele atrapalha, porque numa aba o numero
+ * cola no nome sem pontuacao no meio. */
+.nav-tabs .anotacao::before {
+  content: none;
+}
+
+.nav-tabs .anotacao {
+  margin-left: 0.4em;
+}
