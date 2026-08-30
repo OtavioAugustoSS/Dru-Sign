@@ -264,3 +264,50 @@ summary:focus-visible,
   outline: 2px solid var(--tblr-primary);
   outline-offset: 2px;
 }
+
+/* A LATERAL: para onde vai a sobra de altura.
+ *
+ * `.navbar-nav` do Tabler vem com `flex-grow: 1`, e a lateral e uma coluna flex.
+ * Resultado: a sobra de altura era REPARTIDA entre a lista do topo e o bloco do
+ * usuario. Medido a 1080px de janela, 144px de vazio em cada um -- o buraco
+ * embaixo de "Fila de trabalho" e a faixa morta no rodape. Pior: com a sobra
+ * toda consumida pelo `flex-grow`, o `mt-auto` do bloco do usuario nao tinha
+ * folga nenhuma para empurrar, entao ele colava no ultimo item do menu e se
+ * lia como se fosse mais uma entrada.
+ *
+ * Agora a sobra vai para um lugar so: a area de navegacao. Ela cresce, rola por
+ * dentro quando os itens nao cabem (a 768px de janela nao cabiam), e a marca em
+ * cima e o usuario embaixo ficam parados. */
+.lateral-navegacao {
+  flex: 1 1 auto;
+  /* Sem isto o item flex se recusa a encolher abaixo do conteudo e a barra
+   * estoura para fora da janela em vez de rolar por dentro. */
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.lateral-navegacao .navbar-nav,
+.lateral-usuario {
+  flex-grow: 0;
+}
+
+/* Quem esta logado nao e um item de menu: a divisoria diz isso sem precisar
+ * escrever. */
+.lateral-usuario {
+  flex-shrink: 0;
+  border-top: 1px solid var(--tblr-border-color);
+}
+
+/* Cabecalho de grupo: caixa alta de 12px sem espacejamento fica apertada e le
+ * mal. O acrescimo e pequeno de proposito -- e uma etiqueta, nao um titulo. */
+.lateral-grupo {
+  letter-spacing: 0.04em;
+}
+
+/* A coluna da lateral presa a altura da janela: e o que permite a area de
+ * navegacao encolher e rolar por dentro. Sem `min-height: 0` o item flex se
+ * recusa a ficar menor que o conteudo e a barra vaza para fora da tela. */
+.lateral-casca {
+  height: 100%;
+  min-height: 0;
+}

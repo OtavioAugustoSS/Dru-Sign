@@ -62,8 +62,8 @@ export function NavegacaoLateral({ itens }: { itens: ItemNavegacao[] }) {
   const soltos = itens.filter((i) => !i.grupo)
 
   return (
-    <nav aria-label="Principal" className="navbar-collapse">
-      {soltos.length > 0 ? <ul className="navbar-nav pt-lg-3">{soltos.map(linha)}</ul> : null}
+    <nav aria-label="Principal" className="navbar-collapse lateral-navegacao">
+      {soltos.length > 0 ? <ul className="navbar-nav flex-grow-0 pt-lg-3">{soltos.map(linha)}</ul> : null}
 
       {GRUPOS.map((grupo) => {
         const doGrupo = itens.filter((i) => i.grupo === grupo.chave)
@@ -73,7 +73,7 @@ export function NavegacaoLateral({ itens }: { itens: ItemNavegacao[] }) {
         const id = `grupo-${grupo.chave}`
         return (
           <div className="mt-3" key={grupo.chave}>
-            <div className="px-3 pb-1 small fw-bold text-uppercase text-secondary" id={id}>
+            <div className="lateral-grupo px-3 pb-1 small fw-bold text-uppercase text-secondary" id={id}>
               {grupo.rotulo}
             </div>
             <ul className="navbar-nav" aria-labelledby={id}>

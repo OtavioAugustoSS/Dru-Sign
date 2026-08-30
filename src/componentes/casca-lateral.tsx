@@ -61,10 +61,13 @@ export function CascaLateral({ itens, menuUsuario }: Props) {
       </header>
 
       <aside className="navbar navbar-vertical navbar-expand-lg d-none d-lg-flex d-print-none">
-        <div className="container-fluid">
+        {/* `lateral-casca` prende a coluna a altura da janela. Sem isso, numa
+            janela baixa (medido a 768px) o conteudo empurrava a barra para fora
+            da tela em vez de rolar por dentro dela. */}
+        <div className="container-fluid lateral-casca">
           <div className="navbar-brand navbar-brand-autodark">{marca}</div>
           <NavegacaoLateral itens={itens} />
-          <div className="navbar-nav mt-auto pb-lg-3">{menuUsuario}</div>
+          <div className="navbar-nav lateral-usuario flex-grow-0 py-2">{menuUsuario}</div>
         </div>
       </aside>
 
@@ -81,7 +84,7 @@ export function CascaLateral({ itens, menuUsuario }: Props) {
         </Offcanvas.Header>
         <Offcanvas.Body className="d-flex flex-column">
           <NavegacaoLateral itens={itens} />
-          <div className="navbar-nav mt-auto pt-3">{menuUsuario}</div>
+          <div className="navbar-nav lateral-usuario flex-grow-0 mt-auto pt-3">{menuUsuario}</div>
         </Offcanvas.Body>
       </Offcanvas>
     </>
