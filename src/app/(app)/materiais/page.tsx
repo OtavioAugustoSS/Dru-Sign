@@ -6,7 +6,7 @@ import { rotuloUnidade } from '@/infra/materiais/unidades'
 import { CabecalhoPagina } from '@/componentes/cabecalho-pagina'
 import { CorpoPagina } from '@/componentes/corpo-pagina'
 import { CartaoTabela } from '@/componentes/cartao-tabela'
-import { Selo } from '@/componentes/selo'
+import { Anotacao } from '@/componentes/situacao'
 import { EstadoVazio } from '@/componentes/estado-vazio'
 import { Dinheiro } from '@/componentes/dinheiro'
 import { FormMaterial } from './form-material'
@@ -52,7 +52,7 @@ export default async function PaginaMateriais() {
               <tr key={m.id} className={m.ativo ? '' : 'text-secondary'}>
                 <td>
                   <Link href={`/materiais/${m.id}`} className="text-reset fw-medium">{m.nome}</Link>
-                  {m.ativo ? null : <Selo tom="neutro" className="ms-2">inativo</Selo>}
+                  {m.ativo ? null : <Anotacao>inativo</Anotacao>}
                 </td>
                 <td>{m.categoria ?? ''}</td>
                 <td className="numero"><Dinheiro valor={m.preco} /></td>

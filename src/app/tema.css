@@ -311,3 +311,44 @@ summary:focus-visible,
   height: 100%;
   min-height: 0;
 }
+
+/* SITUACAO: ponto colorido mais a palavra, no lugar do selo.
+ *
+ * O selo era um retangulo arredondado com fundo tingido, um por linha da
+ * tabela. Numa lista onde doze de cada dezoito linhas dizem "Aberta", a coluna
+ * inteira virava um mural de retangulos coloridos de larguras diferentes: nem
+ * dava para achar a cancelada, nem a borda direita da coluna ficava reta.
+ *
+ * O ponto e `currentColor`, entao a cor vem da classe de texto do tom -- as
+ * mesmas `-emphasis` ja medidas para contraste. A palavra fica na cor normal do
+ * corpo, que le melhor do que qualquer texto tingido. */
+.situacao {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.situacao-ponto {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: currentColor;
+  /* Sem isto o ponto encolhe quando a palavra e longa ("Serviço finalizado") */
+  flex: 0 0 auto;
+}
+
+/* ANOTACAO: o aparte ao lado de um nome -- o apelido, "arquivado", "voce".
+ *
+ * O ponto separador no `::before` para que nenhuma tela precise lembrar de por
+ * `ms-2` na frente. `em` e nao `rem` para acompanhar o tamanho do texto a que
+ * ela se cola: ao lado de um nome grande, o aparte cresce junto. */
+.anotacao {
+  font-size: 0.875em;
+  color: var(--tblr-secondary);
+}
+
+.anotacao::before {
+  content: '·';
+  margin-inline: 0.4em;
+}

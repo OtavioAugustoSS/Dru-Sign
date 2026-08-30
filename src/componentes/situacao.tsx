@@ -97,9 +97,43 @@ interface Props {
   testId?: string
 }
 
-export function Selo({ tom, children, className, testId }: Props) {
+/**
+ * A SITUACAO de um registro: um ponto na cor do estado e a palavra ao lado.
+ *
+ * Era um selo -- retangulo arredondado com fundo tingido, um por linha. Numa
+ * lista onde doze de cada dezoito linhas dizem "Aberta", cento e sessenta
+ * retangulos coloridos fazem a coluna inteira gritar e o olho nao acha a
+ * cancelada. Some ainda que a largura do retangulo acompanha o tamanho da
+ * palavra, entao a coluna fica com a borda direita serrilhada.
+ *
+ * Aqui a cor ocupa 8px e a palavra fica na cor normal do corpo -- que le melhor
+ * do que qualquer texto tingido. A cor continua sendo o atalho para quem varre a
+ * coluna, e a palavra continua sendo a resposta para quem le: nenhuma informacao
+ * depende so da cor.
+ */
+export function Situacao({ tom, children, className, testId }: Props) {
   return (
-    <span className={`badge ${FUNDO[tom]}${className ? ` ${className}` : ''}`} data-testid={testId}>
+    <span className={className ? `situacao ${className}` : 'situacao'} data-testid={testId}>
+      <span className={`situacao-ponto ${TEXTO[tom]}`} aria-hidden="true" />
+      {/* O rotulo num span proprio: como `.situacao` e flex com `gap`, um texto
+          solto com espaco no meio ("Falta R$ 80,00") viraria dois itens flex e
+          ganharia um vao no meio da frase. */}
+      <span>{children}</span>
+    </span>
+  )
+}
+
+/**
+ * Uma qualificacao curta colada a um nome: o apelido, "arquivado", "voce".
+ *
+ * Tambem era selo, e tambem nao devia ser. Isto nao e a situacao de uma linha
+ * numa coluna: e um aparte sobre o nome que vem antes -- e aparte se escreve
+ * menor e mais claro, nao dentro de uma caixa colorida. O ponto separador vem
+ * do CSS para que quem chama nao precise lembrar da margem.
+ */
+export function Anotacao({ children, tom = 'neutro', testId }: { children: ReactNode; tom?: Tom; testId?: string }) {
+  return (
+    <span className={tom === 'neutro' ? 'anotacao' : `anotacao ${TEXTO[tom]}`} data-testid={testId}>
       {children}
     </span>
   )
@@ -107,54 +141,50 @@ export function Selo({ tom, children, className, testId }: Props) {
 
 // Atalhos: o chamador passa o valor do dominio e nao decide cor nem texto.
 
-export function SeloEstado({ estado, className }: { estado: EstadoProducao; className?: string }) {
+export function SituacaoEstado({ estado, className }: { estado: EstadoProducao; className?: string }) {
   return (
-    <Selo tom={TOM_ESTADO[estado]} className={className}>
+    <Situacao tom={TOM_ESTADO[estado]} className={className}>
       {ROTULO_ESTADO[estado]}
-    </Selo>
+    </Situacao>
   )
 }
 
-export function SeloPagamento({ estado, className, testId }: { estado: EstadoPagamento; className?: string; testId?: string }) {
+export function SituacaoPagamento({ estado, className, testId }: { estado: EstadoPagamento; className?: string; testId?: string }) {
   return (
-    <Selo tom={TOM_PAGAMENTO[estado]} className={className} testId={testId}>
+    <Situacao tom={TOM_PAGAMENTO[estado]} className={className} testId={testId}>
       {ROTULO_PAGAMENTO[estado]}
-    </Selo>
+    </Situacao>
   )
 }
 
-export function SeloRecencia({ recencia, className }: { recencia: Recencia; className?: string }) {
+export function SituacaoRecencia({ recencia, className }: { recencia: Recencia; className?: string }) {
   return (
-    <Selo tom={TOM_RECENCIA[recencia]} className={className}>
+    <Situacao tom={TOM_RECENCIA[recencia]} className={className}>
       {ROTULO_RECENCIA[recencia]}
-    </Selo>
+    </Situacao>
   )
 }
 
-export function SeloTipoLancamento({ tipo, className }: { tipo: TipoLancamento; className?: string }) {
+export function SituacaoTipoLancamento({ tipo, className }: { tipo: TipoLancamento; className?: string }) {
   return (
-    <Selo tom={TOM_TIPO_LANCAMENTO[tipo]} className={className}>
+    <Situacao tom={TOM_TIPO_LANCAMENTO[tipo]} className={className}>
       {ROTULO_TIPO_LANCAMENTO[tipo]}
-    </Selo>
+    </Situacao>
   )
 }
 
-export function SeloTipoConta({ tipo, className }: { tipo: TipoConta; className?: string }) {
+export function SituacaoTipoConta({ tipo, className }: { tipo: TipoConta; className?: string }) {
   return (
-    <Selo tom={TOM_TIPO_CONTA[tipo]} className={className}>
+    <Situacao tom={TOM_TIPO_CONTA[tipo]} className={className}>
       {ROTULO_TIPO_CONTA[tipo]}
-    </Selo>
+    </Situacao>
   )
 }
 
 /** O apelido pelo qual a loja chama o cliente. Aparecia como o mesmo JSX em seis telas. */
-export function SeloApelido({ apelido }: { apelido: string | null | undefined }) {
+export function Apelido({ apelido }: { apelido: string | null | undefined }) {
   if (!apelido) return null
-  return (
-    <Selo tom="marca" className="ms-2">
-      {apelido}
-    </Selo>
-  )
+  return <Anotacao>{apelido}</Anotacao>
 }
 
 export { ROTULO_URGENCIA }

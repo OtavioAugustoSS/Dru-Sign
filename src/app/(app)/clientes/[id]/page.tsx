@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { exigirUsuario } from '@/infra/auth/usuario-atual'
-import { Selo, SeloApelido } from '@/componentes/selo'
+import { Anotacao, Apelido } from '@/componentes/situacao'
 import { CabecalhoPagina } from '@/componentes/cabecalho-pagina'
 import { CorpoPagina } from '@/componentes/corpo-pagina'
 import { Dinheiro } from '@/componentes/dinheiro'
@@ -35,8 +35,8 @@ export default async function PaginaFichaCliente({ params }: { params: Promise<{
         titulo={
           <>
             {c.nome}
-            <SeloApelido apelido={c.apelido} />
-            {c.arquivadoEm ? <Selo tom="neutro" className="ms-2">arquivado</Selo> : null}
+            <Apelido apelido={c.apelido} />
+            {c.arquivadoEm ? <Anotacao>arquivado</Anotacao> : null}
           </>
         }
         acoes={

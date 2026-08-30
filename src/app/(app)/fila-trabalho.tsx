@@ -6,7 +6,7 @@ import { CartaoTabela } from '@/componentes/cartao-tabela'
 import { BlocoVazio } from '@/componentes/estado-vazio'
 import { Dinheiro } from '@/componentes/dinheiro'
 import { NumeroOs } from '@/componentes/numero-os'
-import { Selo, SeloApelido } from '@/componentes/selo'
+import { Apelido } from '@/componentes/situacao'
 import { formatarDataCalendario, formatarDataHora } from '@/domain/ordem/datas'
 import type { Fila, OrdemDaFila } from '@/domain/caixa/fila'
 
@@ -14,7 +14,7 @@ function Cliente({ o }: { o: OrdemDaFila }) {
   return (
     <>
       {o.clienteNome ?? <span className="text-secondary">Venda de balcão</span>}
-      <SeloApelido apelido={o.clienteApelido} />
+      <Apelido apelido={o.clienteApelido} />
     </>
   )
 }
@@ -66,7 +66,7 @@ export function FilaDeTrabalho({ fila }: { fila: Fila }) {
           className="mb-3"
           rotulo="Ordens paradas"
           titulo="Abertas há mais de uma semana"
-          aoLado={<Selo tom="neutro">{fila.paradas.length}</Selo>}
+          aoLado={<span className="text-secondary">{fila.paradas.length} {fila.paradas.length === 1 ? 'ordem' : 'ordens'}</span>}
           vazio={
             fila.paradas.length === 0 ? (
               <BlocoVazio

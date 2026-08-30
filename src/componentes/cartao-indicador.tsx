@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { TEXTO, type Tom } from './selo'
+import { TEXTO, type Tom } from './situacao'
 
 interface Props {
   /** O que o numero mede, em duas ou tres palavras. */

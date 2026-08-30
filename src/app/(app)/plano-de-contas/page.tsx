@@ -4,7 +4,7 @@ import { CabecalhoPagina } from '@/componentes/cabecalho-pagina'
 import { CorpoPagina } from '@/componentes/corpo-pagina'
 import { CartaoTabela } from '@/componentes/cartao-tabela'
 import { EstadoVazio } from '@/componentes/estado-vazio'
-import { Selo, SeloTipoConta } from '@/componentes/selo'
+import { Anotacao, SituacaoTipoConta } from '@/componentes/situacao'
 import { listarContas } from '@/infra/caixa/plano'
 import { FormConta } from './form-conta'
 import { AcoesConta } from './acoes-conta'
@@ -74,10 +74,10 @@ export default async function PaginaPlano({ searchParams }: { searchParams: Prom
                   <td className="numero">{c.codigo}</td>
                   <td>
                     {c.nome}
-                    {c.recebeVendas ? <Selo tom="bom" className="ms-2">recebe as vendas</Selo> : null}
-                    {c.ativa ? null : <Selo tom="neutro" className="ms-2">desativada</Selo>}
+                    {c.recebeVendas ? <Anotacao tom="bom">recebe as vendas</Anotacao> : null}
+                    {c.ativa ? null : <Anotacao>desativada</Anotacao>}
                   </td>
-                  <td><SeloTipoConta tipo={c.tipo} /></td>
+                  <td><SituacaoTipoConta tipo={c.tipo} /></td>
                   <td><AcoesConta contaId={c.id} ativa={c.ativa} receita={c.tipo === 'receita'} recebeVendas={c.recebeVendas} /></td>
                 </tr>
               ))}

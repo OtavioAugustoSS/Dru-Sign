@@ -9,7 +9,7 @@ import { EstadoVazio } from '@/componentes/estado-vazio'
 import { Dinheiro } from '@/componentes/dinheiro'
 import { NumeroOs } from '@/componentes/numero-os'
 import { Paginacao, POR_PAGINA, lerPagina } from '@/componentes/paginacao'
-import { SeloApelido, SeloEstado } from '@/componentes/selo'
+import { Apelido, Situacao, SituacaoEstado, SituacaoPagamento } from '@/componentes/situacao'
 import { contarOrdens, listarOrdens } from '@/infra/ordens/repositorio'
 import { ROTULO_ESTADO, type EstadoPagamento } from '@/domain/ordem/estados'
 import { formatarDataCalendario, formatarDataHora } from '@/domain/ordem/datas'
@@ -19,26 +19,26 @@ export const metadata: Metadata = { title: 'Ordens' }
 const ESTADOS = ['orcamento', 'aberta', 'concluida', 'cancelada'] as const
 
 /**
- * O pagamento em texto, nao em selo.
+ * O pagamento na mesma lingua da coluna de situacao: ponto mais palavra.
  *
- * A vistoria pegou duas colunas de selo pastel lado a lado, que viravam confete e
- * nao davam para varrer. Situacao continua selo, porque e o ciclo da ordem; o
- * pagamento vira texto colorido so quando pede atencao. "Pago" nao pede nada, e
- * quando falta dinheiro o que interessa e QUANTO falta, nao a palavra "parcial".
+ * Antes esta coluna era texto colorido, e havia motivo: situacao era selo, e dois
+ * selos pastel lado a lado viravam confete. So que, sem o selo, a razao caiu --
+ * e o texto colorido tinha virado o novo grito: "Não pago" em vermelho e negrito
+ * em quase toda linha, porque ordem aberta normalmente ainda nao foi paga. Agora
+ * a cor mora no ponto de 8px e a palavra fica na cor do corpo.
  *
- * As cores usam `-emphasis`, que sao as versoes escurecidas do Bootstrap para
- * texto: o vermelho cheio da 4,04:1 e reprova.
+ * O que sobrevive da versao anterior: quando falta dinheiro, o que interessa e
+ * QUANTO falta, nao a palavra "parcial".
  */
 function Pagamento({ estado, saldo }: { estado: EstadoPagamento; saldo: string }) {
-  if (estado === 'pago') return <span className="text-secondary">Pago</span>
   if (estado === 'parcial') {
     return (
-      <span className="text-warning-emphasis">
+      <Situacao tom="atencao">
         Falta <Dinheiro valor={saldo} />
-      </span>
+      </Situacao>
     )
   }
-  return <span className="text-danger-emphasis fw-medium">Não pago</span>
+  return <SituacaoPagamento estado={estado} />
 }
 
 export default async function PaginaOrdens({
@@ -151,9 +151,9 @@ export default async function PaginaOrdens({
                   <Link href={`/ordens/${o.id}`} className="text-reset text-decoration-none">
                     {o.clienteNome ?? <span className="text-secondary">Venda de balcão</span>}
                   </Link>
-                  <SeloApelido apelido={o.clienteApelido} />
+                  <Apelido apelido={o.clienteApelido} />
                 </td>
-                <td><SeloEstado estado={o.estadoProducao} /></td>
+                <td><SituacaoEstado estado={o.estadoProducao} /></td>
                 <td><Pagamento estado={o.estadoPagamento} saldo={o.saldo} /></td>
                 <td className="text-secondary">{formatarDataHora(new Date(o.abertaEm))}</td>
                 <td className="text-secondary">{o.prometidaPara ? formatarDataCalendario(new Date(o.prometidaPara)) : '—'}</td>

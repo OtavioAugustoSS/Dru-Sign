@@ -1,6 +1,6 @@
 'use client'
 import { CONFLITO_ORDEM_RECARREGANDO, SALVANDO } from '@/componentes/rotulos'
-import { SeloPagamento } from '@/componentes/selo'
+import { SituacaoPagamento } from '@/componentes/situacao'
 import { valorEmReais } from '@/componentes/dinheiro'
 
 import { useRef, useState, useTransition, type FormEvent } from 'react'
@@ -81,7 +81,7 @@ export function PainelPagamento(p: Props) {
             tela (1 -> 3). E o mesmo nivel que o CartaoTabela usa no resto do
             sistema; o `.card-title` mantem o tamanho. */}
         <h2 className="card-title mb-0">Pagamento</h2>
-          <SeloPagamento estado={p.pagamento.estado} testId="estado-pagamento" />
+          <SituacaoPagamento estado={p.pagamento.estado} testId="estado-pagamento" />
         </div>
         <dl className="row mb-0 mt-2">
           <dt className="col-7">Recebido</dt><dd className="col-5 numero">{valorEmReais(p.pagamento.totalRecebido)}</dd>

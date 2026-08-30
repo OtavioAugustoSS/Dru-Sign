@@ -7,7 +7,7 @@ import { CorpoPagina } from '@/componentes/corpo-pagina'
 import { CartaoTabela } from '@/componentes/cartao-tabela'
 import { EstadoVazio } from '@/componentes/estado-vazio'
 import { Paginacao, POR_PAGINA, lerPagina } from '@/componentes/paginacao'
-import { Selo, SeloApelido } from '@/componentes/selo'
+import { Anotacao, Apelido } from '@/componentes/situacao'
 import { buscarClientes, contarClientes } from '@/infra/clientes/repositorio'
 import { formatarTelefone } from '@/domain/clientes/telefone'
 import { formatarDocumento } from '@/domain/clientes/documento'
@@ -99,8 +99,8 @@ export default async function PaginaClientes({
               <tr key={c.id}>
                 <td>
                   <Link href={`/clientes/${c.id}`} className="text-reset fw-medium">{c.nome}</Link>
-                  <SeloApelido apelido={c.apelido} />
-                  {c.arquivadoEm ? <Selo tom="neutro" className="ms-2">arquivado</Selo> : null}
+                  <Apelido apelido={c.apelido} />
+                  {c.arquivadoEm ? <Anotacao>arquivado</Anotacao> : null}
                 </td>
                 <td className="text-secondary">
                   {c.telefones.map((t) => (

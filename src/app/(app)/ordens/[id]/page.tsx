@@ -5,7 +5,7 @@ import { IconPrinter } from '@tabler/icons-react'
 import { exigirUsuario } from '@/infra/auth/usuario-atual'
 import { valorEmReais } from '@/componentes/dinheiro'
 import { formatarNumeroOs } from '@/domain/caixa/lancamento'
-import { Selo, SeloEstado, SeloPagamento } from '@/componentes/selo'
+import { Anotacao, SituacaoEstado, SituacaoPagamento } from '@/componentes/situacao'
 import { CabecalhoPagina } from '@/componentes/cabecalho-pagina'
 import { CorpoPagina } from '@/componentes/corpo-pagina'
 import { prisma } from '@/infra/db/prisma'
@@ -56,8 +56,8 @@ export default async function PaginaOrdem({ params }: { params: Promise<{ id: st
                 com duas caras. Cancelada nao recebe (o dominio recusa), entao
                 mostrar "Nao pago" ao lado seria promessa de cobranca. */}
             <span className="d-flex flex-wrap align-items-center gap-2 mb-1">
-              <SeloEstado estado={ordem.estadoProducao} />
-              {ordem.estadoProducao === 'cancelada' ? null : <SeloPagamento estado={ordem.pagamento.estado} />}
+              <SituacaoEstado estado={ordem.estadoProducao} />
+              {ordem.estadoProducao === 'cancelada' ? null : <SituacaoPagamento estado={ordem.pagamento.estado} />}
               {ordem.concluidaEm ? <span>serviço finalizado em {formatarDataHora(new Date(ordem.concluidaEm))}</span> : null}
               {ordem.canceladaEm ? <span>{ordem.motivoCancelamento}</span> : null}
             </span>
@@ -126,7 +126,7 @@ export default async function PaginaOrdem({ params }: { params: Promise<{ id: st
                       </div>
                     ))}
                     <dt className="col-7">Calculado</dt><dd className="col-5 numero">{valorEmReais(ordem.precoCalculado)}</dd>
-                    <dt className="col-7">Preço final{ordem.ajuste ? <Selo tom="marca" className="ms-2">ajustado</Selo> : null}</dt>
+                    <dt className="col-7">Preço final{ordem.ajuste ? <Anotacao tom="marca">ajustado</Anotacao> : null}</dt>
                     <dd className="col-5 numero fs-2 fw-bold" data-testid="preco-final">{valorEmReais(ordem.precoFinal)}</dd>
                   </dl>
                   {ordem.ajuste ? (

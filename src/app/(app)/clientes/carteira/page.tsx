@@ -8,7 +8,7 @@ import { CartaoTabela } from '@/componentes/cartao-tabela'
 import { BlocoVazio, EstadoVazio } from '@/componentes/estado-vazio'
 import { Dinheiro } from '@/componentes/dinheiro'
 import { Percentual } from '@/componentes/percentual'
-import { SeloApelido, SeloRecencia } from '@/componentes/selo'
+import { Apelido, SituacaoRecencia } from '@/componentes/situacao'
 import { carregarCarteira } from '@/infra/clientes/carteira'
 import { formatarDocumento } from '@/domain/clientes/documento'
 import { formatarDataCalendario } from '@/domain/ordem/datas'
@@ -24,7 +24,7 @@ function Nome({ g }: { g: GrupoCarteira }) {
       ) : (
         <span className="fw-medium">{g.nome}</span>
       )}
-      <SeloApelido apelido={g.apelido} />
+      <Apelido apelido={g.apelido} />
       {g.cadastros > 1 ? <div className="small text-secondary">{g.cadastros} cadastros com o mesmo documento</div> : null}
       {g.documento ? <div className="small text-secondary">{formatarDocumento(g.documento)}</div> : null}
     </>
@@ -118,7 +118,7 @@ export default async function PaginaCarteira() {
               {carteira.grupos.map((g) => (
                 <tr key={g.documento ?? g.clienteIds[0]}>
                   <td><Nome g={g} /></td>
-                  <td><SeloRecencia recencia={g.recencia} /></td>
+                  <td><SituacaoRecencia recencia={g.recencia} /></td>
                   <td className="numero">{g.ordens}</td>
                   <td className="numero"><Dinheiro valor={g.faturado} /></td>
                   <td className="numero"><Percentual valor={g.fatiaPct} /></td>

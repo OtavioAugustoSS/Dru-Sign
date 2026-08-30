@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { TEXTO, TEXTO_URGENCIA, TOM_ESTADO, TOM_PAGAMENTO, TOM_RECENCIA, TOM_TIPO_CONTA, TOM_TIPO_LANCAMENTO, type Tom } from './selo'
+import { TEXTO, TEXTO_URGENCIA, TOM_ESTADO, TOM_PAGAMENTO, TOM_RECENCIA, TOM_TIPO_CONTA, TOM_TIPO_LANCAMENTO, type Tom } from './situacao'
 
 const TONS: Tom[] = ['neutro', 'marca', 'bom', 'atencao', 'ruim']
 
