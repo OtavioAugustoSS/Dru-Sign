@@ -9,7 +9,7 @@ import { CartaoIndicador } from '@/componentes/cartao-indicador'
 import { EstadoVazio } from '@/componentes/estado-vazio'
 import { Dinheiro } from '@/componentes/dinheiro'
 import { NumeroOs } from '@/componentes/numero-os'
-import { Paginacao, PaginacaoCompacta, POR_PAGINA, lerPagina } from '@/componentes/paginacao'
+import { Paginacao, PaginacaoCompacta, POR_PAGINA, POR_PAGINA_TEXTO, lerPagina } from '@/componentes/paginacao'
 import { Abas } from '@/componentes/abas'
 import { SituacaoEstado } from '@/componentes/situacao'
 import { contarOrdens, listarOrdens } from '@/infra/ordens/repositorio'
@@ -34,11 +34,11 @@ export default async function PaginaHistorico({
   let erro: string | null = null
   let historico
   try {
-    historico = await buscarHistorico(usuario.empresaId, { q, de: de || undefined, ate: ate || undefined, limite: POR_PAGINA, pagina })
+    historico = await buscarHistorico(usuario.empresaId, { q, de: de || undefined, ate: ate || undefined, limite: POR_PAGINA_TEXTO, pagina })
   } catch (e) {
     if (!(e instanceof ErroDeValidacao)) throw e
     erro = e.message
-    historico = await buscarHistorico(usuario.empresaId, { q, limite: POR_PAGINA, pagina })
+    historico = await buscarHistorico(usuario.empresaId, { q, limite: POR_PAGINA_TEXTO, pagina })
   }
   const filtrando = Boolean(q || de)
 
@@ -205,12 +205,12 @@ export default async function PaginaHistorico({
               </>
             }
             paginacao={
-              <PaginacaoCompacta pagina={pagina} porPagina={POR_PAGINA} total={historico.encontradas} base="/historico" parametros={{ q, de, ate, aba }} />
+              <PaginacaoCompacta pagina={pagina} porPagina={POR_PAGINA_TEXTO} total={historico.encontradas} base="/historico" parametros={{ q, de, ate, aba }} />
             }
             rodape={
               <Paginacao
                 pagina={pagina}
-                porPagina={POR_PAGINA}
+                porPagina={POR_PAGINA_TEXTO}
                 total={historico.encontradas}
                 base="/historico"
                 parametros={{ q, de, ate, aba }}
@@ -235,7 +235,11 @@ export default async function PaginaHistorico({
                   {l.nomeDestruido ? <div className="small text-secondary">o sistema antigo apagou o nome ao cancelar</div> : null}
                 </td>
                 <td>
-                  <div className="texto-original">{limparTextoLegado(l.texto)}</div>
+                  {/* Recortado na lista, inteiro no titulo: sete campos de
+                      observacao do legado davam linhas de 182px. */}
+                  <div className="texto-original texto-recortado" title={limparTextoLegado(l.texto)}>
+                    {limparTextoLegado(l.texto)}
+                  </div>
                   {l.situacao ? <div className="small text-secondary">{l.situacao}</div> : null}
                 </td>
                 <td className="numero"><Dinheiro valor={l.total} /></td>

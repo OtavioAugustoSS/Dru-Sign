@@ -6,7 +6,7 @@ import { CorpoPagina } from '@/componentes/corpo-pagina'
 import { CartaoIndicador } from '@/componentes/cartao-indicador'
 import { CartaoTabela } from '@/componentes/cartao-tabela'
 import { EstadoVazio } from '@/componentes/estado-vazio'
-import { Paginacao, PaginacaoCompacta, POR_PAGINA, lerPagina } from '@/componentes/paginacao'
+import { Paginacao, PaginacaoCompacta, POR_PAGINA_TEXTO, lerPagina } from '@/componentes/paginacao'
 import { Dinheiro, valorEmReais } from '@/componentes/dinheiro'
 import { contar } from '@/componentes/plural'
 import { Percentual } from '@/componentes/percentual'
@@ -54,7 +54,7 @@ export default async function PaginaCarteira({
   const { carteira, cidades, arquivados } = await carregarCarteiraComExtras(usuario.empresaId)
 
   const recorte = aplicar(carteira.grupos, f, { cidades, arquivados })
-  const naPagina = recorte.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA)
+  const naPagina = recorte.slice((pagina - 1) * POR_PAGINA_TEXTO, pagina * POR_PAGINA_TEXTO)
   const { soma, pct } = fatiaDoRecorte(recorte, carteira.faturadoTotal)
   const telefones = await telefonesDeClientes(usuario.empresaId, naPagina.flatMap((g) => g.clienteIds))
 
@@ -164,8 +164,8 @@ export default async function PaginaCarteira({
                   {contar(recorte.length, 'cliente', 'clientes')} · {valorEmReais(soma)} · <Percentual valor={pct} /> do faturamento
                 </span>
               }
-              paginacao={<PaginacaoCompacta pagina={pagina} porPagina={POR_PAGINA} total={recorte.length} base="/clientes/carteira" parametros={contexto} />}
-              rodape={<Paginacao pagina={pagina} porPagina={POR_PAGINA} total={recorte.length} base="/clientes/carteira" parametros={contexto} />}
+              paginacao={<PaginacaoCompacta pagina={pagina} porPagina={POR_PAGINA_TEXTO} total={recorte.length} base="/clientes/carteira" parametros={contexto} />}
+              rodape={<Paginacao pagina={pagina} porPagina={POR_PAGINA_TEXTO} total={recorte.length} base="/clientes/carteira" parametros={contexto} />}
               vazio={
                 recorte.length === 0 ? (
                   <EstadoVazio

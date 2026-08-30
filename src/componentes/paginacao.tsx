@@ -4,6 +4,16 @@ import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
 /** Quantas linhas cabem numa tela sem virar rolagem infinita. */
 export const POR_PAGINA = 50
 
+/**
+ * Para listas cuja linha carrega um bloco de texto.
+ *
+ * No historico do sistema antigo cada linha traz ate sete campos de observacao
+ * concatenados: a linha mediana tem 82px, e cinquenta delas davam uma pagina de
+ * 5.400px. Com vinte e cinco a pagina cabe em tres telas -- e quem procura algo
+ * especifico usa a busca, nao a pagina 47.
+ */
+export const POR_PAGINA_TEXTO = 25
+
 interface Base {
   /** 1 e a primeira. */
   pagina: number

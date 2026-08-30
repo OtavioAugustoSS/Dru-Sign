@@ -28,7 +28,14 @@ test.describe('Histórico', () => {
     await entrar(page)
     await page.goto('/financeiro/contador')
     await expect(page.getByRole('heading', { name: 'Relatório para o contador' })).toBeVisible()
-    await expect(page.getByRole('table', { name: 'Entradas por conta' })).toBeVisible()
+    // Sem lancamento no mes a tabela nao existe -- o cartao mostra o estado
+    // vazio no lugar dela. O que precisa estar certo nos dois casos e o saldo.
+    const entradas = page.getByRole('table', { name: 'Entradas por conta' })
+    if (await entradas.count() === 0) {
+      await expect(page.getByText('Nenhum lançamento no período').first()).toBeVisible()
+    } else {
+      await expect(entradas).toBeVisible()
+    }
     await expect(page.getByTestId('saldo')).toContainText('R$')
 
     const resposta = await page.request.get('/financeiro/contador/csv?de=2026-08-01&ate=2026-08-31')

@@ -133,6 +133,21 @@
   white-space: pre-line;
 }
 
+/* O texto do sistema antigo dentro de uma LISTA.
+ *
+ * Sao ate sete campos de observacao concatenados, alinhados como o relatorio
+ * de DOS que os gerou. Inteiros, davam linhas de 182px e a pagina do historico
+ * chegava a 5.400px -- foi por isso que a paginacao dela virava inalcancavel.
+ * Cinco linhas cobrem a grande maioria; o resto fica no titulo, e a ficha do
+ * cliente continua mostrando tudo. */
+.texto-recortado {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  line-clamp: 5;
+  overflow: hidden;
+}
+
 /* A lista de clientes que aparece enquanto se digita precisa passar por cima do
  * que vem depois no formulario. Era estilo inline no JSX. */
 .lista-sugestoes {
