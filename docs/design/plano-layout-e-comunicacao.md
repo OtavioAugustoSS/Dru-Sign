@@ -842,3 +842,60 @@ vira conversa.
   - a fila de produção é a candidata mais forte a uso real em celular, na bancada;
   - alvos de toque, teclado numérico nos campos de valor, e a foto do anexo de
     arte quando a Fase 6 destravar.
+
+---
+
+## Depois do plano — o que o Otavio pediu ao rever tela por tela
+
+O plano fechou; estas mudanças vieram da revisão dele, olhando o sistema rodando.
+Ficam registradas aqui porque **desfazem decisões escritas acima**, e um plano que
+descreve o que o código não faz mais engana quem ler depois.
+
+### A barra lateral: buracos e a linha do perfil torta
+
+Três defeitos, todos da mesma família — a sobra de altura ia para o lugar errado.
+
+`.navbar-nav` do Tabler vem com `flex-grow: 1`, e a lateral é uma coluna flex.
+A sobra de altura era **repartida** entre a lista do topo e o bloco do perfil:
+medido a 1080px de janela, **144px de vazio em cada um**. Era o buraco embaixo de
+"Fila de trabalho" e a faixa morta no rodapé. E, com a sobra toda consumida pelo
+`flex-grow`, o `mt-auto` do perfil não tinha folga para empurrar nada: ele colava
+no último item do menu e se lia como se fosse mais uma entrada.
+
+A linha do perfil estava torta: o `p-0` no botão tirava o recuo de 1rem que todo
+item da lateral tem, e o Tabler centraliza o conteúdo do `.nav-item` — o avatar
+caía em **x=47** contra os **x=16** dos ícones. Agora ícone, rótulo de grupo e
+avatar começam todos na mesma coluna.
+
+E numa janela baixa a barra **vazava para fora da tela** em vez de rolar. Conferido
+a 1080, 900, 768 e 700px: a navegação rola por dentro, marca e perfil ficam parados.
+
+### O selo colorido sai do sistema
+
+**Isto desfaz a C4 e parte da T2.** O selo era um retângulo arredondado com fundo
+tingido, um por linha. Numa lista onde doze de cada dezoito linhas dizem "Aberta",
+160 retângulos coloridos fazem a coluna gritar — e como a largura acompanha a
+palavra, a borda direita da coluna fica serrilhada.
+
+Havia **dois usos diferentes dentro do mesmo componente**, e era essa a raiz:
+
+| O que é | Antes | Agora |
+|---|---|---|
+| Situação de um registro (estado, pagamento, recência, tipo) | selo tingido | ponto de 8px na cor do estado + palavra na cor do corpo |
+| Qualificação colada a um nome (apelido, "arquivado", "você") | selo tingido | aparte em texto menor e secundário, com `·` do CSS |
+
+A cor continua sendo o atalho de quem varre a coluna; a palavra continua sendo a
+resposta de quem lê. E o texto ganhou o contraste do corpo (10,31 no claro, 11,86
+no escuro) em vez do contraste de um texto tingido.
+
+Junto caiu a decisão do `Pagamento` em texto colorido: ela existia porque "dois
+selos pastel lado a lado viravam confete". Sem o selo, a razão caiu — e o texto
+colorido tinha virado o novo grito, com "Não pago" em vermelho e negrito em quase
+toda linha, já que ordem aberta normalmente ainda não foi paga.
+
+**Uma observação para o Otavio decidir:** mesmo em ponto, "Não pago" aparece em
+vermelho em ~90% das linhas, porque é o estado normal de uma ordem aberta. O sinal
+que interessa neste negócio é outro: **serviço finalizado E não pago** — os
+R$ 207.795 parados que motivaram trocar o sistema. Dá para o vermelho marcar só
+esse caso, e o "não pago" de ordem aberta ficar neutro. Não fiz porque muda o que
+uma cor *significa* no sistema, e essa é decisão sua.
