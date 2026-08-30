@@ -10,7 +10,7 @@ export default async function PaginaNovoCliente() {
   await exigirUsuario()
   return (
     <>
-      <CabecalhoPagina pretitulo="Clientes" titulo="Novo cliente" />
+      <CabecalhoPagina voltar={{ href: '/clientes', rotulo: 'Clientes' }} titulo="Novo cliente" />
       <CorpoPagina>
         <div className="card">
           <div className="card-body">

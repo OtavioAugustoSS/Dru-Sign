@@ -393,3 +393,73 @@ summary:focus-visible,
 .ponto-bom { background: var(--ponto-bom); }
 .ponto-atencao { background: var(--ponto-atencao); }
 .ponto-ruim { background: var(--ponto-ruim); }
+
+/* LARGURA DA PAGINA: a tela inteira, nao 1320px.
+ *
+ * O `.container-xl` do Bootstrap trava em 1320px. Num monitor de 1920 isso
+ * deixava 180px mortos de cada lado -- e este e um sistema de tabelas, onde
+ * largura e informacao: mais colunas visiveis sem rolagem lateral.
+ *
+ * O respiro cresce junto com a tela em vez de virar um vao: 16px continua sendo
+ * o recuo em telas normais, e passa a 32px quando ha folga de sobra. */
+.page-wrapper .container-xl {
+  max-width: none;
+}
+
+@media (min-width: 1400px) {
+  .page-wrapper .container-xl {
+    padding-inline: 2rem;
+  }
+}
+
+/* A VOLTA para a tela de onde se veio.
+ *
+ * O pretitulo ja dizia o nome do pai ("Clientes" acima da ficha); ele so nao
+ * levava ate la. Agora leva. Herda a cor do pretitulo para nao virar um link
+ * azul gritando no alto de toda tela -- o que o identifica como caminho e a
+ * seta, e o realce fica para o passar do mouse e para o foco do teclado. */
+.trilha-voltar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.trilha-voltar:hover,
+.trilha-voltar:focus-visible {
+  color: var(--tblr-link-color);
+}
+
+.trilha-voltar .icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* PARES ROTULO/VALOR da ficha, empilhados.
+ *
+ * A versao anterior usava `col-4`/`col-8` dentro de um cartao de meia tela: o
+ * rotulo gastava um terco da largura para escrever "E-mail" e o endereco
+ * inteiro se espremia no resto. Empilhado, cada um usa a largura que precisa,
+ * e a coluna pode ser estreita sem apertar nada. */
+.ficha-dados dt {
+  font-size: 0.875em;
+  font-weight: 400;
+  color: var(--tblr-secondary);
+}
+
+.ficha-dados dd {
+  margin: 0 0 0.75rem;
+}
+
+.ficha-dados dd:last-child {
+  margin-bottom: 0;
+}
+
+/* O aparte que nao se cola a um nome, e sim fica numa linha propria embaixo do
+ * valor: "nono digito completado", "legado nº 2073". Sem o ponto separador da
+ * `.anotacao`, que so faz sentido no meio de uma frase. */
+.anotacao-solta {
+  font-size: 0.875em;
+  color: var(--tblr-secondary);
+}

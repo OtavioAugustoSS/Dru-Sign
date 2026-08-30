@@ -16,7 +16,7 @@ export default async function PaginaEditarCliente({ params }: { params: Promise<
 
   return (
     <>
-      <CabecalhoPagina pretitulo="Clientes" titulo={`Editar ${c.nome}`} />
+      <CabecalhoPagina voltar={{ href: `/clientes/${c.id}`, rotulo: c.nome }} titulo={`Editar ${c.nome}`} />
       <CorpoPagina>
           <div className="card">
             <div className="card-body">

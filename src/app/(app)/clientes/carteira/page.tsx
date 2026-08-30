@@ -7,6 +7,7 @@ import { CartaoIndicador } from '@/componentes/cartao-indicador'
 import { CartaoTabela } from '@/componentes/cartao-tabela'
 import { BlocoVazio, EstadoVazio } from '@/componentes/estado-vazio'
 import { Dinheiro } from '@/componentes/dinheiro'
+import { contar } from '@/componentes/plural'
 import { Percentual } from '@/componentes/percentual'
 import { Apelido, SituacaoRecencia } from '@/componentes/situacao'
 import { carregarCarteira } from '@/infra/clientes/carteira'
@@ -74,7 +75,7 @@ export default async function PaginaCarteira() {
               titulo="Para reativar"
               aoLado={
                 carteira.paraReativar.length > 0 ? (
-                  <span className="text-secondary">{carteira.paraReativar.length} nomes, do maior faturamento para o menor</span>
+                  <span className="text-secondary">{contar(carteira.paraReativar.length, 'nome', 'nomes')}, do maior faturamento para o menor</span>
                 ) : null
               }
               vazio={

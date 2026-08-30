@@ -140,6 +140,8 @@ export interface FiltrosOrdens {
   /** Numero da OS (so digitos) ou trecho do nome/apelido do cliente. */
   q?: string
   estado?: EstadoProducao
+  /** As ordens de um cliente so -- e o que a ficha dele mostra. */
+  clienteId?: string
   /** 'AAAA-MM-DD', sobre aberta_em no calendario de Sao Paulo. */
   de?: string
   ate?: string
@@ -167,6 +169,7 @@ function condicaoDeOrdens(empresaId: string, filtros: FiltrosOrdens, periodo: { 
   return {
     empresaId,
     ...(filtros.estado ? { estadoProducao: filtros.estado } : {}),
+    ...(filtros.clienteId ? { clienteId: filtros.clienteId } : {}),
     ...(periodo ? { abertaEm: { gte: periodo.inicio, lt: periodo.fim } } : {}),
     ...(q === '' ? {} : /^\d+$/.test(q)
       ? { numero: Number(q) }

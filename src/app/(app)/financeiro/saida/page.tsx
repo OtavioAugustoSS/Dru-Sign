@@ -13,7 +13,7 @@ export default async function PaginaSaida() {
   const contas = (await listarContas(usuario.empresaId)).filter((c) => c.tipo === 'despesa')
   return (
     <>
-      <CabecalhoPagina pretitulo="Livro-caixa" titulo="Nova saída" />
+      <CabecalhoPagina voltar={{ href: '/financeiro', rotulo: 'Livro-caixa' }} titulo="Nova saída" />
       <CorpoPagina>
         {contas.length === 0 ? (
           <div className="alert alert-warning" role="alert">

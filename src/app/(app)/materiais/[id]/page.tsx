@@ -16,7 +16,7 @@ export default async function PaginaEditarMaterial({ params }: { params: Promise
 
   return (
     <>
-      <CabecalhoPagina pretitulo="Materiais e preços" titulo={`Editar ${m.nome}`} />
+      <CabecalhoPagina voltar={{ href: '/materiais', rotulo: 'Materiais e preços' }} titulo={`Editar ${m.nome}`} />
       <CorpoPagina>
         <div className="card">
           <div className="card-body">

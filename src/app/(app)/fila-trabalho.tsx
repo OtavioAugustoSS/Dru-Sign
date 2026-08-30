@@ -7,6 +7,7 @@ import { BlocoVazio } from '@/componentes/estado-vazio'
 import { Dinheiro } from '@/componentes/dinheiro'
 import { NumeroOs } from '@/componentes/numero-os'
 import { Apelido } from '@/componentes/situacao'
+import { contar } from '@/componentes/plural'
 import { formatarDataCalendario, formatarDataHora } from '@/domain/ordem/datas'
 import type { Fila, OrdemDaFila } from '@/domain/caixa/fila'
 
@@ -66,7 +67,7 @@ export function FilaDeTrabalho({ fila }: { fila: Fila }) {
           className="mb-3"
           rotulo="Ordens paradas"
           titulo="Abertas há mais de uma semana"
-          aoLado={<span className="text-secondary">{fila.paradas.length} {fila.paradas.length === 1 ? 'ordem' : 'ordens'}</span>}
+          aoLado={<span className="text-secondary">{contar(fila.paradas.length, 'ordem', 'ordens')}</span>}
           vazio={
             fila.paradas.length === 0 ? (
               <BlocoVazio

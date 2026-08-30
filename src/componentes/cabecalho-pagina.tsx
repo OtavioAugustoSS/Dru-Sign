@@ -1,10 +1,22 @@
 import type { ReactNode } from 'react'
+import Link from 'next/link'
+import { IconChevronLeft } from '@tabler/icons-react'
 
 interface Props {
   /** O nome da tela. E o unico campo obrigatorio. */
   titulo: ReactNode
   /** A area do sistema, acima do titulo. */
   pretitulo?: ReactNode
+  /**
+   * A tela de onde se chega aqui. Quando existe, ocupa o lugar do pretitulo e
+   * vira um caminho de volta clicavel.
+   *
+   * Fixo, nao "voltar do navegador": destino previsivel vale mais que destino
+   * exato. Quem chegou na ficha pela busca e quem chegou pela carteira querem a
+   * mesma coisa -- a lista de clientes -- e o botao do navegador continua ali
+   * para quem quer desfazer o ultimo passo.
+   */
+  voltar?: { href: string; rotulo: string }
   /** Uma linha de contexto abaixo do titulo, quando o titulo sozinho nao basta. */
   descricao?: ReactNode
   /** Botoes e links do canto direito. */
@@ -23,13 +35,22 @@ interface Props {
  *
  * `d-print-none` porque o cabecalho da tela nao vai para o papel.
  */
-export function CabecalhoPagina({ titulo, pretitulo, descricao, acoes, grande }: Props) {
+export function CabecalhoPagina({ titulo, pretitulo, voltar, descricao, acoes, grande }: Props) {
   return (
     <div className="page-header d-print-none">
       <div className="container-xl">
         <div className="row g-2 align-items-center">
           <div className="col">
-            {pretitulo ? <div className="page-pretitle">{pretitulo}</div> : null}
+            {voltar ? (
+              <div className="page-pretitle">
+                <Link href={voltar.href} className="trilha-voltar">
+                  <IconChevronLeft className="icon" />
+                  {voltar.rotulo}
+                </Link>
+              </div>
+            ) : pretitulo ? (
+              <div className="page-pretitle">{pretitulo}</div>
+            ) : null}
             <h1 className={grande ? 'page-title fs-1' : 'page-title'}>{titulo}</h1>
             {descricao ? <div className="text-secondary">{descricao}</div> : null}
           </div>

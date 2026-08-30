@@ -47,7 +47,7 @@ export default async function PaginaOrdem({ params }: { params: Promise<{ id: st
   return (
     <>
       <CabecalhoPagina
-        pretitulo="Atendimento"
+        voltar={{ href: '/ordens', rotulo: 'Ordens' }}
         titulo={`${ordem.estadoProducao === 'orcamento' ? 'Orçamento' : 'Ordem de serviço'} nº ${numero}`}
         descricao={
           <>
