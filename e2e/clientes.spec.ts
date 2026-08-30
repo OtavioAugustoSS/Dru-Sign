@@ -21,6 +21,25 @@ test.describe('Clientes', () => {
     await expect(page.getByRole('link', { name: /ASSOCIAÇÃO DE ENSINO/ })).toBeVisible()
   })
 
+  test('filtra por cidade e por quem nao tem telefone, e ordena pela cidade', async ({ page }) => {
+    // 213 cadastros sem numero discavel vieram do sistema antigo. Nome de
+    // cliente sem telefone e ficha pela metade, e ate agora nao havia como
+    // listar quais sao para ir completando.
+    await page.goto('/clientes?telefone=sem')
+    const tabela = page.getByRole('table', { name: 'Clientes' })
+    await expect(tabela.getByRole('row').nth(1)).toContainText('sem telefone')
+    const semTelefone = await page.getByRole('heading', { name: 'Cadastros' }).locator('..').innerText()
+
+    await page.goto('/clientes')
+    const todos = await page.getByRole('heading', { name: 'Cadastros' }).locator('..').innerText()
+    expect(todos).not.toBe(semTelefone)
+
+    // Ordenar pela cidade e escolha que mora no endereco: da para guardar o link.
+    await page.getByRole('link', { name: 'Cidade' }).click()
+    await expect(page).toHaveURL(/ordenar=cidade/)
+    await expect(tabela.getByRole('columnheader', { name: 'Cidade' })).toHaveAttribute('aria-sort', 'ascending')
+  })
+
   test('cadastrar com telefone repetido avisa, e confirmar cadastra', async ({ page }) => {
     const nome = `Cliente e2e ${Date.now()}`
     await page.goto('/clientes/novo')

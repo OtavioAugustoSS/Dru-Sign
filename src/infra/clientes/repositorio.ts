@@ -189,6 +189,19 @@ export type OrigemCliente = 'todos' | 'novos' | 'legado'
 export interface OpcoesBusca {
   incluirArquivados?: boolean
   origem?: OrigemCliente
+  /** Nome exato da cidade, como esta gravado. Vem de uma lista da propria tela. */
+  cidade?: string
+  /**
+   * 'com' ou 'sem' telefone discavel.
+   *
+   * A importacao achou 1.323 cadastros sem numero que se possa discar -- nome
+   * de cliente que nao da para ligar e cadastro pela metade, e ate agora nao
+   * havia como listar quais sao para completar.
+   */
+  telefone?: string
+  /** 'nome' (padrao) ou 'cidade'. */
+  ordenar?: string
+  direcao?: 'asc' | 'desc'
   limite?: number
   /** 1 e a primeira. Junto com `limite`, decide o trecho que a tela mostra. */
   pagina?: number
@@ -221,7 +234,26 @@ function condicaoDeClientes(empresaId: string, termo: string, opcoes: OpcoesBusc
     : []
   const ou = [...porTexto, ...porDigitos, ...porTelefoneCompleto]
 
-  return { empresaId, ...filtroArquivo, ...filtroOrigem, ...(ou.length > 0 ? { OR: ou } : {}) }
+  const filtroCidade = opcoes.cidade ? { cidade: opcoes.cidade } : {}
+  const filtroTelefone =
+    opcoes.telefone === 'com' ? { telefones: { some: { normalizado: { not: null } } } }
+    : opcoes.telefone === 'sem' ? { telefones: { none: { normalizado: { not: null } } } }
+    : {}
+
+  return { empresaId, ...filtroArquivo, ...filtroOrigem, ...filtroCidade, ...filtroTelefone, ...(ou.length > 0 ? { OR: ou } : {}) }
+}
+
+/** As cidades que os cadastros realmente usam, para o filtro nao oferecer opcao vazia. */
+export async function cidadesDeCadastro(empresaId: string): Promise<string[]> {
+  const linhas = await prisma.cliente.groupBy({
+    by: ['cidade'],
+    where: { empresaId, cidade: { not: null } },
+    _count: true,
+  })
+  return linhas
+    .map((l) => (l.cidade as string).trim())
+    .filter((c) => c !== '')
+    .sort((a, b) => a.localeCompare(b, 'pt-BR'))
 }
 
 /**
@@ -240,9 +272,16 @@ export async function buscarClientes(
   opcoes: OpcoesBusca = {},
 ): Promise<ClienteResumo[]> {
   const limite = opcoes.limite ?? LIMITE_PADRAO
+  const direcao = opcoes.direcao === 'desc' ? ('desc' as const) : ('asc' as const)
+  // Lista curta e fechada: o campo vai direto para o `orderBy`, e campo vindo
+  // da URL sem conferencia e campo que a pessoa escolhe digitando no navegador.
+  // Nome como desempate: cidade sozinha deixaria a ordem instavel entre paginas.
+  const ordem =
+    opcoes.ordenar === 'cidade' ? [{ cidade: direcao }, { nome: 'asc' as const }]
+    : [{ nome: direcao }]
   return prisma.cliente.findMany({
     where: condicaoDeClientes(empresaId, termo, opcoes),
-    orderBy: { nome: 'asc' },
+    orderBy: ordem,
     skip: opcoes.pagina && opcoes.pagina > 1 ? (opcoes.pagina - 1) * limite : 0,
     take: limite,
     select: SELECAO_RESUMO,
@@ -283,11 +322,15 @@ export async function contagensDeClientes(empresaId: string): Promise<{
   doLegado: number
   cadastradosAqui: number
   arquivados: number
+  semTelefone: number
 }> {
-  const [total, doLegado, arquivados] = await Promise.all([
+  const [total, doLegado, arquivados, semTelefone] = await Promise.all([
     prisma.cliente.count({ where: { empresaId, arquivadoEm: null } }),
     prisma.cliente.count({ where: { empresaId, arquivadoEm: null, codigoLegado: { not: null } } }),
     prisma.cliente.count({ where: { empresaId, arquivadoEm: { not: null } } }),
+    // Cadastro sem numero que se possa discar: nome de cliente que nao da para
+    // ligar e ficha pela metade, e a loja precisa saber quantos sao.
+    prisma.cliente.count({ where: { empresaId, arquivadoEm: null, telefones: { none: { normalizado: { not: null } } } } }),
   ])
-  return { total, doLegado, cadastradosAqui: total - doLegado, arquivados }
+  return { total, doLegado, cadastradosAqui: total - doLegado, arquivados, semTelefone }
 }
