@@ -955,3 +955,29 @@ pronto; falta o Otavio autorizar a execução.
 Sobram ainda **252 ordens** no sistema, todas criadas em desenvolvimento e no
 e2e. Não apaguei porque são elas que dão conteúdo às telas que ele está
 revisando. Antes de produção, saem.
+
+### F7. O material casa por UMA palavra só — e isso muda o preço
+
+Achado percorrendo o fluxo. `acharMaterial` pontua por sobreposição de palavras
+entre o que foi digitado e o nome do material, e **não exige mínimo**: uma
+palavra em comum já vincula.
+
+Com "ACM 3MM BRANCO" no catálogo, a linha da OS 18449 —
+`12 PLACAS ACM 61 X 40 E ADES/ IMP 61,00` — casou por causa do "ACM" sozinho. E
+casar não é inofensivo: o material **decide a unidade de cobrança**. A linha, que
+é por unidade, virou por m². O preço digitado ainda venceu (o catálogo só entra
+quando não há valor na linha), mas se não houvesse preço digitado, o valor viria
+de um material que não é aquele.
+
+Foi assim que três testes de ponta a ponta quebraram, e eles estavam certos.
+
+**A decidir com o Otavio, porque é regra de negócio:**
+
+| Opção | Efeito |
+|---|---|
+| Exigir 2+ palavras em comum | "ACM" sozinho deixa de casar; "ACM BRANCO" casa |
+| Exigir uma fração do nome do material | "ACM" contra "ACM 3MM BRANCO" é 1 de 3 — não casa |
+| Casar só o que a pessoa confirma | O sistema sugere, a pessoa aceita; nunca vincula sozinho |
+
+O catálogo está vazio hoje, então o problema não aparece. Ele aparece no dia em
+que as precificações entrarem — e aí aparece em toda ordem.
