@@ -30,16 +30,27 @@ test.describe('Administração', () => {
     await entrar(page)
     await page.goto('/clientes/carteira')
     await expect(page.getByRole('heading', { name: 'Carteira de clientes' })).toBeVisible()
-    // A carteira nasce das ordens do sistema novo. Com o banco recem-limpo ela
-    // fica vazia, e o que precisa estar certo ai e o estado vazio -- nao os
-    // numeros. Foi assim que este teste quebrou depois do reset da loja.
+    // A carteira le as duas eras. Sem o arquivo do sistema antigo importado ela
+    // fica vazia, e o que precisa estar certo ai e o estado vazio.
     if (await page.getByTestId('faturado-total').count() === 0) {
       await expect(page.getByText('Nenhum cliente comprou ainda')).toBeVisible()
       return
     }
     await expect(page.getByTestId('faturado-total')).toContainText('R$')
-    await expect(page.getByRole('table', { name: 'Concentração de receita' })).toBeVisible()
-    await expect(page.getByText('de 6 a 24 meses — é a lista de reativação')).toBeVisible()
+    await expect(page.getByText('de 6 a 24 meses sem aparecer')).toBeVisible()
+
+    // O que a tela existe para mostrar: a Prefeitura de Unai comprando por 18
+    // cadastros do mesmo CNPJ, um por secretaria. Sem o agrupamento ela sumia
+    // dentro de 18 linhas pequenas em vez de aparecer como o maior cliente.
+    const concentracao = page.getByRole('table', { name: 'Concentração de receita' })
+    await expect(concentracao).toBeVisible()
+    await expect(concentracao.getByRole('row').nth(1)).toContainText('cadastros com o mesmo documento')
+    await expect(page.getByText(/os \d+ maiores de/)).toBeVisible()
+
+    // A lista de reativacao existe para alguem ligar: precisa do telefone nela.
+    const reativar = page.getByRole('table', { name: 'Para reativar' })
+    await expect(reativar.getByRole('columnheader', { name: 'Telefone' })).toBeVisible()
+    await expect(reativar.getByRole('row').nth(1)).toContainText(/\(\d{2}\) \d/)
   })
 
   test('usuarios: cria, troca papel, desativa, e nao deixa se desativar', async ({ page }) => {

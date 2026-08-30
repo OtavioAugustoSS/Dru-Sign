@@ -140,4 +140,30 @@ describe('carteira de clientes (banco real)', () => {
     expect(carteira.grupos).toHaveLength(1)
     expect(carteira.faturadoTotal).toBe('100.00')
   })
+
+  it('soma as duas eras e ignora a ordem legada com o nome destruido', async () => {
+    const cliente = await prisma.cliente.create({ data: { empresaId: base.empresaId, nome: 'FAZENDA BURITI', codigoLegado: 77 } })
+    const nova = await ordemCom('100.00')
+    await atualizarCabecalho(ctx(), nova.id, nova.versao, { clienteId: cliente.id })
+
+    const legada = (numero: number, total: string, dataEntrada: string, nomeDestruido = false) => ({
+      empresaId: base.empresaId, numero, dataEntrada: new Date(dataEntrada), clienteId: cliente.id,
+      codigoClienteLegado: 77, clienteNome: nomeDestruido ? 'C A N C E L A D O' : 'FAZENDA BURITI', nomeDestruido,
+      telefone: '', situacao: 'Entrega direto para o cliente', texto: 'placa',
+      valorProdutos: '0', valorServicos: '0', maoDeObra: '0', deslocamento: '0', desconto: '0', total,
+      forma: 'Avista', responsavel: '', usuario: '',
+    })
+    await prisma.ordemLegado.createMany({
+      data: [legada(1, '400.00', '2019-03-10'), legada(2, '250.00', '2020-06-01'), legada(3, '9999.00', '2021-01-01', true)],
+    })
+
+    const carteira = await carregarCarteira(base.empresaId)
+    expect(carteira.grupos).toHaveLength(1)
+    // 100 do sistema novo + 400 + 250 do arquivo. Os 9.999 da ordem em que o
+    // legado escreveu "C A N C E L A D O" por cima do nome nao entram.
+    expect(carteira.grupos[0]).toMatchObject({ nome: 'FAZENDA BURITI', ordens: 3, faturado: '750.00' })
+    expect(carteira.faturadoTotal).toBe('750.00')
+    // A ordem mais recente e a do sistema novo, de hoje: cliente ativo.
+    expect(carteira.contagem).toEqual({ ativo: 1, adormecido: 0, perdido: 0 })
+  })
 })
