@@ -899,3 +899,59 @@ que interessa neste negócio é outro: **serviço finalizado E não pago** — o
 R$ 207.795 parados que motivaram trocar o sistema. Dá para o vermelho marcar só
 esse caso, e o "não pago" de ordem aberta ficar neutro. Não fiz porque muda o que
 uma cor *significa* no sistema, e essa é decisão sua.
+
+---
+
+## Fila aberta — pedidos da revisão tela por tela
+
+O que o Otavio pediu e ainda não foi feito. Ordem de cima para baixo é a que eu
+proponho; ele decide.
+
+### F1. Números no alto de cada tela de lista
+Cartões com o que aquela tela conta, **clicáveis**, levando à lista já filtrada.
+Feito em `/clientes` (cadastros ativos, cadastrados aqui, do sistema antigo,
+arquivados). Falta: ordens, livro-caixa, produção, materiais, usuários,
+histórico.
+
+### F2. Uma tela de painel
+Todos os números do sistema num lugar só, cada um levando para a tela que o
+detalha. Convive com a F1 em vez de substituí-la: a F1 serve quem já está na
+tela, o painel serve quem está começando o dia. **A "Fila de trabalho" hoje já é
+metade disso** — a decisão é se ela vira o painel ou se nasce uma tela ao lado.
+
+### F3. Toda grade com o mesmo tratamento
+Paginação, filtro e ordenação em todas as tabelas, do mesmo jeito. Hoje varia:
+`/ordens` e `/clientes` têm cartão de filtro e paginação; `/materiais`,
+`/usuarios` e `/plano-de-contas` não têm nem uma coisa nem outra. Ordenação por
+coluna não existe em lugar nenhum.
+
+### F4. Separar o legado do que nasce aqui
+Ideia do Otavio: os dados vindos do sistema antigo não devem se misturar aos
+novos quando entrar em produção — arquivados, não apagados. **Primeiro passo já
+existe:** `/clientes` filtra por origem do cadastro, e a ficha do cliente separa
+"Ordens" de "No sistema antigo". As ordens antigas já vivem noutra tabela
+(`OrdemLegado`) e noutra tela (`/historico`).
+
+O que falta é decidir o que "arquivado" quer dizer para os **clientes** do
+legado, e aí a decisão é de negócio, não de layout:
+
+| Opção | O que acontece |
+|---|---|
+| Nada | 1.241 cadastros do legado seguem na busca do balcão, junto dos novos |
+| Arquivar todos | Somem da busca do dia a dia; reaparecem com "Incluir arquivados" ou quando alguém volta a comprar |
+| Arquivar os sem compra recente | Só os que não aparecem há X anos saem da frente |
+
+Hoje **1.978 dos 3.238 já estão arquivados** e 1.241 do legado seguem ativos.
+
+### F5. Materiais e preços
+O Otavio vai mandar as precificações. Os 18 materiais que existem hoje são todos
+artefato de teste do e2e e saem antes.
+
+### F6. Limpeza dos dados de teste
+Ensaio feito, **zero referências presas**: 12 usuários "Fulano de Teste", 18
+materiais e 19 clientes com "e2e" no nome. O script `scripts/_limpar.ts` está
+pronto; falta o Otavio autorizar a execução.
+
+Sobram ainda **252 ordens** no sistema, todas criadas em desenvolvimento e no
+e2e. Não apaguei porque são elas que dão conteúdo às telas que ele está
+revisando. Antes de produção, saem.
