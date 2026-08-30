@@ -25,13 +25,25 @@ export default async function PaginaImpresso({ params, searchParams }: Props) {
   const [{ id }, { vias }] = await Promise.all([params, searchParams])
   const dados = await obterImpresso(usuario.empresaId, id)
   if (!dados) notFound()
-  const rotulos = vias === '2' ? ['Via do cliente', 'Via da loja'] : ['Via do cliente']
+  const duasVias = vias === '2'
+  const rotulos = duasVias ? ['Via do cliente', 'Via da loja'] : ['Via do cliente']
   return (
     <>
       <div className="impresso-acoes">
         <Link href={`/ordens/${id}`} className="btn">Voltar à ordem</Link>
         <BotaoImprimir />
-        <Link href={`/ordens/${id}/impresso?vias=2`} className="btn btn-ghost-secondary">2 vias</Link>
+        {/* Era um link de mao unica escrito "2 vias": depois de clicar, ele
+            continuava apontando para `?vias=2`, entao nao havia volta para uma
+            via so, e o rotulo nao dizia em qual dos dois estados a folha
+            estava. Agora o proprio rotulo diz o que o clique vai fazer -- e,
+            dizendo isso, diz tambem o que esta na tela agora. As palavras sao
+            as mesmas impressas no alto de cada via. */}
+        <Link
+          href={duasVias ? `/ordens/${id}/impresso` : `/ordens/${id}/impresso?vias=2`}
+          className="btn"
+        >
+          {duasVias ? 'Tirar a via da loja' : 'Incluir a via da loja'}
+        </Link>
       </div>
       {rotulos.map((rotulo) => <Via key={rotulo} rotulo={rotulo} empresa={dados.empresa} ordem={dados.ordem} />)}
     </>
