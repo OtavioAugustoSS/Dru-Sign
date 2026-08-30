@@ -546,9 +546,25 @@ Ordem por tráfego e por gravidade do que foi encontrado.
   na tela apareceu **"Escolha como é"**, cortado — texto longo demais para a
   coluna. Ficou "Escolha", que mede 50px num campo de 167px.
 
-- [ ] **T11. `/plano-de-contas`.** 3.493px. Aspas retas no meio do português. O
-  padrão de caixa de seleção com botão "Atualizar" que não existe em nenhuma outra
-  tela.
+- [x] **T11. `/plano-de-contas`.** ✅ Feito.
+
+  - **Aspas retas no meio do português** viraram curvas: `"Usar para recebimentos"`
+    → `“Usar para recebimentos”`. Aspa reta é marca de código, não de citação.
+    (Não dá para ver na captura: o aviso só aparece quando nenhuma conta recebe as
+    vendas, e no banco de desenvolvimento há uma.)
+  - **O botão "Atualizar" em estilo de link** não existia igual em nenhuma outra
+    tela. As telas com filtro dizem "Mostrar" e usam botão de verdade; esta passa a
+    dizer o mesmo.
+  - `onChange={undefined}` na caixa de seleção, dentro de um Server Component, era
+    ruído sem efeito. Saíu.
+  - Comando de terminal fora do estado vazio; pretítulo "Administração" →
+    "Financeiro", que é o grupo real no menu novo.
+
+  **A altura ficou em 3.469px e não mexi nisso de propósito.** Diferente da fila de
+  produção, aqui a altura vem do conteúdo — 48 contas em 6 grupos — e não de
+  moldura repetida. É lista de referência, que se varre com o olho; dobrar os
+  grupos esconderia justamente o que se veio ver.
+
 - [ ] **T12. `/usuarios` + `/empresa`.** O link de texto "Imprimir" apontando para
   `/ordens`. O formulário de criação sem cabeçalho, diferente de `/materiais`.
 - [ ] **T13. `/entrar`, `error.tsx`, `not-found.tsx`.** As três telas sem casca.

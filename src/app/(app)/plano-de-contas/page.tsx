@@ -1,5 +1,9 @@
 import type { Metadata } from 'next'
 import { exigirPapel } from '@/infra/auth/usuario-atual'
+import { CabecalhoPagina } from '@/componentes/cabecalho-pagina'
+import { CorpoPagina } from '@/componentes/corpo-pagina'
+import { CartaoTabela } from '@/componentes/cartao-tabela'
+import { EstadoVazio } from '@/componentes/estado-vazio'
 import { Selo, SeloTipoConta } from '@/componentes/selo'
 import { listarContas } from '@/infra/caixa/plano'
 import { FormConta } from './form-conta'
@@ -16,40 +20,71 @@ export default async function PaginaPlano({ searchParams }: { searchParams: Prom
 
   return (
     <>
-      <div className="page-header d-print-none"><div className="container-xl"><div className="page-pretitle">Administração</div><h1 className="page-title">Plano de contas</h1></div></div>
-      <div className="page-body">
-        <div className="container-xl">
-          {semVendas ? <div className="alert alert-warning" role="alert">Nenhuma conta recebe as vendas. Escolha uma conta de receita e clique em "Usar para recebimentos" — sem isso, receber é recusado.</div> : null}
-          <div className="card mb-3"><div className="card-body"><FormConta grupos={grupos} /></div></div>
-          <form method="get" className="mb-2">
-            <label className="form-check"><input className="form-check-input" type="checkbox" name="inativas" value="1" defaultChecked={inativas === '1'} onChange={undefined} /><span className="form-check-label">Mostrar desativadas</span></label>
-            <button type="submit" className="btn btn-sm btn-link px-0">Atualizar</button>
-          </form>
-          {contas.length === 0 ? (
-            <div className="card"><div className="card-body"><div className="empty">
-              <p className="empty-title">Plano de contas vazio</p>
-              <p className="empty-subtitle text-secondary">Importe as 48 contas do legado com <code>npm run importar:plano</code> ou crie a primeira acima.</p>
-            </div></div></div>
-          ) : grupos.map((g) => (
-            <div className="card mb-3" key={g}>
-              <div className="card-header"><h2 className="card-title">{g}</h2></div>
-              <div className="table-responsive"><table className="table table-vcenter card-table" aria-label={`Contas de ${g}`}>
-                <thead><tr><th className="w-1">Código</th><th>Conta</th><th>Tipo</th><th className="w-1"></th></tr></thead>
-                <tbody>
-                  {contas.filter((c) => c.grupo === g).map((c) => (
-                    <tr key={c.id} className={c.ativa ? '' : 'text-secondary'}>
-                      <td className="numero">{c.codigo}</td>
-                      <td>{c.nome}{c.recebeVendas ? <Selo tom="bom" className="ms-2">recebe as vendas</Selo> : null}{c.ativa ? null : <Selo tom="neutro" className="ms-2">desativada</Selo>}</td>
-                      <td><SeloTipoConta tipo={c.tipo} /></td>
-                      <td><AcoesConta contaId={c.id} ativa={c.ativa} receita={c.tipo === 'receita'} recebeVendas={c.recebeVendas} /></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table></div>
-            </div>
-          ))}
+      <CabecalhoPagina pretitulo="Financeiro" titulo="Plano de contas" />
+      <CorpoPagina>
+        {semVendas ? (
+          <div className="alert alert-warning" role="alert">
+            {/* Aspas curvas: aspa reta no meio de texto em portugues e marca de
+                codigo, nao de citacao. */}
+            Nenhuma conta recebe as vendas. Escolha uma conta de receita e clique em “Usar para
+            recebimentos” — sem isso, receber é recusado.
+          </div>
+        ) : null}
+
+        <div className="card mb-3">
+          <div className="card-body">
+            <FormConta grupos={grupos} />
+          </div>
         </div>
-      </div>
+
+        {/* O botao era "Atualizar", em estilo de link, e nao existia igual em
+            nenhuma outra tela. As telas com filtro dizem "Mostrar" e usam botao
+            de verdade; esta passa a dizer o mesmo. */}
+        <form method="get" className="d-flex align-items-center gap-3 mb-3">
+          <label className="form-check m-0">
+            <input className="form-check-input" type="checkbox" name="inativas" value="1" defaultChecked={inativas === '1'} />
+            <span className="form-check-label">Mostrar desativadas</span>
+          </label>
+          <button type="submit" className="btn btn-sm">Mostrar</button>
+        </form>
+
+        {contas.length === 0 ? (
+          <EstadoVazio
+            titulo="O plano de contas está vazio"
+            descricao="É a lista de para onde vai cada entrada e cada saída do caixa. Crie a primeira conta acima — ou peça a importação das 48 contas que o sistema antigo já tinha."
+          />
+        ) : (
+          grupos.map((g) => (
+            <CartaoTabela
+              className="mb-3"
+              key={g}
+              rotulo={`Contas de ${g}`}
+              titulo={g}
+              colunas={
+                <>
+                  <th className="w-1">Código</th>
+                  <th>Conta</th>
+                  <th>Tipo</th>
+                  <th className="w-1"></th>
+                </>
+              }
+            >
+              {contas.filter((c) => c.grupo === g).map((c) => (
+                <tr key={c.id} className={c.ativa ? '' : 'text-secondary'}>
+                  <td className="numero">{c.codigo}</td>
+                  <td>
+                    {c.nome}
+                    {c.recebeVendas ? <Selo tom="bom" className="ms-2">recebe as vendas</Selo> : null}
+                    {c.ativa ? null : <Selo tom="neutro" className="ms-2">desativada</Selo>}
+                  </td>
+                  <td><SeloTipoConta tipo={c.tipo} /></td>
+                  <td><AcoesConta contaId={c.id} ativa={c.ativa} receita={c.tipo === 'receita'} recebeVendas={c.recebeVendas} /></td>
+                </tr>
+              ))}
+            </CartaoTabela>
+          ))
+        )}
+      </CorpoPagina>
     </>
   )
 }
