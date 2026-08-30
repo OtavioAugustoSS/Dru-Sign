@@ -212,13 +212,13 @@ describe('ids vindos do formulario sao reconferidos contra a empresa', () => {
     const deOutra = await prisma.usuario.create({ data: { empresaId: outra.id, nome: 'Estranho', login: `e-${randomUUID()}`, senhaHash: 'x' } })
     const inativo = await prisma.usuario.create({ data: { empresaId: base.empresaId, nome: 'Demitido', login: `d-${randomUUID()}`, senhaHash: 'x', ativo: false } })
 
-    await expect(criarOrdem(ctx(), { estado: 'aberta', responsavelId: deOutra.id })).rejects.toThrow(/responsavel/)
-    await expect(criarOrdem(ctx(), { estado: 'aberta', responsavelId: inativo.id })).rejects.toThrow(/responsavel/)
-    await expect(criarOrdem(ctx(), { estado: 'aberta', responsavelId: randomUUID() })).rejects.toThrow(/responsavel/)
+    await expect(criarOrdem(ctx(), { estado: 'aberta', responsavelId: deOutra.id })).rejects.toThrow(/respons[áa]vel/i)
+    await expect(criarOrdem(ctx(), { estado: 'aberta', responsavelId: inativo.id })).rejects.toThrow(/respons[áa]vel/i)
+    await expect(criarOrdem(ctx(), { estado: 'aberta', responsavelId: randomUUID() })).rejects.toThrow(/respons[áa]vel/i)
 
     const ordem = await criarOrdem(ctx(), { estado: 'aberta' })
-    await expect(atualizarCabecalho(ctx(), ordem.id, ordem.versao, { responsavelId: deOutra.id })).rejects.toThrow(/responsavel/)
-    await expect(atualizarCabecalho(ctx(), ordem.id, ordem.versao, { responsavelId: inativo.id })).rejects.toThrow(/responsavel/)
+    await expect(atualizarCabecalho(ctx(), ordem.id, ordem.versao, { responsavelId: deOutra.id })).rejects.toThrow(/respons[áa]vel/i)
+    await expect(atualizarCabecalho(ctx(), ordem.id, ordem.versao, { responsavelId: inativo.id })).rejects.toThrow(/respons[áa]vel/i)
     expect((await prisma.ordemServico.findUniqueOrThrow({ where: { id: ordem.id } })).responsavelId).toBe(base.usuarioId)
   })
 
@@ -230,9 +230,9 @@ describe('ids vindos do formulario sao reconferidos contra a empresa', () => {
     const ordem = await criarOrdem(ctx(), { estado: 'aberta' })
 
     const comMaterial = (materialId: string | null): DadosItem => ({ ...UNIDADE('PLACA', 1, '281.00'), materialId })
-    await expect(adicionarItem(ctx(), ordem.id, ordem.versao, comMaterial(deOutra.id))).rejects.toThrow(/material/)
-    await expect(adicionarItem(ctx(), ordem.id, ordem.versao, comMaterial(inativo.id))).rejects.toThrow(/material/)
-    await expect(adicionarItem(ctx(), ordem.id, ordem.versao, comMaterial(randomUUID()))).rejects.toThrow(/material/)
+    await expect(adicionarItem(ctx(), ordem.id, ordem.versao, comMaterial(deOutra.id))).rejects.toThrow(/material/i)
+    await expect(adicionarItem(ctx(), ordem.id, ordem.versao, comMaterial(inativo.id))).rejects.toThrow(/material/i)
+    await expect(adicionarItem(ctx(), ordem.id, ordem.versao, comMaterial(randomUUID()))).rejects.toThrow(/material/i)
     expect(await prisma.itemOrdem.count({ where: { ordemId: ordem.id } })).toBe(0)
 
     const r = await adicionarItem(ctx(), ordem.id, ordem.versao, comMaterial(meu.id))
@@ -242,8 +242,8 @@ describe('ids vindos do formulario sao reconferidos contra a empresa', () => {
   it('cliente arquivado nao pode ser posto na ordem', async () => {
     await prisma.cliente.update({ where: { id: clienteId }, data: { arquivadoEm: new Date() } })
     const ordem = await criarOrdem(ctx(), { estado: 'aberta' })
-    await expect(atualizarCabecalho(ctx(), ordem.id, ordem.versao, { clienteId })).rejects.toThrow(/cliente/)
-    await expect(criarOrdem(ctx(), { estado: 'aberta', clienteId })).rejects.toThrow(/cliente/)
+    await expect(atualizarCabecalho(ctx(), ordem.id, ordem.versao, { clienteId })).rejects.toThrow(/cliente/i)
+    await expect(criarOrdem(ctx(), { estado: 'aberta', clienteId })).rejects.toThrow(/cliente/i)
   })
 
   it('item com valor unitario negativo nao abaixa o preco final', async () => {

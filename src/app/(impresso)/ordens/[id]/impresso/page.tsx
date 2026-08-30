@@ -61,7 +61,7 @@ function Via({ rotulo, empresa, ordem }: { rotulo: string; empresa: DadosEmpresa
         <div className="contato">{empresa.endereco ? <div>{empresa.endereco}</div> : null}{empresa.cidadeUf ? <div>{empresa.cidadeUf}</div> : null}{(empresa.telefones ?? []).map((t) => <div key={t}>{formatarTelefone(t)}</div>)}</div>
       </header>
       <section className="bloco identificacao">
-        <div><div className="via-rotulo">{rotulo}</div><div className="titulo">{tituloDocumento(ordem.estadoProducao)}</div><div className="numero-os">Nº {numero}</div></div>
+        <div><div className="via-rotulo">{rotulo}</div><h1 className="titulo">{tituloDocumento(ordem.estadoProducao)}</h1><div className="numero-os">Nº {numero}</div></div>
         <dl className="datas">
           <div><dt>Aberta em</dt><dd>{formatarDataHora(ordem.abertaEm)}</dd></div>
           <div><dt>Entrega prometida</dt><dd>{ordem.prometidaPara ? formatarDataCalendario(ordem.prometidaPara) : 'a combinar'}</dd></div>

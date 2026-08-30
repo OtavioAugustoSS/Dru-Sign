@@ -61,10 +61,10 @@ describe('usuarios (banco real)', () => {
     await alterarAtivoUsuario(empresaId, p.id, true, odeteId)
     expect((await prisma.usuario.findUniqueOrThrow({ where: { id: p.id } })).ativo).toBe(true)
 
-    await expect(alterarAtivoUsuario(empresaId, odeteId, false, odeteId)).rejects.toThrow(/você não pode desativar o seu próprio acesso/)
+    await expect(alterarAtivoUsuario(empresaId, odeteId, false, odeteId)).rejects.toThrow(/você não pode desativar o seu próprio acesso/i)
     const outraAdmin = await criarUsuario(empresaId, { nome: 'Otavio', login: 'otavio', papel: 'administracao', senha: 'senha-boa-123' })
     await alterarAtivoUsuario(empresaId, outraAdmin.id, false, odeteId)
-    await expect(alterarAtivoUsuario(empresaId, odeteId, false, outraAdmin.id)).rejects.toThrow(/única administração/)
+    await expect(alterarAtivoUsuario(empresaId, odeteId, false, outraAdmin.id)).rejects.toThrow(/única administração/i)
   })
 
   it('usuario de outra empresa nao e visto nem alterado', async () => {

@@ -184,7 +184,7 @@ describe('livro-caixa e plano (banco real)', () => {
     const nova = await criarConta(base.empresaId, { nome: '  Marketing digital ', tipo: 'despesa', grupo: 'DESPESAS' })
     expect(await prisma.contaPlano.findUniqueOrThrow({ where: { id: nova.id } })).toMatchObject({ codigo: 4, nome: 'Marketing digital', tipo: 'despesa', grupo: 'DESPESAS', ativa: true })
     await expect(criarConta(base.empresaId, { nome: 'marketing DIGITAL', tipo: 'despesa', grupo: 'DESPESAS' })).rejects.toThrow(/já existe/i)
-    await expect(criarConta(base.empresaId, { nome: 'X', tipo: 'lucro', grupo: 'DESPESAS' })).rejects.toThrow(/tipo/)
+    await expect(criarConta(base.empresaId, { nome: 'X', tipo: 'lucro', grupo: 'DESPESAS' })).rejects.toThrow(/receita ou de despesa/i)
     await expect(criarConta(base.empresaId, { nome: '', tipo: 'despesa', grupo: 'DESPESAS' })).rejects.toThrow(/nome/)
 
     await alterarAtiva(base.empresaId, nova.id, false)

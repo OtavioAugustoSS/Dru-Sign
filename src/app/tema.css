@@ -191,3 +191,76 @@
 [data-bs-theme='dark'] {
   --tblr-danger-text-emphasis: #F87171;
 }
+
+/* Tres controles que vem com cor FIXA, escrita por cima da maquinaria de tokens
+ * do Tabler -- entao o tema nao chega neles e a mesma cor serve os dois. Achados
+ * na varredura final, medindo toda assinatura de texto/fundo das telas:
+ *
+ *   .btn-link ......... #077CEA nos dois temas .... 4,13:1 claro / 3,55:1 escuro
+ *   .btn-ghost-danger . #D63939 nos dois temas .... 3,15:1 escuro
+ *   .input-group-text . #6B7280 nos dois temas .... 3,67:1 escuro
+ *
+ * O `.btn-link` e o pior: alem de reprovar, e o azul do Bootstrap num sistema
+ * cuja primaria e azul-petroleo. "Cancelar", "So receber", "Voltar a ordem" --
+ * as acoes secundarias do sistema inteiro estavam fora da marca.
+ *
+ * Sem `!important`: as utilitarias de cor do Bootstrap ja o tem, entao
+ * `.btn-link.text-danger-emphasis` ("Cancelar ordem") continua vermelho, que e o
+ * que uma acao destrutiva deve ser. */
+.btn-link {
+  color: var(--tblr-link-color);
+}
+.btn-link:hover,
+.btn-link:focus-visible {
+  color: var(--tblr-primary-text-emphasis);
+}
+
+/* Reaproveita o vermelho de texto ja medido: 6,57:1 no claro, 5,31:1 no escuro */
+.btn-ghost-danger {
+  color: var(--tblr-danger-text-emphasis);
+}
+
+/* O prefixo "R$" e "cm" dos campos de valor e medida */
+.input-group-text {
+  color: var(--tblr-secondary);
+}
+
+/* ANEL DE FOCO DO TECLADO.
+ *
+ * O defeito mais grave que a passada final achou, e o unico que so aparece
+ * navegando: NADA no sistema mostrava onde o foco estava. Botao primario, botao
+ * comum, botao fantasma, campo, link -- todos com `outline: none 0px` e so a
+ * sombra de repouso. O Tabler declara a variavel do anel e o Bootstrap zera o
+ * outline; o resultado e uma pessoa que navega por teclado sem saber em que
+ * controle esta. (WCAG 2.4.7.)
+ *
+ * `:focus-visible`, nao `:focus`: o anel aparece para quem chega pelo teclado e
+ * nao para quem clica -- que ja sabe onde clicou.
+ *
+ * `outline-offset: 2px` afasta o anel do proprio controle, entao o que precisa
+ * contrastar e o anel contra o FUNDO DA PAGINA, nao contra o botao. Medido:
+ * #0E7C93 sobre o corpo claro da 4,73:1 e #5FC4D8 sobre o escuro da 8,76:1 --
+ * os dois acima dos 3:1 que um indicador de foco precisa. */
+/* As classes vem junto com os elementos de proposito: o Bootstrap zera o outline
+ * em `.btn:focus-visible` e `.form-control:focus`, que sao (0,2,0) e ganhariam de
+ * um `button:focus-visible` (0,1,1). Casando a especificidade e vindo depois,
+ * este bloco vence. */
+a:focus-visible,
+button:focus-visible,
+[role='button']:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible,
+[tabindex]:focus-visible,
+.btn:focus-visible,
+.btn-check:focus-visible + .btn,
+.nav-link:focus-visible,
+.page-link:focus-visible,
+.dropdown-item:focus-visible,
+.form-control:focus-visible,
+.form-select:focus-visible,
+.form-check-input:focus-visible {
+  outline: 2px solid var(--tblr-primary);
+  outline-offset: 2px;
+}

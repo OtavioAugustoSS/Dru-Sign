@@ -44,7 +44,7 @@ describe('consulta do historico (banco real)', () => {
 
   it('filtra por periodo da data de entrada; periodo invertido e recusado', async () => {
     expect((await buscarHistorico(empresaId, { de: '2019-01-01', ate: '2021-12-31' })).linhas.map((l) => l.numero)).toEqual([1002, 1001])
-    await expect(buscarHistorico(empresaId, { de: '2021-12-31', ate: '2019-01-01' })).rejects.toThrow(/período/)
+    await expect(buscarHistorico(empresaId, { de: '2021-12-31', ate: '2019-01-01' })).rejects.toThrow(/período/i)
   })
 
   it('traz as marcas que a importacao gravou, para a tela nao mentir', async () => {

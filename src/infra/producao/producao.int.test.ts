@@ -90,7 +90,7 @@ describe('indicadores de operacao (banco real)', () => {
     await prisma.ordemServico.update({ where: { id: o.id }, data: { abertaEm: new Date('2026-07-15T15:00:00.000Z') } })
     expect((await carregarOperacao(base.empresaId, { de: '2026-07-01', ate: '2026-07-31' })).indicadores.total).toBe(1)
     expect((await carregarOperacao(base.empresaId, { de: '2026-08-01', ate: '2026-08-31' })).indicadores.total).toBe(0)
-    await expect(carregarOperacao(base.empresaId, { de: '2026-08-31', ate: '2026-08-01' })).rejects.toThrow(/período/)
+    await expect(carregarOperacao(base.empresaId, { de: '2026-08-31', ate: '2026-08-01' })).rejects.toThrow(/período/i)
   })
 })
 

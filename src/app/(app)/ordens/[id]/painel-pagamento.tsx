@@ -76,7 +76,11 @@ export function PainelPagamento(p: Props) {
     <div className="card" aria-busy={pendente}>
       <div className="card-body">
         <div className="d-flex align-items-center justify-content-between">
-          <h3 className="card-title mb-0">Pagamento</h3>
+          {/* h2, nao h3: a ficha da ordem tem o h1 do cabecalho e mais nada entre os
+            dois, entao o h3 abria um buraco no indice de titulos do leitor de
+            tela (1 -> 3). E o mesmo nivel que o CartaoTabela usa no resto do
+            sistema; o `.card-title` mantem o tamanho. */}
+        <h2 className="card-title mb-0">Pagamento</h2>
           <SeloPagamento estado={p.pagamento.estado} testId="estado-pagamento" />
         </div>
         <dl className="row mb-0 mt-2">

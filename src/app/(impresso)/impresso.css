@@ -14,7 +14,15 @@
 .cabecalho-empresa .razao, .cabecalho-empresa .contato { font-size: 9.5pt; color: var(--fraca); }
 .cabecalho-empresa .contato { text-align: right; white-space: nowrap; }
 .identificacao { display: flex; justify-content: space-between; align-items: baseline; }
-.identificacao .titulo { font-size: 14pt; font-weight: 600; text-transform: uppercase; letter-spacing: .02em; }
+/* h1: cada via e um <article> proprio, entao o titulo do documento e o titulo
+ * daquela via. Era um <div> e a folha nao tinha titulo nenhum -- quem navega
+ * por titulos nao achava o comeco. `margin: 0` porque o h1 traz margem de
+ * fabrica, e `line-height: inherit` porque ele tambem traz entrelinha propria
+ * (32px contra os 25,2px da via) -- sem isso a folha crescia 6,8px por via.
+ * A folha e medida em milimetros; conferido por diff de pixel, a impressao
+ * sai identica. Com duas vias sao dois h1, um por article, que e o
+ * certo -- o indice e por secao. */
+.identificacao .titulo { margin: 0; line-height: inherit; font-size: 14pt; font-weight: 600; text-transform: uppercase; letter-spacing: .02em; }
 .identificacao .numero-os { font-size: 20pt; font-weight: 700; }
 .identificacao .datas { text-align: right; font-size: 10pt; }
 .identificacao .datas dt { display: inline; color: var(--fraca); }
