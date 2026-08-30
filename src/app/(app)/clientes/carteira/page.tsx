@@ -41,6 +41,7 @@ export default async function PaginaCarteira() {
       <CabecalhoPagina
         pretitulo="Atendimento"
         titulo="Carteira de clientes"
+        descricao="Quem comprou e quem sumiu. Junta os cadastros que têm o mesmo CNPJ — o sistema antigo repetia o mesmo cliente várias vezes — e mostra há quanto tempo cada um não aparece e quanto ele representa do faturamento."
         acoes={<Link href="/clientes" className="btn">Todos os cadastros</Link>}
       />
       <CorpoPagina>

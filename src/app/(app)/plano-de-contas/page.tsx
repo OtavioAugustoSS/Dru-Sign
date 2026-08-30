@@ -20,7 +20,11 @@ export default async function PaginaPlano({ searchParams }: { searchParams: Prom
 
   return (
     <>
-      <CabecalhoPagina pretitulo="Financeiro" titulo="Plano de contas" />
+      <CabecalhoPagina
+        pretitulo="Financeiro"
+        titulo="Plano de contas"
+        descricao="A lista de para onde vai cada dinheiro. Toda venda que você recebe entra numa conta de receita, e toda despesa que você paga sai por uma de despesa — é assim que o relatório do contador soma no fim do mês. Estas 48 vieram do seu sistema antigo."
+      />
       <CorpoPagina>
         {semVendas ? (
           <div className="alert alert-warning" role="alert">

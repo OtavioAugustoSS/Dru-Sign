@@ -44,6 +44,7 @@ export default async function PaginaFinanceiro({
       <CabecalhoPagina
         pretitulo="Financeiro"
         titulo="Livro-caixa"
+        descricao="O extrato do caixa. As entradas aparecem sozinhas quando você recebe uma ordem de serviço; as saídas são as que você digita em “Nova saída”, escolhendo por qual conta do plano elas saem."
         acoes={
           <>
             <Link href="/financeiro/contador" className="btn">
