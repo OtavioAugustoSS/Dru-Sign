@@ -3,6 +3,7 @@ import { IconSearch } from '@tabler/icons-react'
 import { CabecalhoPagina } from '@/componentes/cabecalho-pagina'
 import { CorpoPagina } from '@/componentes/corpo-pagina'
 import { CartaoTabela } from '@/componentes/cartao-tabela'
+import { CartaoIndicador } from '@/componentes/cartao-indicador'
 import { BlocoVazio } from '@/componentes/estado-vazio'
 import { Dinheiro } from '@/componentes/dinheiro'
 import { NumeroOs } from '@/componentes/numero-os'
@@ -32,7 +33,13 @@ function Cliente({ o }: { o: OrdemDaFila }) {
  * - **A busca ocupava a largura toda**, 1170px de campo para digitar seis digitos.
  *   Continua sendo a acao principal da tela, so que com tamanho de campo.
  */
-export function FilaDeTrabalho({ fila }: { fila: Fila }) {
+interface Props {
+  fila: Fila
+  ordens: { aberta: number; orcamento: number; concluida: number; aReceber: string }
+  clientes: { total: number }
+}
+
+export function FilaDeTrabalho({ fila, ordens, clientes }: Props) {
   return (
     <>
       <CabecalhoPagina
@@ -62,6 +69,35 @@ export function FilaDeTrabalho({ fila }: { fila: Fila }) {
             </div>
           </div>
         </form>
+
+        {/* O painel do dia, e nao uma tela separada: esta JA e a primeira tela de
+            quem abre o sistema, e um painel ao lado dela seria a mesma coisa
+            duas vezes. Cada numero leva a tela que o detalha.
+
+            "A cobrar" e o que a loja tem a receber de servico JA ENTREGUE --
+            diferente do "a receber" da lista de ordens, que soma tudo o que foi
+            faturado. Este e o dinheiro que ja deveria ter entrado, e e o numero
+            que motivou trocar de sistema. */}
+        <div className="row g-3 mb-3">
+          <div className="col-6 col-lg-3">
+            <CartaoIndicador rotulo="Em produção" valor={ordens.aberta} href="/producao" nota="serviço em andamento" />
+          </div>
+          <div className="col-6 col-lg-3">
+            <CartaoIndicador
+              rotulo="A cobrar"
+              valor={<Dinheiro valor={fila.totalACobrar} />}
+              tom={Number(fila.totalACobrar) > 0 ? 'ruim' : 'bom'}
+              href="/ordens?estado=concluida"
+              nota="entregue e ainda não pago"
+            />
+          </div>
+          <div className="col-6 col-lg-3">
+            <CartaoIndicador rotulo="Orçamentos" valor={ordens.orcamento} href="/ordens?estado=orcamento" nota="esperando aprovação" />
+          </div>
+          <div className="col-6 col-lg-3">
+            <CartaoIndicador rotulo="Clientes" valor={clientes.total.toLocaleString('pt-BR')} href="/clientes" nota="cadastros ativos" />
+          </div>
+        </div>
 
         <CartaoTabela
           className="mb-3"
