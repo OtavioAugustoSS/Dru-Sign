@@ -90,14 +90,24 @@ const SELECAO_COMPLETA = {
   atualizadoEm: true,
 } as const
 
+/**
+ * Apara as pontas E colapsa os espacos do meio.
+ *
+ * O colapso importa mais do que parece. O sistema antigo gravava nome em campo
+ * de largura fixa e a digitacao deixou espaco duplo em boa parte dos 3.219
+ * cadastros -- "DIRCEU JULIO GATO  FAZ BURITI  UNAI-MG". A busca usa `contains`,
+ * entao quem digita o nome do jeito natural, com um espaco so, NAO ACHA o
+ * cliente. E quem nao acha, cadastra de novo: e assim que o legado chegou a
+ * 2.734 cadastros para 1.847 documentos. O espaco duplo nao e informacao.
+ */
 function limpar(v: string | null | undefined): string | null {
-  const t = v?.trim() ?? ''
+  const t = v?.trim().replace(/\s+/g, ' ') ?? ''
   return t === '' ? null : t
 }
 
 function colunas(dados: DadosCliente) {
   return {
-    nome: dados.nome.trim(),
+    nome: dados.nome.trim().replace(/\s+/g, ' '),
     apelido: limpar(dados.apelido),
     documento: normalizarDocumento(dados.documento ?? '')?.digitos ?? null,
     email: limpar(dados.email),

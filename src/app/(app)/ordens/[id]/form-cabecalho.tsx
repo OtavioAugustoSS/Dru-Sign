@@ -6,7 +6,7 @@ import { useEffect, useRef, useState, useTransition, type KeyboardEvent } from '
 import { useRouter } from 'next/navigation'
 import type { ClienteResumo } from '@/infra/clientes/repositorio'
 import { formatarTelefone } from '@/domain/clientes/telefone'
-import { atualizarCabecalhoAction, buscarClientesAction, type Resposta } from './actions'
+import { atualizarCabecalhoAction, buscarClientesAction, criarClienteRapidoAction, type Resposta } from './actions'
 import { gerarChave } from './chave'
 
 interface Props {
@@ -32,6 +32,9 @@ export function FormCabecalho(p: Props) {
   const [prometida, setPrometida] = useState(p.prometidaPara?.slice(0, 10) ?? '')
   const [responsavelId, setResponsavelId] = useState(p.responsavelId)
   const [observacoes, setObservacoes] = useState(p.observacoes ?? '')
+  /* Cadastro de cliente sem sair da ordem: `null` enquanto ninguem pediu. */
+  const [cadastrando, setCadastrando] = useState<{ nome: string; telefone: string } | null>(null)
+  const [erroCadastro, setErroCadastro] = useState<string | null>(null)
 
   useEffect(() => {
     if (termo.trim().length < 2) { setSugestoes([]); return }
@@ -42,7 +45,17 @@ export function FormCabecalho(p: Props) {
   function escolher(c: ClienteResumo | null) {
     setClienteId(c?.id ?? null)
     setClienteNome(c ? `${c.nome}${c.apelido ? ` (${c.apelido})` : ''}` : '')
-    setTermo(''); setSugestoes([])
+    setTermo(''); setSugestoes([]); setCadastrando(null); setErroCadastro(null)
+  }
+
+  function cadastrarEUsar() {
+    if (cadastrando === null || pendente) return
+    setErroCadastro(null)
+    iniciar(async () => {
+      const r = await criarClienteRapidoAction(cadastrando.nome, cadastrando.telefone)
+      if (!r.ok) { setErroCadastro(r.erro); return }
+      escolher(r.cliente)
+    })
   }
 
   function salvar() {
@@ -85,7 +98,56 @@ export function FormCabecalho(p: Props) {
                 ))}
               </ul>
             ) : null}
-            {clienteId === null && clienteNome === '' ? <div className="form-hint">Sem cliente: entra como venda de balcão.</div> : null}
+            {/* O cadastro rapido so aparece depois de a busca nao achar: enquanto
+                ha sugestoes, o caminho certo e escolher uma delas -- oferecer
+                "cadastrar" ao lado de um cliente que ja existe e convite para
+                duplicar ficha, que e justamente o que o sistema antigo fazia
+                (2.734 cadastros para 1.847 documentos). */}
+            {termo.trim().length >= 2 && sugestoes.length === 0 && cadastrando === null ? (
+              <div className="form-hint">
+                Ninguém com esse nome.{' '}
+                <button
+                  type="button"
+                  className="btn btn-link p-0 align-baseline"
+                  onClick={() => { setCadastrando({ nome: termo.trim(), telefone: '' }); setErroCadastro(null) }}
+                >
+                  Cadastrar “{termo.trim()}”
+                </button>
+              </div>
+            ) : null}
+
+            {cadastrando !== null ? (
+              <div className="card mt-2">
+                <div className="card-body row g-2 align-items-end">
+                  <div className="col-12">
+                    <span className="form-label mb-0">Cliente novo</span>
+                    <div className="form-hint mt-0">O resto da ficha se completa depois, sem segurar a ordem.</div>
+                  </div>
+                  <div className="col-sm-6">
+                    <label className="form-label" htmlFor="cadastroNome">Nome</label>
+                    <input id="cadastroNome" className="form-control" value={cadastrando.nome}
+                      onChange={(e) => setCadastrando({ ...cadastrando, nome: e.target.value })} />
+                  </div>
+                  <div className="col-sm-6">
+                    <label className="form-label" htmlFor="cadastroTelefone">Telefone</label>
+                    <input id="cadastroTelefone" className="form-control" inputMode="tel" placeholder="opcional"
+                      value={cadastrando.telefone}
+                      onChange={(e) => setCadastrando({ ...cadastrando, telefone: e.target.value })} />
+                  </div>
+                  <div className="col-12 d-flex gap-2">
+                    <button type="button" className="btn btn-primary" onClick={cadastrarEUsar} disabled={pendente}>
+                      {pendente ? SALVANDO : 'Cadastrar e usar'}
+                    </button>
+                    <button type="button" className="btn" onClick={() => { setCadastrando(null); setErroCadastro(null) }}>
+                      Cancelar
+                    </button>
+                    {erroCadastro ? <span className="text-danger-emphasis small align-self-center" role="alert">{erroCadastro}</span> : null}
+                  </div>
+                </div>
+              </div>
+            ) : null}
+
+            {clienteId === null && clienteNome === '' && cadastrando === null ? <div className="form-hint">Sem cliente: entra como venda de balcão.</div> : null}
           </div>
           <div className="col-md-3">
             <label className="form-label" htmlFor="prometida">Entrega prometida</label>

@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { exigirUsuario } from '@/infra/auth/usuario-atual'
 import { chaveValida, type Contexto } from '@/infra/mutacoes/idempotencia'
-import { buscarClientes, type ClienteResumo } from '@/infra/clientes/repositorio'
+import { buscarClientes, criarCliente, type ClienteResumo } from '@/infra/clientes/repositorio'
 import { ErroDeValidacao } from '@/domain/precificacao/erros'
 import * as ordens from '@/infra/ordens/repositorio'
 import type { DadosItem, DadosAcrescimo, DadosCabecalho, Totais } from '@/infra/ordens/repositorio'
@@ -68,6 +68,32 @@ export async function buscarClientesAction(termo: string): Promise<ClienteResumo
   const usuario = await exigirUsuario()
   if (termo.trim().length < 2) return []
   return buscarClientes(usuario.empresaId, termo, { limite: 8 })
+}
+
+/**
+ * Cadastra um cliente sem sair da ordem.
+ *
+ * No balcao, cliente novo chega junto com o servico. Ate aqui era preciso
+ * abandonar a ordem, ir em Clientes, cadastrar e voltar -- e voltar significa
+ * achar de novo a ordem que ficou pela metade. Nome (e telefone, se a pessoa
+ * disser) bastam para tocar o servico; o resto da ficha se completa depois, na
+ * ficha, que e onde ha tempo para isso.
+ */
+export async function criarClienteRapidoAction(
+  nome: string,
+  telefone: string,
+): Promise<{ ok: true; cliente: ClienteResumo } | { ok: false; erro: string }> {
+  const usuario = await exigirUsuario()
+  try {
+    const c = await criarCliente(usuario.empresaId, {
+      nome,
+      telefones: telefone.trim() === '' ? [] : [telefone],
+    })
+    return { ok: true, cliente: c }
+  } catch (e) {
+    if (e instanceof ErroDeValidacao) return { ok: false, erro: e.message }
+    throw e
+  }
 }
 
 export type RespostaDinheiro =
