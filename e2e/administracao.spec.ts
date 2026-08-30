@@ -62,9 +62,25 @@ test.describe('Administração', () => {
     await expect(minhaLinha.getByRole('button', { name: 'Desativar' })).toHaveCount(0)
   })
 
+  /*
+   * Este teste ESCREVE nos dados da empresa, que sao configuracao de verdade e
+   * nao dado de teste. Rodando contra o banco de desenvolvimento, ele apagava o
+   * endereco e o CNPJ reais da loja a cada rodada -- silenciosamente, porque
+   * nada avisa que a configuracao voltou para um valor ficticio. Agora guarda o
+   * que achou e devolve no fim.
+   *
+   * O conserto de verdade e o e2e rodar contra o banco de teste; enquanto isso
+   * nao acontece, ao menos ele nao leva a configuracao junto.
+   */
   test('dados da empresa saem no cabecalho do impresso', async ({ page }) => {
     await entrar(page)
     await page.getByRole('link', { name: 'Dados da empresa' }).click()
+
+    const CAMPOS = ['Nome fantasia', 'CNPJ', 'Endereço', 'Cidade', 'UF'] as const
+    const antes: Record<string, string> = {}
+    for (const c of CAMPOS) antes[c] = await campoDe(page, c).inputValue()
+    antes['Telefone'] = await campoDe(page, 'Telefone', { exact: true }).inputValue()
+
     await campoDe(page, 'Nome fantasia').fill('DruSign')
     await campoDe(page, 'CNPJ').fill('11.222.333/0001-81')
     await campoDe(page, 'Telefone', { exact: true }).fill('(38) 3676-1234')
@@ -88,5 +104,12 @@ test.describe('Administração', () => {
     await expect(page.getByText('Rua Rio Preto, 100')).toBeVisible()
     await expect(page.getByText('Unaí/MG')).toBeVisible()
     await expect(page.getByText('(38) 3676-1234')).toBeVisible()
+
+    // Devolve a configuracao da loja como estava antes do teste.
+    await page.goto('/empresa')
+    for (const c of CAMPOS) await campoDe(page, c).fill(antes[c] ?? '')
+    await campoDe(page, 'Telefone', { exact: true }).fill(antes['Telefone'] ?? '')
+    await page.getByRole('button', { name: 'Salvar' }).click()
+    await expect(page.getByRole('status').filter({ hasText: 'Salvo.' })).toBeVisible({ timeout: 30_000 })
   })
 })
