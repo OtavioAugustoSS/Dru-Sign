@@ -495,3 +495,36 @@ summary:focus-visible,
 .lateral-usuario .nav-link[aria-expanded='true'] {
   background: var(--tblr-primary-lt);
 }
+
+/* O botao de finalizar servico na fila de producao.
+ *
+ * O Tabler nao pinta `btn-outline-success` no tema escuro com contraste
+ * suficiente, e este e o botao mais importante da tela mais usada de pe. Cor de
+ * texto e borda vem do verde do ponto de situacao, que ja foi medido: 3,30:1 no
+ * claro e 7,64:1 no escuro. No hover e no toque ele enche, para a resposta ser
+ * inequivoca com a mao na peca. */
+.botao-producao.btn-outline-success {
+  --tblr-btn-color: var(--verde-acao);
+  --tblr-btn-border-color: var(--verde-acao);
+  --tblr-btn-hover-bg: var(--verde-acao);
+  --tblr-btn-hover-border-color: var(--verde-acao);
+  --tblr-btn-active-bg: var(--verde-acao);
+  --tblr-btn-active-border-color: var(--verde-acao);
+  --tblr-btn-hover-color: #fff;
+  --tblr-btn-active-color: #fff;
+  font-size: 1rem;
+}
+
+/* O verde de ACAO nao e o verde do PONTO, pela mesma razao de sempre: o ponto e
+ * grafico e pede 3:1, o rotulo do botao e texto e pede 4,5:1. O `--ponto-bom` do
+ * tema claro dava 3,15:1 escrito -- passa como circulo, reprova como palavra.
+ *
+ * Medido: #15803D sobre o cartao branco da 5,01:1; no escuro o proprio
+ * `--ponto-bom` ja da 7,64:1 e serve para as duas coisas. */
+:root {
+  --verde-acao: #15803D;
+}
+
+[data-bs-theme='dark'] {
+  --verde-acao: #34D399;
+}

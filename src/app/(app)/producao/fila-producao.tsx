@@ -53,14 +53,14 @@ export function FilaDeProducao({ fila }: { fila: FilaProducao }) {
             descricao="Todo serviço aberto já foi finalizado. Quando o atendimento abrir uma ordem, ela aparece aqui."
           />
         ) : (
-          fila.grupos.map((g) => <Grupo key={g.grupo} grupo={g} />)
+          fila.grupos.map((g) => <Grupo key={g.grupo} grupo={g} unico={fila.grupos.length === 1} />)
         )}
       </CorpoPagina>
     </>
   )
 }
 
-function Grupo({ grupo }: { grupo: GrupoDaFila }) {
+function Grupo({ grupo, unico }: { grupo: GrupoDaFila; unico: boolean }) {
   const semPrazo = grupo.grupo === 'sem_data'
   const atrasado = grupo.grupo === 'atrasada'
 
@@ -68,7 +68,7 @@ function Grupo({ grupo }: { grupo: GrupoDaFila }) {
     // `open` por padrao em tudo que tem prazo. O grupo sem data e o unico que
     // nasce fechado: sao ordens esperando alguem combinar entrega, nao trabalho
     // da vez. A contagem fica a vista, entao nada some em silencio.
-    <details className="mb-4" open={!semPrazo}>
+    <details className="mb-4" open={!semPrazo || unico}>
       {/* O nome do grupo e um h2, nao so texto dentro do `summary`. Esta tela
           nao tinha titulo nenhum abaixo do h1: quem usa leitor de tela via uma
           lista de ~100 cartoes sem nada para separar "Atrasadas" de "Hoje". O
@@ -93,7 +93,7 @@ function Cartao({ ordem, atrasada }: { ordem: OrdemDaProducao; atrasada: boolean
   const cliente = ordem.clienteApelido ?? ordem.clienteNome
 
   return (
-    <div className="col-12 col-md-6 col-xxl-4">
+    <div className="col-12 col-md-6 col-xl-4 col-xxl-3">
       <div className={`card h-100${atrasada ? ' border-danger' : ''}`}>
         <div className="card-body">
           <div className="d-flex align-items-baseline justify-content-between gap-2">
@@ -125,7 +125,11 @@ function Cartao({ ordem, atrasada }: { ordem: OrdemDaProducao; atrasada: boolean
           </ul>
         </div>
 
-        <div className="card-footer">
+        {/* O rodape do cartao, nao um cartaz. O alvo de toque continua com 56px
+            de altura -- a producao trabalha de pe, as vezes de luva -- mas o
+            verde cheio numa fileira de dez cartoes virava uma parede, e o botao
+            passava a pesar mais que o servico que ele conclui. */}
+        <div className="card-footer py-2">
           <BotaoFinalizado ordemId={ordem.id} versao={ordem.versao} />
         </div>
       </div>
