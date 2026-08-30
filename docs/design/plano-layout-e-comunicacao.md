@@ -582,8 +582,40 @@ Ordem por tráfego e por gravidade do que foi encontrado.
   dígito sem forçar alinhamento. Campo de dinheiro continua à direita, que é onde
   faz sentido: é assim que as casas decimais se alinham.
 
-- [ ] **T13. `/entrar`, `error.tsx`, `not-found.tsx`.** As três telas sem casca.
+- [x] **T13. `/entrar`, `error.tsx`, `not-found.tsx`.** As três telas sem casca.
   Conferir que funcionam nos dois temas.
+
+  Medido nas quatro telas (a `not-found` são duas: a da raiz, sem menu, e a de
+  dentro da casca) em claro e escuro, 1440px e 1280px. Os dois temas passam:
+  título 9,86 no claro e 14,33 no escuro, explicação 4,63 e 6,99, botão 8,76.
+  Um H1 por tela, nada cortado, nada em cor fixa no código.
+
+  Dois defeitos que só apareceram ao ver a tela renderizada, nenhum deles na
+  vistoria:
+
+  - A tela de erro tinha **uma ação só**, "Tentar de novo". Erro permanente
+    (endereço inválido, registro de outra empresa) não passa por tentar de
+    novo: a pessoa fica batendo no mesmo botão. Ganhou "Fila de trabalho".
+  - O texto dizia "o que você digitou não foi salvo" mesmo quando ninguém
+    estava digitando — este limite pega falha de leitura também. Reescrito.
+    O código do erro saiu da frase para uma linha própria, e some quando não
+    existe, em vez de escrever "sem código".
+
+  Um terceiro, achado na mesma captura e que valia para o sistema todo: dentro
+  do `container-xl` a explicação do estado vazio saía numa **linha única de mil
+  pixels**. `.empty-subtitle` ganhou limite de medida (56ch, centrada) no
+  `tema.css`; agora quebra em duas ou três linhas curtas, como já acontecia na
+  tela de endereço errado, que usa `container-tight`. Vale para os estados
+  vazios dentro de cartão também: medidos em 480–520px depois da mudança.
+
+  Nada a mudar no `/entrar`: a marca "DruSign" acima e o título "Entrar" no
+  cartão são papéis diferentes (identidade e tarefa), e a palavra repetida no
+  botão é o rótulo da ação. Nenhum dos dois confunde.
+
+  O 404 da raiz **não aparece para quem não está logado**: `/rota-inexistente`
+  redireciona para `/entrar?proximo=…` antes de chegar nele. Quem vê é quem já
+  entrou. O erro no console nessa tela é o próprio HTTP 404 da resposta, não
+  um defeito.
 - [ ] **T14. `/ordens/[id]/impresso`.** Conferir que o tema escuro **não** vaza para
   o papel, e que a impressão continua saindo igual.
 
