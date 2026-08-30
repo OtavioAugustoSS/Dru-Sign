@@ -5,7 +5,7 @@ import type { Contexto } from '@/infra/mutacoes/idempotencia'
 import { criarOrdem, adicionarItem, obterOrdemParaTela, listarOrdens, ConflitoVersao, OrdemNaoEditavel, type DadosItem } from '@/infra/ordens/repositorio'
 import { registrarRecebimento, concluirOrdem, estornarRecebimento } from './recebimentos'
 import { registrarSaida, estornarLancamento, listarLivro } from './livro'
-import { listarContas, criarConta, alterarAtiva, definirContaRecebimento } from './plano'
+import { listarContas, criarConta, alterarAtiva, definirContaRecebimento, excluirConta } from './plano'
 import { carregarFila } from './fila'
 
 let base: Contexto
@@ -180,7 +180,8 @@ describe('livro-caixa e plano (banco real)', () => {
 
   it('plano: lista por grupo, cria com o proximo codigo, recusa nome repetido, desativa e troca a conta de vendas', async () => {
     const antes = await listarContas(base.empresaId)
-    expect(antes.map((c) => [c.grupo, c.codigo, c.recebeVendas])).toEqual([['CUSTO GERAL', 3, false], ['RECEITA GERAL', 1, true]])
+    // Receita antes de despesa: a tela le "o dinheiro entra aqui, sai por estas".
+    expect(antes.map((c) => [c.grupo, c.codigo, c.recebeVendas])).toEqual([['RECEITA GERAL', 1, true], ['CUSTO GERAL', 3, false]])
     const nova = await criarConta(base.empresaId, { nome: '  Marketing digital ', tipo: 'despesa', grupo: 'DESPESAS' })
     expect(await prisma.contaPlano.findUniqueOrThrow({ where: { id: nova.id } })).toMatchObject({ codigo: 4, nome: 'Marketing digital', tipo: 'despesa', grupo: 'DESPESAS', ativa: true })
     await expect(criarConta(base.empresaId, { nome: 'marketing DIGITAL', tipo: 'despesa', grupo: 'DESPESAS' })).rejects.toThrow(/já existe/i)
@@ -188,9 +189,16 @@ describe('livro-caixa e plano (banco real)', () => {
     await expect(criarConta(base.empresaId, { nome: '', tipo: 'despesa', grupo: 'DESPESAS' })).rejects.toThrow(/nome/)
 
     await alterarAtiva(base.empresaId, nova.id, false)
-    expect((await listarContas(base.empresaId)).map((c) => c.codigo)).toEqual([3, 1])
-    expect((await listarContas(base.empresaId, { incluirInativas: true })).map((c) => c.codigo)).toEqual([3, 4, 1])
+    expect((await listarContas(base.empresaId)).map((c) => c.codigo)).toEqual([1, 3])
+    expect((await listarContas(base.empresaId, { incluirInativas: true })).map((c) => c.codigo)).toEqual([1, 3, 4])
     await expect(alterarAtiva(base.empresaId, contaVendas, false)).rejects.toThrow(/recebe as vendas/)
+
+    // Excluir: so a conta que nunca foi usada, e nunca a que recebe as vendas.
+    await expect(excluirConta(base.empresaId, contaVendas)).rejects.toThrow(/recebe as vendas/i)
+    await registrarSaida(ctx(), { valor: '10', data: '2026-08-12', historico: 'conta de água', contaId: contaAgua, fornecedor: '', parcela: '', totalParcelas: '' })
+    await expect(excluirConta(base.empresaId, contaAgua)).rejects.toThrow(/lançamento/i)
+    await excluirConta(base.empresaId, nova.id)
+    expect((await listarContas(base.empresaId, { incluirInativas: true })).map((c) => c.codigo)).toEqual([1, 3])
 
     await expect(definirContaRecebimento(base.empresaId, contaAgua)).rejects.toThrow(/receita/)
     const deposito = await criarConta(base.empresaId, { nome: 'DEPOSITO', tipo: 'receita', grupo: 'RECEITA GERAL' })

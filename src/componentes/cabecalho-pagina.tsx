@@ -52,7 +52,10 @@ export function CabecalhoPagina({ titulo, pretitulo, voltar, descricao, acoes, g
               <div className="page-pretitle">{pretitulo}</div>
             ) : null}
             <h1 className={grande ? 'page-title fs-1' : 'page-title'}>{titulo}</h1>
-            {descricao ? <div className="text-secondary">{descricao}</div> : null}
+            {/* Largura travada: no monitor da loja (1.920 px) a descricao ia de
+                ponta a ponta, uma linha de mais de 90 caracteres. O olho perde
+                o comeco da linha seguinte muito antes disso. */}
+            {descricao ? <div className="text-secondary cabecalho-descricao">{descricao}</div> : null}
           </div>
           {acoes ? <div className="col-auto d-flex gap-2">{acoes}</div> : null}
         </div>

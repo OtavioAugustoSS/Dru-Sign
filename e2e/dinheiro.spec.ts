@@ -36,7 +36,7 @@ test.describe('Dinheiro', () => {
     await page.goto('/financeiro')
     const linha = page.getByRole('row').filter({ hasText: `OS ${numero}` })
     await expect(linha).toContainText('Entrada')
-    await expect(linha).toContainText('VENDAS DIVERSAS')
+    await expect(linha).toContainText('Vendas de serviços')
     await expect(linha).toContainText('R$ 150,00')
   })
 
@@ -107,9 +107,11 @@ test.describe('Dinheiro', () => {
     const historico = `Conta de água ${Date.now()}`
     await page.goto('/financeiro/saida')
     await campoDe(page, 'Valor').fill('45,90')
-    await campoDe(page, 'Conta').selectOption({ label: '3 · AGUA' })
+    await campoDe(page, 'Conta').selectOption({ label: '8 · Água' })
     await campoDe(page, 'Histórico').fill(historico)
     await campoDe(page, 'Fornecedor').fill('COPASA')
+    // A parcela e excecao e vive fechada num <details>; abrir faz parte do fluxo real.
+    await page.getByText('Foi parcelado?').click()
     await campoDe(page, 'Parcela', { exact: true }).fill('2')
     await campoDe(page, 'Total de parcelas').fill('3')
     await page.getByRole('button', { name: 'Lançar saída' }).click()
@@ -136,24 +138,32 @@ test.describe('Dinheiro', () => {
     await expect(page.getByRole('heading', { name: 'Fila de produção' })).toBeVisible()
   })
 
-  test('plano de contas: as 48 do legado por grupo, VENDAS DIVERSAS recebe as vendas, conta nova e desativar', async ({ page }) => {
+  test('plano de contas: grupos, quem recebe as vendas, criar, desativar e excluir', async ({ page }) => {
     await entrar(page)
     await page.getByRole('link', { name: 'Plano de contas' }).click()
     await expect(page).toHaveURL(/\/plano-de-contas$/)
-    await expect(page.getByRole('row').filter({ hasText: 'VENDAS DIVERSAS' })).toContainText('recebe as vendas')
-    await expect(page.getByRole('heading', { name: 'DESPESAS COM VEICULO' })).toBeVisible()
-    await expect(page.getByText('MANUTENÇÃO DO VEÍCULO')).toBeVisible()
+    await expect(page.getByRole('row').filter({ hasText: 'Vendas de serviços' })).toContainText('recebe os pagamentos das ordens')
+    await expect(page.getByRole('heading', { name: 'Custos da produção' })).toBeVisible()
+    await expect(page.getByText('Material de impressão')).toBeVisible()
 
-    const nome = `MARKETING DIGITAL ${Date.now()}`
+    const nome = `Marketing digital ${Date.now()}`
     await campoDe(page, 'Nova conta').fill(nome)
     await campoDe(page, 'Tipo').selectOption('despesa')
-    await campoDe(page, 'Grupo').fill('DESPESAS')
+    await campoDe(page, 'Grupo').fill('Despesas fixas')
     await page.getByRole('button', { name: 'Criar conta' }).click()
     const linha = page.getByRole('row').filter({ hasText: nome })
     await expect(linha).toBeVisible({ timeout: 30_000 })
     await linha.getByRole('button', { name: 'Desativar' }).click()
     await expect(linha).toHaveCount(0, { timeout: 30_000 })
     await page.goto('/plano-de-contas?inativas=1')
-    await expect(page.getByRole('row').filter({ hasText: nome })).toContainText('desativada')
+    const inativa = page.getByRole('row').filter({ hasText: nome })
+    await expect(inativa).toContainText('desativada')
+
+    // Excluir de vez -- e tambem a faxina do proprio teste: sem isto cada
+    // rodada deixava uma conta de mentira no plano da loja.
+    await inativa.getByRole('button', { name: 'Excluir' }).click()
+    await expect(inativa.getByText(`Excluir ${nome}?`)).toBeVisible()
+    await inativa.getByRole('button', { name: 'Excluir', exact: true }).click()
+    await expect(page.getByRole('row').filter({ hasText: nome })).toHaveCount(0, { timeout: 30_000 })
   })
 })

@@ -81,7 +81,7 @@ export function PainelPagamento(p: Props) {
             tela (1 -> 3). E o mesmo nivel que o CartaoTabela usa no resto do
             sistema; o `.card-title` mantem o tamanho. */}
         <h2 className="card-title mb-0">Pagamento</h2>
-          <SituacaoPagamento estado={p.pagamento.estado} testId="estado-pagamento" />
+          <SituacaoPagamento estado={p.pagamento.estado} semValor={Number(p.pagamento.totalRecebido) === 0 && Number(p.pagamento.saldo) === 0} testId="estado-pagamento" />
         </div>
         <dl className="row mb-0 mt-2">
           <dt className="col-7">Recebido</dt><dd className="col-5 numero">{valorEmReais(p.pagamento.totalRecebido)}</dd>

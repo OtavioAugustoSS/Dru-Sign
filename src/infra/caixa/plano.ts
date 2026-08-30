@@ -12,6 +12,8 @@ export interface ContaTela {
   ativa: boolean
   /** A conta em que todo recebimento cai. */
   recebeVendas: boolean
+  /** Quantos lancamentos ja apontam para ela. Zero = da para excluir sem perder historico. */
+  lancamentos: number
 }
 
 export async function listarContas(empresaId: string, opcoes: { incluirInativas?: boolean } = {}): Promise<ContaTela[]> {
@@ -19,11 +21,13 @@ export async function listarContas(empresaId: string, opcoes: { incluirInativas?
     prisma.empresa.findUniqueOrThrow({ where: { id: empresaId }, select: { contaRecebimentoId: true } }),
     prisma.contaPlano.findMany({
       where: { empresaId, ...(opcoes.incluirInativas ? {} : { ativa: true }) },
-      orderBy: [{ grupo: 'asc' }, { codigo: 'asc' }],
-      select: { id: true, codigo: true, nome: true, nivel: true, tipo: true, grupo: true, ativa: true },
+      // Receita antes de despesa (a ordem do enum): a tela le de cima para baixo
+      // "o dinheiro entra aqui, sai por estas". Alfabetico jogava Receitas por ultimo.
+      orderBy: [{ tipo: 'asc' }, { grupo: 'asc' }, { codigo: 'asc' }],
+      select: { id: true, codigo: true, nome: true, nivel: true, tipo: true, grupo: true, ativa: true, _count: { select: { lancamentos: true } } },
     }),
   ])
-  return contas.map((c) => ({ ...c, recebeVendas: c.id === empresa.contaRecebimentoId }))
+  return contas.map(({ _count, ...c }) => ({ ...c, recebeVendas: c.id === empresa.contaRecebimentoId, lancamentos: _count.lancamentos }))
 }
 
 /** Codigo = maior + 1, dentro da transacao. Nome unico por empresa sem diferenciar maiusculas. */
@@ -46,6 +50,23 @@ export async function alterarAtiva(empresaId: string, contaId: string, ativa: bo
   const empresa = await prisma.empresa.findUniqueOrThrow({ where: { id: empresaId }, select: { contaRecebimentoId: true } })
   if (!ativa && empresa.contaRecebimentoId === contaId) throw new ErroDeValidacao('Esta conta recebe as vendas. Escolha outra antes de desativar.')
   const { count } = await prisma.contaPlano.updateMany({ where: { id: contaId, empresaId }, data: { ativa } })
+  if (count === 0) throw new ErroDeValidacao('Conta não encontrada.')
+}
+
+/**
+ * Exclui de vez -- so a conta que nunca foi usada.
+ *
+ * Desativar e excluir sao coisas diferentes, como em materiais: desativar tira
+ * da lista de "Nova saida" e guarda o historico; excluir e para a conta criada
+ * por engano. Conta com lancamento nunca some, senao o relatorio do contador
+ * passaria a somar linhas orfas.
+ */
+export async function excluirConta(empresaId: string, contaId: string): Promise<void> {
+  const empresa = await prisma.empresa.findUniqueOrThrow({ where: { id: empresaId }, select: { contaRecebimentoId: true } })
+  if (empresa.contaRecebimentoId === contaId) throw new ErroDeValidacao('Esta conta recebe as vendas. Escolha outra antes de excluir.')
+  const usos = await prisma.lancamentoCaixa.count({ where: { empresaId, contaId } })
+  if (usos > 0) throw new ErroDeValidacao(`Esta conta já tem ${usos} lançamento${usos > 1 ? 's' : ''} no livro-caixa. Desative em vez de excluir.`)
+  const { count } = await prisma.contaPlano.deleteMany({ where: { id: contaId, empresaId } })
   if (count === 0) throw new ErroDeValidacao('Conta não encontrada.')
 }
 

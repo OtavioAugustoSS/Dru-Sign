@@ -36,7 +36,7 @@ const ORDENAVEIS = ['numero', 'clienteNome', 'abertaEm', 'prometidaPara', 'preco
  * O que sobrevive da versao anterior: quando falta dinheiro, o que interessa e
  * QUANTO falta, nao a palavra "parcial".
  */
-function Pagamento({ estado, saldo }: { estado: EstadoPagamento; saldo: string }) {
+function Pagamento({ estado, saldo, semValor }: { estado: EstadoPagamento; saldo: string; semValor: boolean }) {
   if (estado === 'parcial') {
     return (
       <Situacao tom="atencao">
@@ -44,7 +44,7 @@ function Pagamento({ estado, saldo }: { estado: EstadoPagamento; saldo: string }
       </Situacao>
     )
   }
-  return <SituacaoPagamento estado={estado} />
+  return <SituacaoPagamento estado={estado} semValor={semValor} />
 }
 
 export default async function PaginaOrdens({
@@ -190,7 +190,7 @@ export default async function PaginaOrdens({
                   <Apelido apelido={o.clienteApelido} />
                 </td>
                 <td><SituacaoEstado estado={o.estadoProducao} /></td>
-                <td><Pagamento estado={o.estadoPagamento} saldo={o.saldo} /></td>
+                <td><Pagamento estado={o.estadoPagamento} saldo={o.saldo} semValor={Number(o.precoFinal) === 0} /></td>
                 <td className="text-secondary">{formatarDataHora(new Date(o.abertaEm))}</td>
                 <td className="text-secondary">{o.prometidaPara ? formatarDataCalendario(new Date(o.prometidaPara)) : '—'}</td>
                 <td className="numero"><Dinheiro valor={o.precoFinal} /></td>

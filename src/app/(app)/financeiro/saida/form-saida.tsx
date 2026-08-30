@@ -11,6 +11,15 @@ interface Props {
   contas: Array<{ id: string; codigo: number; nome: string; grupo: string }>
 }
 
+/**
+ * Lancar uma saida do caixa.
+ *
+ * Tres campos obrigatorios em cima (data, valor, conta) e o resto embaixo: era
+ * uma grade de sete campos do mesmo tamanho, e parcela -- que quase nunca se usa
+ * -- pesava tanto quanto o valor. A parcela agora fica fechada, e o texto dela
+ * diz a verdade: o sistema NAO reparte a compra sozinho; cada parcela e uma
+ * saida, lancada na data em que ela vence.
+ */
 export function FormSaida({ hoje, contas }: Props) {
   const router = useRouter()
   const [pendente, iniciar] = useTransition()
@@ -26,7 +35,7 @@ export function FormSaida({ hoje, contas }: Props) {
   const grupos = [...new Set(contas.map((c) => c.grupo))]
 
   return (
-    <form className="card" onSubmit={(e) => {
+    <form className="card formulario-estreito" onSubmit={(e) => {
       e.preventDefault()
       if (pendente) return
       iniciar(async () => {
@@ -36,12 +45,26 @@ export function FormSaida({ hoje, contas }: Props) {
       })
     }}>
       <div className="card-body row g-3">
-        <div className="col-md-3"><label className="form-label" htmlFor="data">Data</label><input id="data" type="date" className="form-control" value={data} onChange={(e) => setData(e.target.value)} /></div>
-        <div className="col-md-3">
+        <div className="col-md-4">
+          <label className="form-label" htmlFor="data">Data do pagamento</label>
+          <input id="data" type="date" className="form-control" value={data} onChange={(e) => setData(e.target.value)} />
+        </div>
+        <div className="col-md-4">
           <label className="form-label" htmlFor="valor">Valor</label>
           <div className="input-group"><span className="input-group-text">R$</span><input id="valor" className="form-control numero" inputMode="decimal" value={valor} onChange={(e) => setValor(e.target.value)} autoFocus /></div>
         </div>
-        <div className="col-md-6">
+        <div className="col-md-4">
+          <label className="form-label" htmlFor="fornecedor">Fornecedor</label>
+          <input id="fornecedor" className="form-control" value={fornecedor} onChange={(e) => setFornecedor(e.target.value)} placeholder="opcional" />
+        </div>
+
+        <div className="col-12">
+          <label className="form-label" htmlFor="historico">Histórico</label>
+          <input id="historico" className="form-control" value={historico} onChange={(e) => setHistorico(e.target.value)} placeholder="Chapa ACM, solvente, mídia" />
+          <div className="form-hint">O que foi comprado ou pago. É este texto que aparece na linha do livro-caixa.</div>
+        </div>
+
+        <div className="col-12">
           <label className="form-label" htmlFor="conta">Conta</label>
           <select id="conta" className="form-select" value={contaId} onChange={(e) => setContaId(e.target.value)}>
             <option value="">Escolha a conta</option>
@@ -51,12 +74,33 @@ export function FormSaida({ hoje, contas }: Props) {
               </optgroup>
             ))}
           </select>
+          <div className="form-hint">
+            É por ela que o relatório do contador agrupa a despesa no fim do mês. A lista sai do{' '}
+            <a href="/plano-de-contas">plano de contas</a>.
+          </div>
         </div>
-        <div className="col-md-8"><label className="form-label" htmlFor="historico">Histórico</label><input id="historico" className="form-control" value={historico} onChange={(e) => setHistorico(e.target.value)} placeholder="Chapa ACM, solvente, mídia" /></div>
-        <div className="col-md-4"><label className="form-label" htmlFor="fornecedor">Fornecedor</label><input id="fornecedor" className="form-control" value={fornecedor} onChange={(e) => setFornecedor(e.target.value)} placeholder="opcional" /></div>
-        <div className="col-md-2"><label className="form-label" htmlFor="parcela">Parcela</label><input id="parcela" className="form-control numero" inputMode="numeric" value={parcela} onChange={(e) => setParcela(e.target.value)} placeholder="2" /></div>
-        <div className="col-md-2"><label className="form-label" htmlFor="totalParcelas">de</label><input id="totalParcelas" aria-label="Total de parcelas" className="form-control numero" inputMode="numeric" value={totalParcelas} onChange={(e) => setTotalParcelas(e.target.value)} placeholder="3" /></div>
-        <div className="col-12 form-hint">A compra parcelada entra uma vez por parcela, cada uma na sua data. Vazio quando não é parcelado.</div>
+
+        <div className="col-12">
+          {/* Fechado por padrao: a compra parcelada e a excecao, e aberta ela
+              roubava metade do formulario para dois campos de um digito. */}
+          <details>
+            <summary>Foi parcelado?</summary>
+            <div className="row g-3 mt-0">
+              <div className="col-12 form-hint">
+                O sistema não reparte a compra sozinho: lance uma saída por parcela, cada uma na data
+                em que ela vence. Estes dois campos só marcam qual parcela é esta.
+              </div>
+              <div className="col-6 col-md-3">
+                <label className="form-label" htmlFor="parcela">Parcela</label>
+                <input id="parcela" className="form-control numero" inputMode="numeric" value={parcela} onChange={(e) => setParcela(e.target.value)} placeholder="2" />
+              </div>
+              <div className="col-6 col-md-3">
+                <label className="form-label" htmlFor="totalParcelas">de</label>
+                <input id="totalParcelas" aria-label="Total de parcelas" className="form-control numero" inputMode="numeric" value={totalParcelas} onChange={(e) => setTotalParcelas(e.target.value)} placeholder="3" />
+              </div>
+            </div>
+          </details>
+        </div>
       </div>
       <div className="card-footer d-flex align-items-center gap-2">
         <button type="submit" className="btn btn-primary" disabled={pendente}>{pendente ? SALVANDO : 'Lançar saída'}</button>

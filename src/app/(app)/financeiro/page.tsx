@@ -15,7 +15,6 @@ import { contar } from '@/componentes/plural'
 import { EstadoVazio } from '@/componentes/estado-vazio'
 import { FiltroPeriodo } from '@/componentes/filtro-periodo'
 import { Dinheiro, valorEmReais } from '@/componentes/dinheiro'
-import { NumeroOs } from '@/componentes/numero-os'
 import { BotaoEstorno } from './botao-estorno'
 
 export const metadata: Metadata = { title: 'Financeiro' }
@@ -44,7 +43,7 @@ export default async function PaginaFinanceiro({
       <CabecalhoPagina
         pretitulo="Financeiro"
         titulo="Livro-caixa"
-        descricao="O extrato do caixa. As entradas aparecem sozinhas quando você recebe uma ordem de serviço; as saídas são as que você digita em “Nova saída”, escolhendo por qual conta do plano elas saem."
+        descricao="O extrato do caixa: tudo o que entrou e tudo o que saiu, dia a dia. As entradas você não digita — elas nascem sozinhas quando você recebe uma ordem de serviço. As saídas são as compras e contas que você lança aqui."
         acoes={
           <>
             <Link href="/financeiro/contador" className="btn">
@@ -71,7 +70,9 @@ export default async function PaginaFinanceiro({
             <CartaoIndicador
               rotulo="Saldo do período"
               valor={<Dinheiro valor={livro.saldo} />}
-              tom={Number(livro.saldo) < 0 ? 'ruim' : 'bom'}
+              /* Zero nao e bom nem ruim: mes sem movimento pintado de verde
+                 diz "esta tudo certo" sobre um caixa que nao andou. */
+              tom={Number(livro.saldo) === 0 ? undefined : Number(livro.saldo) < 0 ? 'ruim' : 'bom'}
               testId="saldo-periodo"
               nota="Entradas menos saídas"
             />
@@ -91,6 +92,7 @@ export default async function PaginaFinanceiro({
         ) : (
           <CartaoTabela
             rotulo="Lançamentos"
+            titulo="Lançamentos"
             aoLado={<span className="text-secondary">{contar(livro.total, 'lançamento', 'lançamentos')} no período</span>}
             rodape={
               <Paginacao
@@ -129,7 +131,10 @@ export default async function PaginaFinanceiro({
                   {l.tipo === 'saida' ? '−' : ''}
                   {valorEmReais(l.valor)}
                 </td>
-                <td>{l.tipo === 'saida' && !l.estornadoEm ? <BotaoEstorno lancamentoId={l.id} /> : l.ordemNumero ? <span className="small text-secondary">OS <NumeroOs numero={l.ordemNumero} /></span> : null}</td>
+                {/* So a acao. O numero da OS ja esta no historico, que e link
+                    para a ordem: repetir aqui era uma segunda porta cinza para
+                    o mesmo lugar. */}
+                <td className="text-end">{l.tipo === 'saida' && !l.estornadoEm ? <BotaoEstorno lancamentoId={l.id} /> : null}</td>
               </tr>
             ))}
           </CartaoTabela>

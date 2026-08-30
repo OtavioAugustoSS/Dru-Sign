@@ -57,7 +57,7 @@ export default async function PaginaOrdem({ params }: { params: Promise<{ id: st
                 mostrar "Nao pago" ao lado seria promessa de cobranca. */}
             <span className="d-flex flex-wrap align-items-center gap-2 mb-1">
               <SituacaoEstado estado={ordem.estadoProducao} />
-              {ordem.estadoProducao === 'cancelada' ? null : <SituacaoPagamento estado={ordem.pagamento.estado} />}
+              {ordem.estadoProducao === 'cancelada' ? null : <SituacaoPagamento estado={ordem.pagamento.estado} semValor={Number(ordem.precoFinal) === 0} />}
               {ordem.concluidaEm ? <span>serviço finalizado em {formatarDataHora(new Date(ordem.concluidaEm))}</span> : null}
               {ordem.canceladaEm ? <span>{ordem.motivoCancelamento}</span> : null}
             </span>

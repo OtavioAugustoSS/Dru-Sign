@@ -12,6 +12,10 @@ const baseURL = `http://localhost:${porta}`
 
 export default defineConfig({
   testDir: './e2e',
+  // Anota a hora antes da suite e, no fim, apaga o que nasceu durante ela. Ver
+  // e2e/faxina.ts: os testes usam o banco de desenvolvimento e nao podem
+  // deixar ordem de mentira no caixa da loja.
+  globalSetup: './e2e/faxina.ts',
   testMatch: '**/*.spec.ts',
   fullyParallel: false,
   workers: 1,

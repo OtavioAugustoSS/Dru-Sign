@@ -23,7 +23,7 @@ export function FormConta({ grupos }: { grupos: string[] }) {
         else setErro(r.erro)
       })
     }}>
-      <div className="col-md-5"><label className="form-label" htmlFor="nomeConta">Nova conta</label><input id="nomeConta" className="form-control" value={nome} onChange={(e) => setNome(e.target.value)} placeholder="MARKETING DIGITAL" /></div>
+      <div className="col-md-5"><label className="form-label" htmlFor="nomeConta">Nova conta</label><input id="nomeConta" className="form-control" value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Marketing digital" /></div>
       <div className="col-md-2">
         <label className="form-label" htmlFor="tipoConta">Tipo</label>
         <select id="tipoConta" className="form-select" value={tipo} onChange={(e) => setTipo(e.target.value)}>
@@ -33,7 +33,7 @@ export function FormConta({ grupos }: { grupos: string[] }) {
       </div>
       <div className="col-md-3">
         <label className="form-label" htmlFor="grupoConta">Grupo</label>
-        <input id="grupoConta" className="form-control" list="grupos" value={grupo} onChange={(e) => setGrupo(e.target.value)} placeholder="DESPESAS" />
+        <input id="grupoConta" className="form-control" list="grupos" value={grupo} onChange={(e) => setGrupo(e.target.value)} placeholder="Despesas fixas" />
         <datalist id="grupos">{grupos.map((g) => <option key={g} value={g} />)}</datalist>
       </div>
       <div className="col-md-2"><button type="submit" className="btn btn-primary w-100" disabled={pendente}>Criar conta</button></div>

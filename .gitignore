@@ -30,3 +30,6 @@ __pycache__/
 
 # Saida do Playwright MCP (capturas e log de console da vistoria)
 .playwright-mcp/
+
+# Marca da faxina do e2e (ver e2e/faxina.ts)
+.playwright-faxina.json

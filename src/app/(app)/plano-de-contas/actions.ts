@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { exigirPapel } from '@/infra/auth/usuario-atual'
 import { ErroDeValidacao } from '@/domain/precificacao/erros'
-import { criarConta, alterarAtiva, definirContaRecebimento } from '@/infra/caixa/plano'
+import { criarConta, alterarAtiva, definirContaRecebimento, excluirConta } from '@/infra/caixa/plano'
 import type { RespostaSimples } from '@/app/(app)/financeiro/actions'
 
 async function executar(corpo: (empresaId: string) => Promise<unknown>): Promise<RespostaSimples> {
@@ -23,6 +23,9 @@ export async function criarContaAction(dados: { nome: string; tipo: string; grup
 }
 export async function alterarAtivaAction(contaId: string, ativa: boolean): Promise<RespostaSimples> {
   return executar((empresaId) => alterarAtiva(empresaId, contaId, ativa))
+}
+export async function excluirContaAction(contaId: string): Promise<RespostaSimples> {
+  return executar((empresaId) => excluirConta(empresaId, contaId))
 }
 export async function definirContaRecebimentoAction(contaId: string): Promise<RespostaSimples> {
   return executar((empresaId) => definirContaRecebimento(empresaId, contaId))

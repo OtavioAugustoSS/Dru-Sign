@@ -576,3 +576,29 @@ th.text-end .coluna-ordenavel {
 .nav-tabs .anotacao {
   margin-left: 0.4em;
 }
+
+/* Formulario curto nao precisa dos 1.900 px do monitor da loja: o campo do
+ * valor esticado por meia tela para caber "150,00" parece erro de layout. A
+ * tabela continua usando a largura toda; o formulario para de usar. */
+.formulario-estreito {
+  max-width: 60rem;
+}
+
+/* O <details> usado para esconder campo raro. Sem estilo, o triangulo do
+ * navegador com texto do tamanho do corpo nao parece coisa que se clica. */
+summary {
+  width: fit-content;
+  cursor: pointer;
+  color: var(--tblr-link-color);
+}
+
+summary:hover {
+  color: var(--tblr-link-hover-color);
+}
+
+/* A linha de contexto abaixo do titulo da tela. Sem teto ela acompanha a
+ * largura do monitor: 90 e poucos caracteres por linha, e o olho perde o
+ * comeco da linha seguinte. */
+.cabecalho-descricao {
+  max-width: 80ch;
+}

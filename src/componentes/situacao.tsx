@@ -174,7 +174,22 @@ export function SituacaoEstado({ estado, className }: { estado: EstadoProducao; 
   )
 }
 
-export function SituacaoPagamento({ estado, className, testId }: { estado: EstadoPagamento; className?: string; testId?: string }) {
+/**
+ * O eixo de pagamento da ordem.
+ *
+ * `semValor` existe porque a ordem recem-aberta, sem item nenhum, e derivada
+ * como "pago": nao ha saldo a receber. Tecnicamente certo, e a pessoa do balcao
+ * le "Pago" numa ordem que ninguem pagou. Enquanto nao ha preco, nao ha nada a
+ * dizer sobre pagamento -- e e isso que a tela passa a dizer.
+ */
+export function SituacaoPagamento({ estado, semValor, className, testId }: { estado: EstadoPagamento; semValor?: boolean; className?: string; testId?: string }) {
+  if (semValor && estado === 'pago') {
+    return (
+      <Situacao tom="neutro" className={className} testId={testId}>
+        Sem valor ainda
+      </Situacao>
+    )
+  }
   return (
     <Situacao tom={TOM_PAGAMENTO[estado]} className={className} testId={testId}>
       {ROTULO_PAGAMENTO[estado]}
