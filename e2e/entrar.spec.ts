@@ -1,3 +1,4 @@
+import { campoDe } from './apoio'
 import { test, expect } from '@playwright/test'
 import { COOKIE_SESSAO } from '../src/infra/auth/constantes'
 
@@ -18,8 +19,8 @@ test.describe('Entrar', () => {
 
   test('senha errada mostra erro e permanece em /entrar', async ({ page }) => {
     await page.goto('/entrar')
-    await page.getByLabel('Login').fill(LOGIN)
-    await page.getByLabel('Senha').fill('senha-errada')
+    await campoDe(page, 'Login').fill(LOGIN)
+    await campoDe(page, 'Senha').fill('senha-errada')
     await page.getByRole('button', { name: 'Entrar' }).click()
 
     // O next dev injeta um role="alert" proprio (route announcer): filtrar pelo texto.
@@ -29,8 +30,8 @@ test.describe('Entrar', () => {
 
   test('entra, chega na fila de trabalho e sai', async ({ page }) => {
     await page.goto('/entrar')
-    await page.getByLabel('Login').fill(LOGIN)
-    await page.getByLabel('Senha').fill(SENHA)
+    await campoDe(page, 'Login').fill(LOGIN)
+    await campoDe(page, 'Senha').fill(SENHA)
     await page.getByRole('button', { name: 'Entrar' }).click()
 
     await expect(page).toHaveURL(/\/$/)

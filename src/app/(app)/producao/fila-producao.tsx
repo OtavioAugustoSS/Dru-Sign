@@ -69,8 +69,16 @@ function Grupo({ grupo }: { grupo: GrupoDaFila }) {
     // nasce fechado: sao ordens esperando alguem combinar entrega, nao trabalho
     // da vez. A contagem fica a vista, entao nada some em silencio.
     <details className="mb-4" open={!semPrazo}>
+      {/* O nome do grupo e um h2, nao so texto dentro do `summary`. Esta tela
+          nao tinha titulo nenhum abaixo do h1: quem usa leitor de tela via uma
+          lista de ~100 cartoes sem nada para separar "Atrasadas" de "Hoje". O
+          `fw-normal` e proposital -- mantem o peso que o summary ja tinha, para
+          a tela sair igual, e as classes ficam no `summary` para o marcador de
+          abrir/fechar manter a cor da urgencia (conferido por diff de pixel). */}
       <summary className={`fs-2 mb-3 ${TEXTO_URGENCIA[grupo.grupo]}`}>
-        {ROTULO_URGENCIA[grupo.grupo]} <span className="text-secondary">({grupo.ordens.length})</span>
+        <h2 className="fs-2 fw-normal d-inline">
+          {ROTULO_URGENCIA[grupo.grupo]} <span className="text-secondary">({grupo.ordens.length})</span>
+        </h2>
       </summary>
       <div className="row g-3">
         {grupo.ordens.map((o) => (

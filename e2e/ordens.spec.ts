@@ -1,5 +1,18 @@
 import { test, expect, type Page } from '@playwright/test'
-import { entrar } from './apoio'
+import { campoDe, entrar } from './apoio'
+
+/**
+ * Abre a dobra do ajuste de preco.
+ *
+ * Ajustar preco virou excecao, nao caminho normal: o formulario esta dentro de um
+ * `<details>` que so nasce aberto quando ja existe ajuste. Por isso o guarda --
+ * clicar num que ja esta aberto fecharia.
+ */
+async function abrirAjuste(page: Page): Promise<void> {
+  if (await campoDe(page, 'Preço final').isVisible()) return
+  await page.getByText('Ajustar o preço').click()
+  await expect(campoDe(page, 'Preço final')).toBeVisible()
+}
 
 /** As seis linhas da OS 18449 exatamente como a Odete digitava no legado. */
 const LINHAS_18449 = [
@@ -19,7 +32,7 @@ async function novaOrdem(page: Page, estado: 'Ordem de serviço' | 'Orçamento' 
 }
 
 async function lancar(page: Page, linha: string) {
-  const campo = page.getByLabel('Lançar item ou acréscimo')
+  const campo = campoDe(page, 'Lançar item ou acréscimo')
   await campo.fill(linha)
   await campo.press('Enter')
   await expect(campo).toHaveValue('', { timeout: 30_000 })
@@ -33,7 +46,7 @@ test.describe('Ordem de serviço', () => {
     // O contador anda a cada rodada (ja passou de 18500): o que importa aqui e o total, nao o numero.
     await expect(page.getByRole('heading', { name: /Ordem de serviço nº \d{6}/ })).toBeVisible({ timeout: 60_000 })
 
-    const campo = page.getByLabel('Lançar item ou acréscimo')
+    const campo = campoDe(page, 'Lançar item ou acréscimo')
     await campo.fill(LINHAS_18449[3]!)
     await expect(page.getByText('Entendi: qtd 12 · PLACAS ACM E ADES/ IMP · 0,61 × 0,40 m · R$ 61,00/un')).toBeVisible()
     await expect(page.getByText('→ R$ 732,00')).toBeVisible()
@@ -55,8 +68,9 @@ test.describe('Ordem de serviço', () => {
     await expect(page.getByTestId('preco-final')).toHaveText('R$ 2.102,00')
     await expect(page.getByText('Deslocamento · 34 km')).toBeVisible()
 
-    await page.getByLabel('Preço final').fill('2050,00')
-    await page.getByLabel('Motivo do ajuste').fill('arredondamento comercial')
+    await abrirAjuste(page)
+    await campoDe(page, 'Preço final').fill('2050,00')
+    await campoDe(page, 'Motivo do ajuste').fill('arredondamento comercial')
     await page.getByRole('button', { name: 'Ajustar preço' }).click()
     await expect(page.getByTestId('preco-final')).toHaveText('R$ 2.050,00', { timeout: 30_000 })
     await expect(page.getByText('Desconto de R$ 52,00 · arredondamento comercial')).toBeVisible()
@@ -78,15 +92,16 @@ test.describe('Ordem de serviço', () => {
     await lancar(page, '2 placa 1000,00')
     await lancar(page, '+deslocamento 34 km 102,00')
 
+    await abrirAjuste(page)
     // Campo do ajuste acompanha o total: depois do acrescimo mostra 2102,00, nao o 2000,00 de antes.
-    await expect(page.getByLabel('Preço final')).toHaveValue('2102,00')
+    await expect(campoDe(page, 'Preço final')).toHaveValue('2102,00')
 
-    await page.getByLabel('Preço final').fill('2050.50')
-    await page.getByLabel('Motivo do ajuste').fill('cliente antigo')
+    await campoDe(page, 'Preço final').fill('2050.50')
+    await campoDe(page, 'Motivo do ajuste').fill('cliente antigo')
     await page.getByRole('button', { name: 'Ajustar preço' }).click()
     await expect(page.getByTestId('preco-final')).toHaveText('R$ 2.050,50', { timeout: 30_000 })
 
-    await page.getByLabel('Preço final').fill('dois mil')
+    await campoDe(page, 'Preço final').fill('dois mil')
     await page.getByRole('button', { name: 'Ajustar preço' }).click()
     await expect(page.getByRole('alert').filter({ hasText: 'Preço inválido' })).toBeVisible()
     await expect(page.getByTestId('preco-final')).toHaveText('R$ 2.050,50')
@@ -94,7 +109,7 @@ test.describe('Ordem de serviço', () => {
 
   test('pendencia nao grava; Esc limpa; segundo Enter nao conflita', async ({ page }) => {
     await novaOrdem(page)
-    const campo = page.getByLabel('Lançar item ou acréscimo')
+    const campo = campoDe(page, 'Lançar item ou acréscimo')
     await campo.fill('3 banner 200x100')
     await campo.press('Enter')
     await expect(page.getByRole('alert').filter({ hasText: 'Falta o valor unitário' })).toBeVisible()
@@ -116,21 +131,25 @@ test.describe('Ordem de serviço', () => {
     await expect(page.getByRole('heading', { name: /Ordem de serviço nº/ })).toBeVisible({ timeout: 30_000 })
     await expect(page.getByText(/Orçamento aprovado em/)).toBeVisible()
 
+    // O endereco da ordem guardado antes: cancelar leva para a lista, e `goBack`
+    // nao garante a volta para a ficha -- depende de como a acao mexeu no historico.
+    const daOrdem = page.url()
     await page.getByRole('button', { name: 'Cancelar ordem' }).click()
-    await page.getByLabel('Motivo do cancelamento').fill('cliente desistiu')
+    await campoDe(page, 'Motivo do cancelamento').fill('cliente desistiu')
     await page.getByRole('button', { name: 'Confirmar cancelamento' }).click()
     await expect(page).toHaveURL(/\/ordens$/, { timeout: 30_000 })
-    await page.goBack()
-    await expect(page.getByText('Cancelada · cliente desistiu')).toBeVisible()
+    await page.goto(daOrdem)
+    await expect(page.getByText('Cancelada', { exact: true })).toBeVisible()
+    await expect(page.getByText('cliente desistiu')).toBeVisible()
     await expect(page.getByRole('table', { name: 'Itens da ordem' }).locator('tbody tr')).toHaveCount(1)
-    await expect(page.getByLabel('Lançar item ou acréscimo')).toHaveCount(0)
+    await expect(campoDe(page, 'Lançar item ou acréscimo')).toHaveCount(0)
   })
 
   test('cabecalho: escolhe o cliente pela busca e a ordem passa a mostrar o apelido', async ({ page }) => {
     await novaOrdem(page)
-    await page.getByLabel('Cliente').fill('factu')
+    await campoDe(page, 'Cliente').fill('factu')
     await page.getByRole('option').filter({ hasText: 'ASSOCIAÇÃO DE ENSINO' }).getByRole('button').click()
-    await page.getByLabel('Entrega prometida').fill('2026-09-04')
+    await campoDe(page, 'Entrega prometida').fill('2026-09-04')
     await page.getByRole('button', { name: 'Salvar cabeçalho' }).click()
     await expect(page.getByText('Salvo.')).toBeVisible({ timeout: 30_000 })
     await expect(page.getByText(/ASSOCIAÇÃO DE ENSINO E PERQUISA DE UNAÍ · FACTU/)).toBeVisible()

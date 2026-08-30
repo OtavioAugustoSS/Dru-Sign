@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { entrar, entrarComo, LOGIN_OPERACAO, SENHA_OPERACAO } from './apoio'
+import { campoDe, entrar, entrarComo, LOGIN_OPERACAO, SENHA_OPERACAO } from './apoio'
 
 test.describe('Materiais e preços', () => {
   test('administrador cadastra um material e ve o preco formatado', async ({ page }) => {
@@ -8,10 +8,10 @@ test.describe('Materiais e preços', () => {
     await expect(page).toHaveURL(/\/materiais$/)
 
     const nome = `ACM 3mm e2e ${Date.now()}`
-    await page.getByLabel('Material').fill(nome)
-    await page.getByLabel('Categoria').fill('Placas')
-    await page.getByLabel('Preço').fill('281,00')
-    await page.getByLabel('Cobrado').selectOption('m2')
+    await campoDe(page, 'Material').fill(nome)
+    await campoDe(page, 'Categoria').fill('Placas')
+    await campoDe(page, 'Preço').fill('281,00')
+    await campoDe(page, 'Cobrado').selectOption('m2')
     await page.getByRole('button', { name: 'Salvar' }).click()
 
     const linha = page.getByRole('row', { name: new RegExp(nome) })
@@ -25,13 +25,13 @@ test.describe('Materiais e preços', () => {
   test('erro de validacao nao perde a unidade escolhida no select', async ({ page }) => {
     await entrar(page)
     await page.goto('/materiais')
-    await page.getByLabel('Material').fill(`Preco invalido e2e ${Date.now()}`)
-    await page.getByLabel('Preço').fill('abc')
-    await page.getByLabel('Cobrado').selectOption('metro_linear')
+    await campoDe(page, 'Material').fill(`Preco invalido e2e ${Date.now()}`)
+    await campoDe(page, 'Preço').fill('abc')
+    await campoDe(page, 'Cobrado').selectOption('metro_linear')
     await page.getByRole('button', { name: 'Salvar' }).click()
 
     await expect(page.getByRole('alert').filter({ hasText: 'Preço inválido' })).toBeVisible({ timeout: 30_000 })
-    await expect(page.getByLabel('Cobrado')).toHaveValue('metro_linear')
+    await expect(campoDe(page, 'Cobrado')).toHaveValue('metro_linear')
   })
 
   test('operacao nao ve nem abre Materiais e preços', async ({ page }) => {

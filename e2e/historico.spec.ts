@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { entrar } from './apoio'
+import { campoDe, entrar } from './apoio'
 
 test.describe('Histórico', () => {
   test('busca no arquivo do sistema antigo por numero, cliente e texto', async ({ page }) => {
@@ -15,11 +15,11 @@ test.describe('Histórico', () => {
       return
     }
     await expect(page.getByTestId('soma-historico')).toContainText('R$')
-    await page.getByLabel('Buscar').fill('18449')
+    await campoDe(page, 'Buscar').fill('18449')
     await page.getByRole('button', { name: 'Buscar' }).click()
     await expect(tabela.locator('tbody tr')).toHaveCount(1, { timeout: 30_000 })
     await page.getByRole('link', { name: 'Limpar' }).click()
-    await page.getByLabel('Buscar').fill('zzz nao existe zzz')
+    await campoDe(page, 'Buscar').fill('zzz nao existe zzz')
     await page.getByRole('button', { name: 'Buscar' }).click()
     await expect(page.getByText('Nada no arquivo com esse filtro')).toBeVisible({ timeout: 30_000 })
   })

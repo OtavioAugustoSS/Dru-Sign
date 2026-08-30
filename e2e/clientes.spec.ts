@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { entrar } from './apoio'
+import { campoDe, entrar } from './apoio'
 
 // Pressupoe `npm run importar:clientes` ja executado no banco de desenvolvimento.
 test.describe('Clientes', () => {
@@ -24,8 +24,8 @@ test.describe('Clientes', () => {
   test('cadastrar com telefone repetido avisa, e confirmar cadastra', async ({ page }) => {
     const nome = `Cliente e2e ${Date.now()}`
     await page.goto('/clientes/novo')
-    await page.getByLabel('Nome').fill(nome)
-    await page.getByLabel('Telefone', { exact: true }).fill('(38) 99968-1168')
+    await campoDe(page, 'Nome').fill(nome)
+    await campoDe(page, 'Telefone', { exact: true }).fill('(38) 99968-1168')
     await page.getByRole('button', { name: 'Salvar' }).click()
 
     const aviso = page.getByRole('alert').filter({ hasText: 'Já existe cadastro com este telefone' })
@@ -34,7 +34,7 @@ test.describe('Clientes', () => {
     // O next dev compila a action na primeira chamada; sob carga passa de 10 s.
     await expect(page).toHaveURL(/\/clientes\/novo/, { timeout: 30_000 })
 
-    await page.getByLabel('É outra pessoa. Cadastrar mesmo assim.').check()
+    await campoDe(page, 'É outra pessoa. Cadastrar mesmo assim.').check()
     await page.getByRole('button', { name: 'Salvar' }).click()
 
     await expect(page).toHaveURL(/\/clientes\/[0-9a-f-]{36}$/, { timeout: 30_000 })

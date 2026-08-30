@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
-import { entrar } from './apoio'
+import { campoDe, entrar } from './apoio'
 
 test.describe('Impresso da ordem', () => {
   test('mostra numero, itens e total; some a barra em print; gera PDF A4', async ({ page, browserName, headless }) => {
@@ -8,7 +8,7 @@ test.describe('Impresso da ordem', () => {
     await page.goto('/ordens/nova')
     await page.getByRole('button', { name: 'Ordem de serviço', exact: true }).click()
     await expect(page).toHaveURL(/\/ordens\/[0-9a-f-]{36}$/, { timeout: 60_000 })
-    const campo = page.getByLabel('Lançar item ou acréscimo')
+    const campo = campoDe(page, 'Lançar item ou acréscimo')
     for (const linha of ['12 PLACAS ACM 61 X 40 E ADES/ IMP 61,00  CD 732,00', '+instalacao 280']) {
       await campo.fill(linha); await campo.press('Enter'); await expect(campo).toHaveValue('', { timeout: 30_000 })
     }
