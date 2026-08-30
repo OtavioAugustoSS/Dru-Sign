@@ -707,9 +707,100 @@ Ordem por tráfego e por gravidade do que foi encontrado.
   sensível a caixa (`/aprove o orçamento/`) e passaram a `/i` — a caixa da
   primeira palavra não é o que eles testam. Os que afirmavam a frase inteira
   foram atualizados. 385 testes passando.
-- [ ] **Z1. Passada final.** Percorrer as 22 telas nos dois temas em 1440px e 1280px.
+- [x] **Z1. Passada final.** Percorrer as 22 telas nos dois temas em 1440px e 1280px.
   Conferir contraste de todo par texto/fundo. Navegar o sistema inteiro só pelo
   teclado. Rodar `npm run check` e `npm run e2e`. Escrever o que ficou de fora.
+
+  ### A varredura visual
+
+  21 telas × 2 temas × 2 larguras, medindo **toda assinatura única** de
+  texto/fundo — não uma amostra: para cada elemento com texto próprio, a cor
+  composta contra a pilha inteira de fundos, com o mínimo de 4,5:1 ou 3:1
+  conforme tamanho e peso. Controles desabilitados ficam de fora (WCAG 1.4.3 os
+  isenta — é o caso do "Anterior" da paginação na primeira página, 2,09:1 de
+  propósito).
+
+  Quatro defeitos. Três eram controles que vêm com **cor fixa escrita por cima
+  dos tokens do Tabler**, servindo a mesma cor nos dois temas:
+
+  | Controle | Cor | Claro | Escuro |
+  |---|---|---|---|
+  | `.btn-link` | `#077CEA` | 4,13 | 3,55 |
+  | `.btn-ghost-danger` | `#D63939` | — | 3,15 |
+  | `.input-group-text` (o "R$") | `#6B7280` | — | 3,67 |
+
+  O `.btn-link` era o pior: além de reprovar, era **azul do Bootstrap num sistema
+  cuja primária é azul-petróleo**. "Cancelar", "Só receber", "Voltar à ordem" — as
+  ações secundárias do sistema inteiro estavam fora da marca.
+
+  O quarto: a ficha da ordem pulava de h1 para h3 no cartão de pagamento.
+
+  Depois das correções, a varredura fecha **limpa**: contraste, um h1 por tela,
+  sem pulo de nível, sem rolagem horizontal.
+
+  ### O teclado
+
+  O pior defeito de toda a vistoria, e o único que só aparece navegando:
+  **nada no sistema mostrava onde o foco estava.** Botão primário, botão comum,
+  botão fantasma, campo, link — todos com `outline: none` e só a sombra de
+  repouso. Não era um controle esquecido: era o sistema inteiro (WCAG 2.4.7).
+
+  O Bootstrap zera o outline em `.btn:focus-visible` e `.form-control:focus`,
+  que são (0,2,0) — um `button:focus-visible` (0,1,1) perdia. Casando a
+  especificidade, o anel passa a valer: 2px na primária, com 2px de afastamento,
+  então o que contrasta é o anel contra o **fundo da página**, não contra o
+  botão: 4,73:1 no claro e 8,76:1 no escuro. Conferido tabulando 42 paradas nos
+  dois temas: **zero sem anel**.
+
+  Uma coisa que parecia defeito e não é: o Tab não começa no "Pular para o
+  conteúdo" na maioria das telas. É o `autoFocus` do campo de busca, que põe o
+  cursor onde a Odete vai digitar — e alcança o mesmo que o link de pular, mais
+  direto. Shift+Tab ainda leva ao menu.
+
+  ### `npm run check`
+
+  `typecheck` e os **385 testes de unidade** passam. O `test:int` fecha 80 de 81.
+
+  Sete falhas eram mensagens que o commit `40423a6` acentuou sem atualizar os
+  testes de integração — invisíveis porque **`test:int` não entra no `npm test`**,
+  que é o portão de cada volta do loop. Corrigidas.
+
+  Sobra uma: a importação das 18.443 ordens legadas estoura os 300s. Não é deste
+  trabalho (nada aqui toca importador, schema ou transação) e não é o teto de
+  conexões do PGlite — testei com e sem `DATABASE_POOL_MAX=2` e estoura igual. É
+  o PGlite local sendo lento para carga em massa. **Fica para o Otavio decidir:**
+  subir o `testTimeout` desse teste ou marcá-lo como lento.
+
+  ### `npm run e2e`
+
+  **32 de 32.** Começou em 22 de 32: o e2e não era rodado a cada volta (o
+  Playwright derruba o `next dev` no fim), então dez testes ficaram para trás
+  enquanto a casca mudava. Nove eram testes desatualizados; um apontava defeito
+  de verdade.
+
+  O padrão mais interessante: `getByLabel` casa com o `<label>` **e** com o
+  `aria-label` de qualquer elemento. As tabelas ganharam `aria-label` nesta
+  reforma, e "Materiais e preços" passou a casar com `getByLabel('Preço')` junto
+  com o campo. O rótulo da tabela é bom e fica; a busca é que estava imprecisa —
+  daí o helper `campoDe`, que pede rótulo **e** ser controle de formulário.
+
+  O defeito real: a fila de produção não tinha título nenhum abaixo do h1 — quem
+  usa leitor de tela via ~100 cartões sem nada separando "Atrasadas" de "Hoje".
+  Os nomes dos grupos viraram h2 dentro do `summary`, com diff de pixel zero.
+
+  ### O aviso de hidratação
+
+  Era recompilação do dev, como suspeitado. `npm run build` e o servidor de
+  produção: **zero mensagens no console** em 40 carregamentos (20 rotas × 2
+  temas).
+
+  ### O que ficou de fora
+
+  - **Celular** — item M1, branch própria, decisão do Otavio.
+  - **A importação das 18.443 no `test:int`** — acima.
+  - **`design/` e `docs/superpowers/specs/`** seguem sem versionar, esperando
+    decisão.
+  - **O `icon.svg`** continua marcado PROVISÓRIO: é um monograma, não a marca.
 
 ---
 
