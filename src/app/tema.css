@@ -157,3 +157,13 @@
   font-variant-numeric: tabular-nums;
   text-align: right;
 }
+
+/* Estado vazio dentro da casca: o `container-xl` tem a largura toda, entao a
+ * frase de explicacao saía numa linha unica de mil pixels -- longe demais para
+ * o olho voltar do fim de uma linha ao comeco da seguinte. Limitada a medida
+ * de leitura e centrada, ela quebra em duas ou tres linhas curtas, como ja
+ * acontecia na tela de endereco errado (que usa `container-tight`). */
+.empty-subtitle {
+  max-width: 56ch;
+  margin-inline: auto;
+}
