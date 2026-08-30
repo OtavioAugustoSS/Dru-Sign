@@ -5,12 +5,13 @@ import { exigirUsuario } from '@/infra/auth/usuario-atual'
 import { CabecalhoPagina } from '@/componentes/cabecalho-pagina'
 import { CorpoPagina } from '@/componentes/corpo-pagina'
 import { CartaoTabela } from '@/componentes/cartao-tabela'
+import { CartaoIndicador } from '@/componentes/cartao-indicador'
 import { EstadoVazio } from '@/componentes/estado-vazio'
 import { Dinheiro } from '@/componentes/dinheiro'
 import { NumeroOs } from '@/componentes/numero-os'
 import { Paginacao, POR_PAGINA, lerPagina } from '@/componentes/paginacao'
 import { Apelido, Situacao, SituacaoEstado, SituacaoPagamento } from '@/componentes/situacao'
-import { contarOrdens, listarOrdens } from '@/infra/ordens/repositorio'
+import { contagensDeOrdens, contarOrdens, listarOrdens } from '@/infra/ordens/repositorio'
 import { ROTULO_ESTADO, type EstadoPagamento } from '@/domain/ordem/estados'
 import { formatarDataCalendario, formatarDataHora } from '@/domain/ordem/datas'
 
@@ -52,9 +53,10 @@ export default async function PaginaOrdens({
   const pagina = lerPagina(paginaCrua)
   const filtros = { q, estado: estadoValido, de: de || undefined, ate: ate || undefined }
 
-  const [ordens, total] = await Promise.all([
+  const [ordens, total, contagens] = await Promise.all([
     listarOrdens(usuario.empresaId, { ...filtros, limite: POR_PAGINA, pagina }),
     contarOrdens(usuario.empresaId, filtros),
+    contagensDeOrdens(usuario.empresaId),
   ])
   const filtrando = Boolean(q || estado || de)
 
@@ -70,6 +72,31 @@ export default async function PaginaOrdens({
         }
       />
       <CorpoPagina>
+        {/* Cada numero e a porta da lista que ele conta. "A receber" nao filtra
+            -- o estado de pagamento e derivado, nao coluna -- entao ele informa
+            e nao promete clique. E o numero que motivou trocar de sistema:
+            R$ 207.795 estavam parados em 513 ordens no legado, e nao apareciam
+            em tela nenhuma. */}
+        <div className="row g-3 mb-3">
+          <div className="col-6 col-lg-3">
+            <CartaoIndicador rotulo="Em aberto" valor={contagens.aberta} href="/ordens?estado=aberta" nota="na produção agora" />
+          </div>
+          <div className="col-6 col-lg-3">
+            <CartaoIndicador rotulo="Orçamentos" valor={contagens.orcamento} href="/ordens?estado=orcamento" nota="esperando aprovação" />
+          </div>
+          <div className="col-6 col-lg-3">
+            <CartaoIndicador rotulo="Finalizadas" valor={contagens.concluida} href="/ordens?estado=concluida" nota="serviço entregue" />
+          </div>
+          <div className="col-6 col-lg-3">
+            <CartaoIndicador
+              rotulo="A receber"
+              valor={<Dinheiro valor={contagens.aReceber} />}
+              tom={Number(contagens.aReceber) > 0 ? 'atencao' : 'bom'}
+              nota="faturado que ainda não entrou"
+            />
+          </div>
+        </div>
+
         <form method="get" className="card mb-3" role="search">
           <div className="card-body row g-2 align-items-end">
             <div className="col-md-4">

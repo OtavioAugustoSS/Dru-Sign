@@ -46,16 +46,75 @@ function colunas(dados: DadosMaterial) {
   }
 }
 
+export interface FiltrosMateriais {
+  incluirInativos?: boolean
+  /** Trecho do nome ou da categoria. */
+  q?: string
+  /** Uma categoria exata, vinda do proprio catalogo. */
+  categoria?: string
+  limite?: number
+  /** 1 e a primeira. */
+  pagina?: number
+}
+
+/** O mesmo filtro para a lista e para a contagem: se divergirem, a paginacao mente. */
+function condicaoDeMateriais(empresaId: string, f: FiltrosMateriais) {
+  const q = f.q?.trim() ?? ''
+  return {
+    empresaId,
+    ...(f.incluirInativos ? {} : { ativo: true }),
+    ...(f.categoria ? { categoria: f.categoria } : {}),
+    ...(q === '' ? {} : {
+      OR: [
+        { nome: { contains: q, mode: 'insensitive' as const } },
+        { categoria: { contains: q, mode: 'insensitive' as const } },
+      ],
+    }),
+  }
+}
+
 export async function listarMateriais(
   empresaId: string,
-  opcoes: { incluirInativos?: boolean } = {},
+  opcoes: FiltrosMateriais = {},
 ): Promise<MaterialResumo[]> {
+  const limite = opcoes.limite
   const linhas = await prisma.material.findMany({
-    where: { empresaId, ...(opcoes.incluirInativos ? {} : { ativo: true }) },
+    where: condicaoDeMateriais(empresaId, opcoes),
     orderBy: [{ categoria: 'asc' }, { nome: 'asc' }],
+    ...(limite ? { take: limite, skip: opcoes.pagina && opcoes.pagina > 1 ? (opcoes.pagina - 1) * limite : 0 } : {}),
     select: SELECAO,
   })
   return linhas.map(paraResumo)
+}
+
+export async function contarMateriais(empresaId: string, opcoes: FiltrosMateriais = {}): Promise<number> {
+  return prisma.material.count({ where: condicaoDeMateriais(empresaId, opcoes) })
+}
+
+/**
+ * As categorias que existem no catalogo, para o filtro nao ser texto livre.
+ *
+ * Vem do proprio catalogo em vez de uma lista fixa: a loja inventa categoria
+ * conforme precisa, e uma lista fixa no codigo envelheceria na primeira semana.
+ */
+export async function categoriasDeMateriais(empresaId: string): Promise<string[]> {
+  const linhas = await prisma.material.findMany({
+    where: { empresaId, categoria: { not: null } },
+    distinct: ['categoria'],
+    orderBy: { categoria: 'asc' },
+    select: { categoria: true },
+  })
+  return linhas.map((l) => l.categoria).filter((c): c is string => c !== null)
+}
+
+/** Quantos estao ativos e quantos foram desativados -- os numeros do alto da tela. */
+export async function contagensDeMateriais(empresaId: string): Promise<{ ativos: number; inativos: number; categorias: number }> {
+  const [ativos, inativos, categorias] = await Promise.all([
+    prisma.material.count({ where: { empresaId, ativo: true } }),
+    prisma.material.count({ where: { empresaId, ativo: false } }),
+    categoriasDeMateriais(empresaId).then((c) => c.length),
+  ])
+  return { ativos, inativos, categorias }
 }
 
 export async function obterMaterial(empresaId: string, id: string): Promise<MaterialResumo | null> {

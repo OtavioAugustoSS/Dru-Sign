@@ -1,5 +1,6 @@
 import { prisma } from '@/infra/db/prisma'
 import { paraDominio } from '@/infra/db/decimal'
+import { dinheiro } from '@/domain/precificacao/dinheiro'
 import { ajusteDesatualizado, type EstadoProducao, type EstadoPagamento } from '@/domain/ordem/estados'
 import type { UnidadeCobranca } from '@/domain/precificacao/tipos'
 import type { TipoAcrescimo } from '@/domain/precificacao/resolucao'
@@ -197,4 +198,40 @@ export async function listarOrdens(empresaId: string, filtros: FiltrosOrdens = {
       estadoPagamento: p.estado, saldo: p.saldo.toFixed(2),
     }
   })
+}
+
+/**
+ * Os numeros do alto da lista de ordens.
+ *
+ * Contagem por estado numa ida so (`groupBy`), e o valor a receber por soma --
+ * nao pela conta que a tela de indicadores faz, que percorre ordem por ordem
+ * para calcular prazo e mediana. Aqui basta faturado menos recebido.
+ *
+ * "A receber" e o numero que motivou trocar o sistema: R$ 207.795 estavam
+ * parados em 513 ordens abertas no legado, e ninguem via isso em lugar nenhum.
+ */
+export async function contagensDeOrdens(empresaId: string): Promise<{
+  aberta: number
+  orcamento: number
+  concluida: number
+  cancelada: number
+  aReceber: string
+}> {
+  const [porEstado, faturado, recebido] = await Promise.all([
+    prisma.ordemServico.groupBy({ by: ['estadoProducao'], where: { empresaId }, _count: { _all: true } }),
+    // Cancelada nao entra: o dominio recusa receber nela, entao ela nao deve nada.
+    prisma.ordemServico.aggregate({ where: { empresaId, estadoProducao: { not: 'cancelada' } }, _sum: { precoFinal: true } }),
+    prisma.recebimento.aggregate({ where: { empresaId, estornadoEm: null }, _sum: { valor: true } }),
+  ])
+  const conta = (e: EstadoProducao) => porEstado.find((g) => g.estadoProducao === e)?._count._all ?? 0
+  const soma = (v: Parameters<typeof paraDominio>[0] | null) => (v === null ? dinheiro('0') : paraDominio(v))
+  const total = soma(faturado._sum.precoFinal).minus(soma(recebido._sum.valor))
+  return {
+    aberta: conta('aberta'),
+    orcamento: conta('orcamento'),
+    concluida: conta('concluida'),
+    cancelada: conta('cancelada'),
+    // Estorno pode passar do faturado num instante estranho; negativo aqui e ruido, nao divida.
+    aReceber: (total.isNegative() ? dinheiro('0') : total).toFixed(2),
+  }
 }
