@@ -7,6 +7,8 @@ import { CorpoPagina } from '@/componentes/corpo-pagina'
 import { CartaoTabela } from '@/componentes/cartao-tabela'
 import { CartaoIndicador } from '@/componentes/cartao-indicador'
 import { EstadoVazio } from '@/componentes/estado-vazio'
+import { AtalhosPeriodo } from '@/componentes/atalhos-periodo'
+import { periodosUsuais } from '@/componentes/periodos'
 import { Dinheiro } from '@/componentes/dinheiro'
 import { NumeroOs } from '@/componentes/numero-os'
 import { Paginacao, PaginacaoCompacta, POR_PAGINA, lerPagina } from '@/componentes/paginacao'
@@ -132,6 +134,17 @@ export default async function PaginaOrdens({
             <div className="col-md-2 d-flex gap-2">
               <button type="submit" className="btn btn-primary">Filtrar</button>
               <Link href="/ordens" className="btn">Limpar</Link>
+            </div>
+            {/* Os mesmos atalhos do livro-caixa e do painel: "mes passado" e a
+                pergunta comum, e digitar duas datas para ela e trabalho toda vez. */}
+            <div className="col-12">
+              <AtalhosPeriodo
+                periodos={periodosUsuais(new Date())}
+                de={de}
+                ate={ate}
+                base="/ordens"
+                parametros={{ q: q || undefined, estado: estado || undefined }}
+              />
             </div>
           </div>
         </form>

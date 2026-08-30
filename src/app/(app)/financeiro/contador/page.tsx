@@ -4,6 +4,8 @@ import { IconDownload } from '@tabler/icons-react'
 import { exigirPapel } from '@/infra/auth/usuario-atual'
 import { CabecalhoPagina } from '@/componentes/cabecalho-pagina'
 import { CorpoPagina } from '@/componentes/corpo-pagina'
+import { AtalhosPeriodo } from '@/componentes/atalhos-periodo'
+import { periodosUsuais } from '@/componentes/periodos'
 import { CartaoTabela } from '@/componentes/cartao-tabela'
 import { CartaoIndicador } from '@/componentes/cartao-indicador'
 import { BlocoVazio } from '@/componentes/estado-vazio'
@@ -93,6 +95,10 @@ export default async function PaginaContador({ searchParams }: { searchParams: P
               <input id="ate" type="date" name="ate" className="form-control" defaultValue={periodo.ate} />
             </div>
             <div className="col-auto"><button type="submit" className="btn btn-primary">Mostrar</button></div>
+            {/* "Mes passado" e literalmente o que o contador pede todo dia 5. */}
+            <div className="col-12">
+              <AtalhosPeriodo periodos={periodosUsuais(new Date())} de={periodo.de} ate={periodo.ate} base="/financeiro/contador" />
+            </div>
             {erro ? (
               <div className="col-12 text-danger-emphasis small" role="alert">{erro} Mostrando o mês atual.</div>
             ) : null}

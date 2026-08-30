@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { exigirPapel } from '@/infra/auth/usuario-atual'
 import { CabecalhoPagina } from '@/componentes/cabecalho-pagina'
 import { CorpoPagina } from '@/componentes/corpo-pagina'
+import { AtalhosPeriodo } from '@/componentes/atalhos-periodo'
+import { periodosUsuais } from '@/componentes/periodos'
 import { CartaoIndicador } from '@/componentes/cartao-indicador'
 import { CartaoTabela } from '@/componentes/cartao-tabela'
 import { BlocoVazio } from '@/componentes/estado-vazio'
@@ -53,6 +55,9 @@ export default async function PaginaOperacao({ searchParams }: { searchParams: P
               <input id="ate" type="date" name="ate" className="form-control" defaultValue={dados.ate ?? ''} />
             </div>
             <div className="col-auto"><button type="submit" className="btn btn-primary">Mostrar</button></div>
+            <div className="col-12">
+              <AtalhosPeriodo periodos={periodosUsuais(new Date())} de={dados.de ?? ''} ate={dados.ate ?? ''} base="/operacao" />
+            </div>
             <div className="col-12 form-hint">
               {dados.de ? `Período de ${dados.de} a ${dados.ate}.` : 'Sem período: tudo o que existe no sistema.'}
             </div>
