@@ -352,3 +352,44 @@ summary:focus-visible,
   content: '·';
   margin-inline: 0.4em;
 }
+
+/* A COR DO PONTO DE SITUACAO -- que nao e a cor do texto.
+ *
+ * A primeira versao pintava o ponto com as classes `-emphasis`, as mesmas do
+ * texto. No tema claro ficou ilegivel: `-emphasis` sao versoes ESCURECIDAS,
+ * feitas para letra sobre fundo claro. O verde dava 10,66:1 sobre branco --
+ * passa folgado em contraste e mesmo assim ninguem reconhece que e verde,
+ * porque num circulo de 8px o que identifica a cor e a SATURACAO, nao o quanto
+ * ela e escura. Contraste alto e cor reconhecivel nao sao a mesma coisa.
+ *
+ * Paleta propria, entao: saturada o bastante para se ler como verde, vermelho
+ * ou ambar, e acima dos 3:1 que a WCAG pede para grafico com significado. E a
+ * palavra ao lado continua dizendo tudo, entao ninguem depende da cor. */
+:root {
+  --ponto-neutro: #6B7280;   /* sobre branco ..... 4,61:1 */
+  --ponto-marca: #0E7C93;    /* sobre branco ..... 4,86:1 */
+  --ponto-bom: #16A34A;      /* sobre branco ..... 3,30:1 */
+  --ponto-atencao: #B45309;  /* sobre branco ..... 5,02:1 */
+  --ponto-ruim: #DC2626;     /* sobre branco ..... 4,83:1 */
+}
+
+[data-bs-theme='dark'] {
+  --ponto-neutro: #9CA3AF;
+  --ponto-marca: #5FC4D8;
+  --ponto-bom: #34D399;
+  --ponto-atencao: #FBBF24;
+  --ponto-ruim: #F87171;
+}
+
+/* 10px e nao 8: num circulo pequeno, cada pixel a mais ajuda a reconhecer a cor,
+ * e o ponto continua menor que a altura da letra ao lado. */
+.situacao-ponto {
+  width: 0.625rem;
+  height: 0.625rem;
+}
+
+.ponto-neutro { background: var(--ponto-neutro); }
+.ponto-marca { background: var(--ponto-marca); }
+.ponto-bom { background: var(--ponto-bom); }
+.ponto-atencao { background: var(--ponto-atencao); }
+.ponto-ruim { background: var(--ponto-ruim); }

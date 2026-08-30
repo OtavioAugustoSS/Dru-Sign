@@ -32,6 +32,27 @@ const FUNDO: Record<Tom, string> = {
  * branco, muito abaixo dos 4,5:1 de texto. Primaria e secundaria ja passam
  * inteiras, entao ficam como estao.
  */
+/**
+ * A cor do PONTO de situacao -- que nao e a cor do texto.
+ *
+ * A primeira versao pintava o ponto com as classes de `TEXTO`, e ficou ilegivel
+ * no tema claro: as `-emphasis` sao versoes ESCURECIDAS, feitas para letra sobre
+ * fundo claro. O verde `-emphasis` da 10,66:1 sobre branco -- passa folgado em
+ * contraste e mesmo assim ninguem reconhece que e verde, porque num circulo de
+ * 8px o que identifica a cor e a saturacao, nao o quanto ela e escura.
+ *
+ * Entao o ponto ganha paleta propria: saturada o bastante para se ler como
+ * verde, vermelho ou ambar, e ainda acima dos 3:1 que um grafico com significado
+ * precisa. Os valores medidos estao no `tema.css`, ao lado de cada token.
+ */
+export const PONTO: Record<Tom, string> = {
+  neutro: 'ponto-neutro',
+  marca: 'ponto-marca',
+  bom: 'ponto-bom',
+  atencao: 'ponto-atencao',
+  ruim: 'ponto-ruim',
+}
+
 export const TEXTO: Record<Tom, string> = {
   neutro: 'text-secondary',
   marca: 'text-primary',
@@ -114,7 +135,7 @@ interface Props {
 export function Situacao({ tom, children, className, testId }: Props) {
   return (
     <span className={className ? `situacao ${className}` : 'situacao'} data-testid={testId}>
-      <span className={`situacao-ponto ${TEXTO[tom]}`} aria-hidden="true" />
+      <span className={`situacao-ponto ${PONTO[tom]}`} aria-hidden="true" />
       {/* O rotulo num span proprio: como `.situacao` e flex com `gap`, um texto
           solto com espaco no meio ("Falta R$ 80,00") viraria dois itens flex e
           ganharia um vao no meio da frase. */}
