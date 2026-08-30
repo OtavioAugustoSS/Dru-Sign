@@ -647,7 +647,7 @@ Ordem por tráfego e por gravidade do que foi encontrado.
 
 ### Fechamento
 
-- [ ] **Z0. Registro das mensagens de validação.** Sobraram ~25 mensagens de
+- [x] **Z0. Registro das mensagens de validação.** Sobraram ~25 mensagens de
   `ErroDeValidacao` corretas em português mas escritas em registro de
   desenvolvedor: minúsculas e sem ponto final ("aprove o orçamento antes de
   receber", "a ordem já está paga"). Elas chegam verbatim na tela, ao lado de
@@ -657,6 +657,56 @@ Ordem por tráfego e por gravidade do que foi encontrado.
   ganhar ponto final, a frase composta fica "Data inválida. — mostrando o mês
   atual." Cada uma precisa ser decidida junto com o lugar onde aparece; não é
   varredura mecânica.
+
+  **61 mensagens reescritas.** A armadilha era real e a saída foi mexer nos dois
+  lados: a mensagem ganha ponto final *e* a frase composta perde o travessão, que
+  agora sobraria. As cinco composições ficaram assim:
+
+  | Onde | Antes | Agora |
+  |---|---|---|
+  | Livro-caixa, contador | `período inválido — mostrando o mês atual.` | `Período inválido. Mostrando o mês atual.` |
+  | Indicadores | `período inválido — mostrando tudo.` | `Período inválido. Mostrando tudo.` |
+  | Histórico | `período inválido — ignorando o período.` | `Período inválido. Mostrando sem filtro de data.` |
+  | Entrada assistida | `descreva o item Enter para tentar de novo.` | `Descreva o item. Enter para tentar de novo.` |
+
+  No histórico, "ignorando o período" dizia o que o sistema deixou de fazer;
+  "Mostrando sem filtro de data" diz o que a pessoa está vendo. A da entrada
+  assistida já era duas frases coladas sem ponto — consertou-se sozinha.
+
+  Nem toda mudança foi de caixa. Estas viraram outra frase: "tipo precisa ser
+  receita ou despesa" → "Escolha se a conta é de receita ou de despesa";
+  "login: 2 a 64 letras, números, ponto, hífen ou sublinhado, sem espaço" →
+  "O login aceita de 2 a 64 letras…"; "esta é a única administração ativa;
+  promova outra pessoa antes" → duas frases; "defina no plano de contas a conta
+  que recebe as vendas" → "Nenhuma conta recebe as vendas. Escolha no plano de
+  contas…", que repete as palavras do aviso já existente naquela tela.
+
+  Duas ficaram deliberadamente de fora: as do importador do sistema antigo
+  (`domain/legado/ordem.ts`), que só chegam ao terminal de quem roda o script —
+  confirmado, o único chamador é `scripts/importar-ordens.ts`.
+
+  **Um defeito de contraste apareceu junto**, ao medir a mensagem renderizada, e
+  vale para o sistema inteiro: `.text-danger` dá **4,66:1 no claro** (no limite)
+  e **3,15:1 no escuro** (reprova). As 26 ocorrências passaram a
+  `.text-danger-emphasis`. Só que o valor de fábrica dele no claro é `#561717`,
+  marrom quase preto: passa com 13,72:1 e **deixa de ler como erro** — a mensagem
+  sumia dentro do formulário como se fosse uma nota. Então a cor de texto do
+  vermelho passou a ser declarada no `tema.css`, como já era a primária:
+  `#B42318` no claro, `#F87171` no escuro. Medido nas quatro superfícies:
+
+  | Superfície | Claro | Escuro |
+  |---|---|---|
+  | Mensagem sobre o cartão | 6,57 | 5,31 |
+  | Selo "Cancelada" (`.bg-danger-lt`) | 5,69 | 5,00 |
+  | Botão "Cancelar ordem" | 6,57 | 5,31 |
+
+  A marcação de atraso na fila de produção usa o mesmo token, mas não havia ordem
+  atrasada no banco para medir na tela.
+
+  Nos testes: os que checavam **qual** regra disparou usavam fragmento em regex
+  sensível a caixa (`/aprove o orçamento/`) e passaram a `/i` — a caixa da
+  primeira palavra não é o que eles testam. Os que afirmavam a frase inteira
+  foram atualizados. 385 testes passando.
 - [ ] **Z1. Passada final.** Percorrer as 22 telas nos dois temas em 1440px e 1280px.
   Conferir contraste de todo par texto/fundo. Navegar o sistema inteiro só pelo
   teclado. Rodar `npm run check` e `npm run e2e`. Escrever o que ficou de fora.
