@@ -140,3 +140,29 @@ export async function atualizarMaterial(empresaId: string, id: string, dados: Da
 export async function definirAtivo(empresaId: string, id: string, ativo: boolean): Promise<void> {
   await prisma.material.update({ where: { id, empresaId }, data: { ativo } })
 }
+
+/**
+ * Apaga um material do catalogo, de verdade.
+ *
+ * Ate aqui so dava para desativar, e desativar e outra coisa: serve para o preco
+ * que saiu de linha mas ainda pode voltar. Quem digitou errado, ou cadastrou um
+ * material que a loja nao trabalha mais, quer que ele suma da lista.
+ *
+ * As ordens que ja usaram o material NAO perdem nada. O item guarda descricao,
+ * valor unitario e total gravados no momento em que foi lancado -- o preco e
+ * congelado por decisao do dominio, justamente para que mexer no catalogo hoje
+ * nao reescreva o que foi cobrado ontem. O que se solta e so o ponteiro.
+ */
+export async function excluirMaterial(empresaId: string, id: string): Promise<{ itensQueUsavam: number }> {
+  const itens = await prisma.itemOrdem.count({ where: { empresaId, materialId: id } })
+  await prisma.$transaction([
+    prisma.itemOrdem.updateMany({ where: { empresaId, materialId: id }, data: { materialId: null } }),
+    prisma.material.deleteMany({ where: { id, empresaId } }),
+  ])
+  return { itensQueUsavam: itens }
+}
+
+/** Quantas ordens ja usaram este material -- o aviso antes de excluir. */
+export async function usosDoMaterial(empresaId: string, id: string): Promise<number> {
+  return prisma.itemOrdem.count({ where: { empresaId, materialId: id } })
+}

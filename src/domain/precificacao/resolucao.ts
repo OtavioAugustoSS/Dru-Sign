@@ -73,24 +73,63 @@ function tokens(s: string): string[] {
     .map((t) => (t.length > 3 && t.endsWith('s') ? t.slice(0, -1) : t))
 }
 
-/** Pontua cada material pelos tokens da descricao presentes no nome; empate -> nome mais curto. */
+/**
+ * Qual material do catalogo a linha digitada esta pedindo.
+ *
+ * A pontuacao e por palavra em comum, mas o que decide se HA material e a
+ * fracao do NOME DELE que foi coberta -- mais da metade. Vale a pena explicar
+ * por que, porque a versao anterior nao exigia minimo nenhum e isso quebrou o
+ * sistema na primeira vez que o catalogo ficou realista.
+ *
+ * A loja escreve "12 PLACAS ACM 61 X 40 E ADES/ IMP 61,00" ha catorze anos,
+ * querendo dizer uma chapa generica cobrada por unidade. Com "Placa ACM 3mm
+ * branco" no catalogo, a palavra "acm" sozinha bastava para vincular -- 1 de 4
+ * palavras do nome. E vincular nao e inofensivo: o material decide a UNIDADE DE
+ * COBRANCA, entao a linha virava m² e o preco passava a sair do catalogo.
+ *
+ * Exigindo mais da metade do nome:
+ *
+ *   "placas acm"            contra "Placa ACM 3mm branco"   1/4  nao vincula
+ *   "acm 3mm branco"        contra "Placa ACM 3mm branco"   3/4  vincula
+ *   "adesivo vinil fosco"   contra "Adesivo vinil fosco"    3/3  vincula
+ *   "lona 440"              contra "Lona 440"               2/2  vincula
+ *   "lona"                  contra "Lona 440"               1/2  nao vincula
+ *
+ * O ultimo caso e o que a fracao resolve e uma contagem fixa nao resolveria:
+ * digitar so "lona" com duas lonas no catalogo e ambiguo, e o certo e nao
+ * escolher por conta propria -- a pessoa completa e o sistema acha.
+ */
 export function acharMaterial(
   descricao: string,
   catalogo: MaterialCatalogo[],
 ): { escolhido: MaterialCatalogo | null; candidatos: MaterialCatalogo[] } {
   const pistas = tokens(descricao).filter((t) => !STOPWORDS.has(t))
   if (pistas.length === 0) return { escolhido: null, candidatos: [] }
-  let melhor = 0
-  const pontuados: Array<{ m: MaterialCatalogo; p: number }> = []
+
+  const fortes: Array<{ m: MaterialCatalogo; p: number }> = []
+  const fracos: Array<{ m: MaterialCatalogo; p: number }> = []
   for (const m of catalogo) {
-    const nome = new Set(tokens(m.nome))
-    const p = pistas.filter((t) => nome.has(t)).length
-    if (p > 0) pontuados.push({ m, p })
-    if (p > melhor) melhor = p
+    const nome = tokens(m.nome).filter((t) => !STOPWORDS.has(t))
+    if (nome.length === 0) continue
+    const conjunto = new Set(nome)
+    const p = pistas.filter((t) => conjunto.has(t)).length
+    if (p === 0) continue
+    // Mais da metade do nome do material: 3 de 4 vincula, 1 de 4 so e oferecido.
+    ;(p * 2 > nome.length ? fortes : fracos).push({ m, p })
   }
-  if (melhor === 0) return { escolhido: null, candidatos: [] }
-  const empatados = pontuados.filter((x) => x.p === melhor).map((x) => x.m).sort((a, b) => a.nome.length - b.nome.length)
-  return { escolhido: empatados[0] ?? null, candidatos: empatados.slice(1) }
+
+  const porPontuacao = (lista: typeof fortes) => {
+    const melhor = Math.max(0, ...lista.map((x) => x.p))
+    return lista.filter((x) => x.p === melhor).map((x) => x.m).sort((a, b) => a.nome.length - b.nome.length)
+  }
+
+  if (fortes.length === 0) {
+    // Nada forte o bastante para vincular sozinho, mas ha parecido: a tela
+    // oferece a troca em vez de escolher no lugar da pessoa.
+    return { escolhido: null, candidatos: porPontuacao(fracos) }
+  }
+  const empatados = porPontuacao(fortes)
+  return { escolhido: empatados[0] ?? null, candidatos: [...empatados.slice(1), ...porPontuacao(fracos)] }
 }
 
 function paraNumero(token: string): number {

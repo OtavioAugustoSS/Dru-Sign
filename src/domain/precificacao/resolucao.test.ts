@@ -65,11 +65,28 @@ describe('resolverLinha — catalogo, unidade e pendencias', () => {
     expect(descreverLinha(r).total).toBe('R$ 518,40')
   })
 
+  /*
+   * "12 placas ACM 61x40 61,00" e a linha que a loja escreve ha catorze anos, e
+   * ela cobra por UNIDADE: 12 x 61,00 = 732,00, o "CD 732,00" do papel.
+   *
+   * O material NAO e escolhido sozinho: "acm" e uma palavra de "ACM 3 mm", mas
+   * uma so de tres. Vincular por tao pouco muda a unidade de cobranca da linha,
+   * e ai 12 placas de 61,00 viram 12 x area x preco. O parecido vira sugestao --
+   * a tela oferece a troca -- e o total continua sendo o que a loja cobrou.
+   */
   it('ACM cadastrado por unidade: 12 x 61,00 = 732,00 mesmo com medida', () => {
     const r = item('12 placas ACM 61x40 61,00', CATALOGO)
-    expect(r.material?.id).toBe('acm')
+    expect(r.material).toBeNull()
+    expect(r.candidatos.map((c) => c.id)).toContain('acm')
     expect(r.unidade).toBe('unidade')
     expect(descreverLinha(r).total).toBe('R$ 732,00')
+  })
+
+  it('o nome quase inteiro vincula: "acm 3 mm" acha o ACM', () => {
+    const r = item('12 acm 3 mm 61x40 61,00', CATALOGO)
+    expect(r.material?.id).toBe('acm')
+    expect(r.unidade).toBe('unidade')
+    expect(r.origemUnidade).toBe('material')
   })
 
   it('sem valor usa o preco do catalogo e marca a origem', () => {
@@ -103,7 +120,7 @@ describe('resolverLinha — catalogo, unidade e pendencias', () => {
 
   it('descreve a linha como no artboard', () => {
     expect(descreverLinha(item('12 placas ACM 61x40 61,00', CATALOGO)).texto)
-      .toBe('qtd 12 · ACM 3 mm · 0,61 × 0,40 m · R$ 61,00/un')
+      .toBe('qtd 12 · placas ACM · 0,61 × 0,40 m · R$ 61,00/un')
     expect(descreverLinha(item('2 lona 440 1,20x2,40 90,00', CATALOGO)).texto)
       .toBe('qtd 2 · Lona 440 g · 1,20 × 2,40 m · R$ 90,00/m²')
   })

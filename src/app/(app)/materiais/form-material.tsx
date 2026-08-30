@@ -23,11 +23,19 @@ export function FormMaterial({ id, inicial }: Props) {
       <div className="row g-3 align-items-end">
         <div className="col-md-4">
           <label className="form-label required" htmlFor="nome">Material</label>
-          <input id="nome" name="nome" className="form-control" defaultValue={v.nome} required autoFocus />
+          <input id="nome" name="nome" className="form-control" defaultValue={v.nome}
+            placeholder="Adesivo vinil fosco" required autoFocus />
+          {/* O nome carrega a variacao inteira de proposito. E por ele que a
+              entrada assistida acha o material quando a pessoa digita a linha da
+              ordem: se o nome fosse so "Fosco", digitar "adesivo vinil fosco"
+              nao chegaria nele. */}
+          <div className="form-hint">Uma linha por variação: fosco, transparente, brilhoso.</div>
         </div>
         <div className="col-md-3">
           <label className="form-label" htmlFor="categoria">Categoria</label>
-          <input id="categoria" name="categoria" className="form-control" defaultValue={v.categoria} placeholder="Placas, Adesivos…" />
+          <input id="categoria" name="categoria" className="form-control" defaultValue={v.categoria}
+            placeholder="Adesivo vinil" />
+          <div className="form-hint">A família que junta as variações.</div>
         </div>
         <div className="col-md-2">
           <label className="form-label required" htmlFor="preco">Preço</label>

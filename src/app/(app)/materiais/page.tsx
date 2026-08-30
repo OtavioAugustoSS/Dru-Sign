@@ -14,7 +14,7 @@ import { Anotacao } from '@/componentes/situacao'
 import { EstadoVazio } from '@/componentes/estado-vazio'
 import { Dinheiro } from '@/componentes/dinheiro'
 import { FormMaterial } from './form-material'
-import { alternarAtivo } from './actions'
+import { AcoesMaterial } from './acoes-material'
 
 export const metadata: Metadata = { title: 'Materiais e preços' }
 
@@ -125,7 +125,7 @@ export default async function PaginaMateriais({
                 <ColunaOrdenavel campo="categoria" atual={ordem} base="/materiais" parametros={contexto}>Categoria</ColunaOrdenavel>
                 <ColunaOrdenavel campo="preco" atual={ordem} base="/materiais" parametros={contexto} primeiraDirecao="desc" className="text-end">Preço</ColunaOrdenavel>
                 <th>Cobrado</th>
-                <th className="w-1"></th>
+                <th className="w-1 text-end">Ações</th>
               </>
             }
           >
@@ -138,13 +138,7 @@ export default async function PaginaMateriais({
                 <td>{m.categoria ?? ''}</td>
                 <td className="numero"><Dinheiro valor={m.preco} /></td>
                 <td>{rotuloUnidade(m.unidadeCobranca)}</td>
-                <td>
-                  <form action={alternarAtivo}>
-                    <input type="hidden" name="id" value={m.id} />
-                    <input type="hidden" name="ativo" value={m.ativo ? '0' : '1'} />
-                    <button type="submit" className="btn btn-sm btn-ghost-secondary">{m.ativo ? 'Desativar' : 'Reativar'}</button>
-                  </form>
-                </td>
+                <td><AcoesMaterial id={m.id} nome={m.nome} ativo={m.ativo} /></td>
               </tr>
             ))}
           </CartaoTabela>

@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import { exigirPapel } from '@/infra/auth/usuario-atual'
 import { interpretarMoeda } from '@/domain/precificacao/moeda'
 import { cabeEmNumeric12x4 } from '@/domain/precificacao/dinheiro'
-import { criarMaterial, atualizarMaterial, definirAtivo, ehUnidadeCobranca } from '@/infra/materiais/repositorio'
+import { criarMaterial, atualizarMaterial, definirAtivo, excluirMaterial, ehUnidadeCobranca } from '@/infra/materiais/repositorio'
 
 export interface EstadoMaterial {
   erro?: string
@@ -45,5 +45,18 @@ export async function alternarAtivo(formData: FormData): Promise<void> {
   const id = String(formData.get('id') ?? '')
   const ativo = formData.get('ativo') === '1'
   await definirAtivo(usuario.empresaId, id, ativo)
+  redirect('/materiais')
+}
+
+/**
+ * Tira o material do catalogo de vez.
+ *
+ * Diferente de desativar: desativar guarda o preco que saiu de linha e pode
+ * voltar; excluir e para quem digitou errado ou nao trabalha mais com aquilo.
+ * As ordens ja lancadas seguem com o preco e a descricao que gravaram.
+ */
+export async function excluir(formData: FormData): Promise<void> {
+  const usuario = await exigirPapel('administracao')
+  await excluirMaterial(usuario.empresaId, String(formData.get('id') ?? ''))
   redirect('/materiais')
 }
