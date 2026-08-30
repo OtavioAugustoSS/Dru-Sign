@@ -38,6 +38,13 @@ test.describe('Dinheiro', () => {
     await expect(linha).toContainText('Entrada')
     await expect(linha).toContainText('Vendas de serviços')
     await expect(linha).toContainText('R$ 150,00')
+
+    // A entrada nao se estorna no livro: ela nasce do recebimento e some junto
+    // com ele, na ordem. A linha precisa dizer isso, senao a celula fica vazia
+    // e quem quer desfazer nao tem para onde ir.
+    await linha.getByRole('link', { name: 'Desfazer na ordem' }).click()
+    await expect(page).toHaveURL(/\/ordens\/[0-9a-f-]{36}$/)
+    await expect(page.getByRole('table', { name: 'Recebimentos' }).getByRole('button', { name: 'Estornar' })).toBeVisible()
   })
 
   test('parcial: servico finalizado sem dinheiro, recebe 80 de 200, aparece na fila com o que falta, recebe o resto', async ({ page }) => {

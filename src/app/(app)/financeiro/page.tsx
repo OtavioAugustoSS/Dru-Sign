@@ -131,10 +131,17 @@ export default async function PaginaFinanceiro({
                   {l.tipo === 'saida' ? '−' : ''}
                   {valorEmReais(l.valor)}
                 </td>
-                {/* So a acao. O numero da OS ja esta no historico, que e link
-                    para a ordem: repetir aqui era uma segunda porta cinza para
-                    o mesmo lugar. */}
-                <td className="text-end">{l.tipo === 'saida' && !l.estornadoEm ? <BotaoEstorno lancamentoId={l.id} /> : null}</td>
+                {/* A saida se desfaz aqui; a entrada NAO. Ela nasce do
+                    recebimento e some junto com ele, na ordem -- senao o caixa
+                    diria uma coisa e a ordem outra. Antes esta celula ficava
+                    vazia na linha de entrada, e quem queria desfazer nao tinha
+                    para onde ir. */}
+                <td className="text-end">
+                  {l.tipo === 'saida' && !l.estornadoEm ? <BotaoEstorno lancamentoId={l.id} /> : null}
+                  {l.tipo === 'entrada' && !l.estornadoEm && l.ordemId ? (
+                    <Link href={`/ordens/${l.ordemId}`} className="btn btn-sm btn-ghost-secondary">Desfazer na ordem</Link>
+                  ) : null}
+                </td>
               </tr>
             ))}
           </CartaoTabela>
