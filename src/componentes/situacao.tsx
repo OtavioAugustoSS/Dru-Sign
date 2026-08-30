@@ -105,7 +105,11 @@ export const TOM_TIPO_CONTA: Record<TipoConta, Tom> = {
  */
 export const TEXTO_URGENCIA: Record<GrupoUrgencia, string> = {
   atrasada: 'text-danger-emphasis',
-  hoje: 'text-warning',
+  /* `-emphasis`, nao a cor cheia: `text-warning` sobre o fundo claro da 2,04:1,
+   * e este e o titulo do grupo do trabalho DE HOJE -- o que a producao mais
+   * precisa achar de relance. A varredura final pegou; era o unico dos quatro
+   * rotulos de urgencia que ainda usava a cor de preencher para escrever. */
+  hoje: 'text-warning-emphasis',
   semana: '',
   sem_data: 'text-secondary',
 }
