@@ -1,5 +1,14 @@
 @page { size: A4 portrait; margin: 12mm 12mm 14mm; }
 
+/* A MESA DA FOLHA vai ate a borda do documento, e nao so ate o `.impresso-raiz`.
+ *
+ * O `<main>` cobre quase tudo, mas o corpo do documento sobra 15px de cada lado
+ * (a barra de rolagem e o recuo que ela deixa). Enquanto havia tema claro
+ * ninguem via; agora que o sistema e escuro o tempo todo, o que aparecia ali
+ * eram duas tiras de #111827 ladeando a folha. O `:has` mantem a regra presa a
+ * tela do impresso: nenhuma outra tela do sistema tem essa raiz. */
+body:has(.impresso-raiz) { background: #e9ecef; }
+
 .impresso-raiz {
   --papel: 210mm; --tinta: #111; --fraca: #555; --linha: #999; --faixa: #f0f0f0;
   font-family: var(--font-geist-sans), 'Segoe UI', Arial, sans-serif;

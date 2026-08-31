@@ -2,16 +2,12 @@
 
 import Dropdown from 'react-bootstrap/Dropdown'
 import { IconChevronUp, IconLogout } from '@tabler/icons-react'
-import { SeletorTema } from './seletor-tema'
-import type { Tema } from '@/infra/tema/preferencia'
 
 interface Props {
   nome: string
   papel: string
   iniciais: string
-  tema: Tema
   sairAction: () => Promise<void>
-  escolherTemaAction: (valor: string) => Promise<void>
 }
 
 /**
@@ -24,7 +20,7 @@ interface Props {
  * torta em relacao ao resto da barra. Sem o `p-0`, o proprio `.nav-link` da o
  * recuo certo; o `justify-content-start` desfaz a centralizacao.
  */
-export function MenuUsuario({ nome, papel, iniciais, tema, sairAction, escolherTemaAction }: Props) {
+export function MenuUsuario({ nome, papel, iniciais, sairAction }: Props) {
   return (
     <Dropdown className="nav-item" drop="up" align="end">
       <Dropdown.Toggle
@@ -45,8 +41,9 @@ export function MenuUsuario({ nome, papel, iniciais, tema, sairAction, escolherT
         <IconChevronUp className="icon ms-auto text-secondary" aria-hidden="true" />
       </Dropdown.Toggle>
       <Dropdown.Menu className="dropdown-menu-arrow">
-        <SeletorTema inicial={tema} escolherAction={escolherTemaAction} />
-        <div className="dropdown-divider" />
+        {/* Só "Sair". O seletor de tema morava aqui e saiu junto com o modo
+            claro: sem duas faces para escolher, o menu tinha três opções que
+            faziam a mesma coisa. */}
         <form action={sairAction}>
           <button type="submit" className="dropdown-item">
             <IconLogout className="icon dropdown-item-icon" />

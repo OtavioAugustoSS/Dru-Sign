@@ -1,12 +1,19 @@
 /* Tema DruSign: a camada de marca sobre o Tabler.
  *
- * O Tabler 1.4.0 ja traz o tema escuro inteiro, acionado por [data-bs-theme=dark]
- * no <html>. Cartao, tabela, dropdown, modal e navbar leem os tokens dele e mudam
- * sozinhos. O que precisa de par aqui e so a marca.
+ * O SISTEMA E ESCURO. Nao ha modo claro para escolher, e nao ha seletor de tema:
+ * decisao do Otavio em 31/08/2026. O <html> nasce com [data-bs-theme=dark] fixo
+ * e o Tabler 1.4.0 entrega o resto -- cartao, tabela, dropdown, modal e navbar
+ * leem os tokens dele. O que precisa de marca e so o que esta aqui.
  *
- * REGRA: todo token declarado no :root PRECISA ter par no bloco escuro. O :root
- * casa nos dois temas; sem o par, o valor claro vaza para o escuro. Era esse o
- * defeito da versao anterior deste arquivo.
+ * O CLARO SOBREVIVE EM UM LUGAR SO: a folha impressa. O route group (impresso)
+ * declara [data-bs-theme=light] no proprio <main> porque papel e branco com
+ * tinta preta em qualquer sistema. Por isso os valores claros continuam abaixo,
+ * num bloco `[data-bs-theme='light']` que casa exatamente com aquele <main> --
+ * e com nada mais.
+ *
+ * REGRA, e ela inverteu: o padrao vive no :root e o par claro existe so onde a
+ * folha precisa dele. Como as propriedades personalizadas HERDAM, um token
+ * escuro sem par claro vaza para dentro da folha impressa.
  *
  * Os contrastes abaixo foram calculados (WCAG 2.1 relative luminance), nao
  * estimados. Minimo 4,5:1 para texto e 3:1 para componente.
@@ -17,43 +24,12 @@
   --tblr-font-sans-serif: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
   --tblr-font-monospace: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  /* Primaria DruSign (spec, secao 8).
-   * #0E7C93 sobre branco ........ 4,86:1  texto OK
-   * branco sobre #0E7C93 ........ 4,86:1  botao OK
-   * #0E7C93 sobre o corpo ....... 4,57:1  texto OK  */
-  --tblr-primary: #0E7C93;
-  --tblr-primary-rgb: 14, 124, 147;
-  --tblr-primary-fg: #ffffff;
-  --tblr-primary-darken: #0A6478;          /* branco sobre ele: 6,76:1 */
-  --tblr-primary-lt: #E4F2F6;              /* fundo de selo e avatar */
-  --tblr-primary-lt-rgb: 228, 242, 246;
-  --tblr-primary-200: rgba(14, 124, 147, 0.2);
-  --tblr-primary-text-emphasis: #0A6478;   /* sobre --primary-lt: 5,90:1 */
-  --tblr-primary-bg-subtle: #E4F2F6;
-  --tblr-primary-border-subtle: #9FD0DB;
-
-  /* Links */
-  --tblr-link-color: #0E7C93;
-  --tblr-link-color-rgb: 14, 124, 147;
-  --tblr-link-hover-color: #0A6478;
-  --tblr-link-hover-color-rgb: 10, 100, 120;
-
-  /* Foco (btn, form-control, form-select, form-check) */
-  --tblr-focus-ring-color: rgba(14, 124, 147, 0.25);
-}
-
-/* Tema escuro.
- *
- * A primaria clara nao serve aqui: #0E7C93 sobre o corpo #111827 da 3,65:1, que
- * passa como componente e reprova como texto. Quem serve e o ciano da logo,
- * #5FC4D8 -- justamente a cor que foi PROIBIDA como botao no claro por ter so
- * 2,02:1 sobre branco. No escuro ela da 8,76:1. A marca finalmente aparece
- * inteira em algum lugar.
- *
- * Mesma especificidade do :root (0,1,0), declarado depois: este bloco vence.
- */
-[data-bs-theme='dark'] {
-  /* #5FC4D8 sobre o corpo #111827 ..... 8,76:1  texto OK
+  /* A PRIMARIA DO SISTEMA e o ciano da logo, #5FC4D8 -- justamente a cor que
+   * fora PROIBIDA como botao enquanto havia tema claro, por ter so 2,02:1 sobre
+   * branco. Sobre o escuro ela da 8,76:1. Com o claro fora do caminho, a marca
+   * aparece inteira, e o azul-petroleo #0E7C93 passa a ser a cor do papel.
+   *
+   * #5FC4D8 sobre o corpo #111827 ..... 8,76:1  texto OK
    * #5FC4D8 sobre superficie #1F2937 ... 7,25:1  texto OK
    * #111827 sobre #5FC4D8 (botao) ...... 8,76:1  botao OK  */
   --tblr-primary: #5FC4D8;
@@ -67,12 +43,48 @@
   --tblr-primary-bg-subtle: #0B2A33;
   --tblr-primary-border-subtle: #2A6B7D;
 
+  /* Links */
   --tblr-link-color: #5FC4D8;
   --tblr-link-color-rgb: 95, 196, 216;
   --tblr-link-hover-color: #8FD7E5;        /* sobre o corpo: 11,00:1 */
   --tblr-link-hover-color-rgb: 143, 215, 229;
 
+  /* Foco (btn, form-control, form-select, form-check) */
   --tblr-focus-ring-color: rgba(95, 196, 216, 0.35);
+}
+
+/* A FOLHA IMPRESSA -- e so ela.
+ *
+ * Casa com o `<main data-bs-theme="light">` de `(impresso)/layout.tsx`. Sem este
+ * bloco os tokens escuros do :root herdariam para dentro da folha e o botao
+ * "Imprimir" ficaria ciano sobre papel branco: 2,02:1.
+ *
+ * De quebra, conserta um defeito que ja existia. O Tabler declara os proprios
+ * `--tblr-primary` dentro da regra `[data-bs-theme=light]`, ou seja, NO ELEMENTO
+ * -- e valor local vence valor herdado. Entao a folha nunca usou o azul-petroleo
+ * da DruSign: usava o azul de fabrica do Tabler, #066fd1. Medido no navegador.
+ * Este bloco tem a mesma especificidade e vem depois, entao passa a valer.
+ *
+ * #0E7C93 sobre branco ........ 4,86:1  texto OK
+ * branco sobre #0E7C93 ........ 4,86:1  botao OK  */
+[data-bs-theme='light'] {
+  --tblr-primary: #0E7C93;
+  --tblr-primary-rgb: 14, 124, 147;
+  --tblr-primary-fg: #ffffff;
+  --tblr-primary-darken: #0A6478;          /* branco sobre ele: 6,76:1 */
+  --tblr-primary-lt: #E4F2F6;              /* fundo de selo e avatar */
+  --tblr-primary-lt-rgb: 228, 242, 246;
+  --tblr-primary-200: rgba(14, 124, 147, 0.2);
+  --tblr-primary-text-emphasis: #0A6478;   /* sobre --primary-lt: 5,90:1 */
+  --tblr-primary-bg-subtle: #E4F2F6;
+  --tblr-primary-border-subtle: #9FD0DB;
+
+  --tblr-link-color: #0E7C93;
+  --tblr-link-color-rgb: 14, 124, 147;
+  --tblr-link-hover-color: #0A6478;
+  --tblr-link-hover-color-rgb: 10, 100, 120;
+
+  --tblr-focus-ring-color: rgba(14, 124, 147, 0.25);
 }
 
 /* Selos: o texto vem da cor de enfase, nao da cor cheia.
@@ -200,11 +212,12 @@
  *   escuro #F87171 sobre o corpo #111827 ..... 6,39:1  texto OK
  */
 :root {
-  --tblr-danger-text-emphasis: #B42318;
+  --tblr-danger-text-emphasis: #F87171;
 }
 
-[data-bs-theme='dark'] {
-  --tblr-danger-text-emphasis: #F87171;
+/* Na folha impressa, onde o fundo e branco */
+[data-bs-theme='light'] {
+  --tblr-danger-text-emphasis: #B42318;
 }
 
 /* Tres controles que vem com cor FIXA, escrita por cima da maquinaria de tokens
@@ -381,19 +394,22 @@ summary:focus-visible,
  * ou ambar, e acima dos 3:1 que a WCAG pede para grafico com significado. E a
  * palavra ao lado continua dizendo tudo, entao ninguem depende da cor. */
 :root {
-  --ponto-neutro: #6B7280;   /* sobre branco ..... 4,61:1 */
-  --ponto-marca: #0E7C93;    /* sobre branco ..... 4,86:1 */
-  --ponto-bom: #16A34A;      /* sobre branco ..... 3,30:1 */
-  --ponto-atencao: #B45309;  /* sobre branco ..... 5,02:1 */
-  --ponto-ruim: #DC2626;     /* sobre branco ..... 4,83:1 */
-}
-
-[data-bs-theme='dark'] {
   --ponto-neutro: #9CA3AF;
   --ponto-marca: #5FC4D8;
   --ponto-bom: #34D399;
   --ponto-atencao: #FBBF24;
   --ponto-ruim: #F87171;
+}
+
+/* Os mesmos tons na folha impressa, onde o fundo e branco. Sao os graficos e a
+ * situacao das ordens: se herdassem os tons do escuro, o amarelo #FBBF24 daria
+ * 1,71:1 no papel. */
+[data-bs-theme='light'] {
+  --ponto-neutro: #6B7280;   /* sobre branco ..... 4,61:1 */
+  --ponto-marca: #0E7C93;    /* sobre branco ..... 4,86:1 */
+  --ponto-bom: #16A34A;      /* sobre branco ..... 3,30:1 */
+  --ponto-atencao: #B45309;  /* sobre branco ..... 5,02:1 */
+  --ponto-ruim: #DC2626;     /* sobre branco ..... 4,83:1 */
 }
 
 /* 10px e nao 8: num circulo pequeno, cada pixel a mais ajuda a reconhecer a cor,
@@ -537,11 +553,11 @@ summary:focus-visible,
  * Medido: #15803D sobre o cartao branco da 5,01:1; no escuro o proprio
  * `--ponto-bom` ja da 7,64:1 e serve para as duas coisas. */
 :root {
-  --verde-acao: #15803D;
+  --verde-acao: #34D399;
 }
 
-[data-bs-theme='dark'] {
-  --verde-acao: #34D399;
+[data-bs-theme='light'] {
+  --verde-acao: #15803D;
 }
 
 /* CABECALHO DE COLUNA QUE ORDENA.
@@ -639,9 +655,10 @@ summary:hover {
 
 /* GRAFICOS: desenhados no servidor, em CSS, sem biblioteca.
  *
- * A cor sai dos mesmos tokens de --ponto-* que a situacao usa, entao os
- * graficos acompanham o modo claro e o escuro sozinhos, e verde continua
- * querendo dizer a mesma coisa aqui e na lista de ordens. */
+ * A cor sai dos mesmos tokens de --ponto-* que a situacao usa, entao verde quer
+ * dizer a mesma coisa aqui e na lista de ordens -- e a folha impressa, que e a
+ * unica superficie clara que sobrou, ja recebe a versao escurecida desses tokens
+ * sem que estes graficos precisem saber disso. */
 .grafico-tempo {
   display: flex;
   align-items: flex-end;
@@ -883,11 +900,11 @@ a.grafico-lista-linha:hover {
  * escuro, acima dos 3:1 que a WCAG pede para um indicador. O contorno acompanha,
  * dando ao conjunto a forma de aba. */
 :root {
-  --aba-contorno: #B9C0CA;
+  --aba-contorno: #4B5563;
 }
 
-[data-bs-theme='dark'] {
-  --aba-contorno: #4B5563;
+[data-bs-theme='light'] {
+  --aba-contorno: #B9C0CA;
 }
 
 .nav-tabs .nav-link.active {
@@ -909,11 +926,11 @@ a.grafico-lista-linha:hover {
  * Medido: claro #6B7280 sobre o corpo #F9FAFB dá 4,63:1 e sobre o cabeçalho
  * branco do cartão dá 4,83:1; escuro #9CA3AF sobre o corpo #111827 dá 6,33:1. */
 :root {
-  --aba-rotulo-frio: #6B7280;
+  --aba-rotulo-frio: #9CA3AF;
 }
 
-[data-bs-theme='dark'] {
-  --aba-rotulo-frio: #9CA3AF;
+[data-bs-theme='light'] {
+  --aba-rotulo-frio: #6B7280;
 }
 
 .nav-tabs .nav-link:not(.active) {
@@ -992,11 +1009,11 @@ a.grafico-lista-linha:hover {
  * A pintura é `box-shadow: inset` do próprio Tabler, aplicada só nas células da
  * linha sob o mouse: repinta uma linha, não a tabela. */
 :root {
-  --linha-mouse: rgba(55, 65, 81, 0.16);
+  --linha-mouse: rgba(255, 255, 255, 0.11);
 }
 
-[data-bs-theme='dark'] {
-  --linha-mouse: rgba(255, 255, 255, 0.11);
+[data-bs-theme='light'] {
+  --linha-mouse: rgba(55, 65, 81, 0.16);
 }
 
 /* O token vai na PRÓPRIA tabela, e não no `:root`.

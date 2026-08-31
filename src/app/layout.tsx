@@ -1,8 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
-import { lerTemaDoCookie } from '@/infra/tema/cookie'
-import { atributoDoTema } from '@/infra/tema/preferencia'
 import '@tabler/core/dist/css/tabler.min.css'
 import './tema.css'
 
@@ -10,48 +8,42 @@ export const metadata: Metadata = {
   title: { default: 'DruSign', template: '%s · DruSign' },
 }
 
-// `colorScheme` avisa o navegador que as duas faces existem: sem isso ele pinta
-// campo de data, select e barra de rolagem sempre no claro, e eles ficam brancos
-// no meio da tela escura. `themeColor` e a cor da barra do navegador no celular.
+// O sistema tem UMA face, e ela e escura: nao ha preferencia a declarar nem a
+// consultar. `colorScheme: 'dark'` avisa o navegador, e com isso campo de data,
+// select e barra de rolagem ja nascem escuros -- sem ele ficavam brancos no meio
+// da tela.
 export const viewport: Viewport = {
-  colorScheme: 'light dark',
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#111827' },
-  ],
+  colorScheme: 'dark',
+  themeColor: '#111827',
 }
 
 /**
- * Roda antes da primeira pintura, so quando a preferencia e "Sistema" — nesse
- * caso o servidor nao tem como saber o tema do Windows de quem abriu, e escrever
- * o atributo errado significaria a tela piscar branco antes de escurecer.
+ * O tema escuro e o sistema, nao uma opcao.
  *
- * Fica em `<body>` e e sincrono de proposito: bloqueia a analise do resto do
- * documento, entao o atributo ja esta la quando o navegador pinta.
+ * O atributo e fixo no <html>. Antes ele saía de um cookie com tres estados
+ * (sistema/claro/escuro) e, quando a escolha era "sistema", um script sincrono no
+ * <body> resolvia a preferencia do Windows antes da primeira pintura. Nada disso
+ * existe mais: sem escolha nao ha o que resolver, entao caem juntos o script, o
+ * cookie, a server action, o seletor no menu do usuario e o
+ * `suppressHydrationWarning` que existia porque o script escrevia por cima do
+ * que o React tinha renderizado.
+ *
+ * A folha impressa e a unica excecao, e ela se declara sozinha: o layout de
+ * `(impresso)` poe `data-bs-theme="light"` no proprio <main>, porque papel e
+ * branco com tinta preta em qualquer sistema.
  */
-const SCRIPT_TEMA_DO_SISTEMA = `(function(){try{var c=matchMedia('(prefers-color-scheme: dark)'),a=function(){document.documentElement.setAttribute('data-bs-theme',c.matches?'dark':'light')};a();c.addEventListener('change',a)}catch(e){}})()`
-
-export default async function LayoutRaiz({ children }: { children: React.ReactNode }) {
-  const atributo = atributoDoTema(await lerTemaDoCookie())
-
+export default function LayoutRaiz({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="pt-BR"
       className={`${GeistSans.variable} ${GeistMono.variable}`}
-      data-bs-theme={atributo ?? undefined}
+      data-bs-theme="dark"
       // O Tabler poe `scroll-behavior: smooth` no <html>. Sem este atributo o
       // Next avisa que a rolagem suave atrapalha a troca de rota: ao navegar,
       // em vez de comecar no topo, a pagina desliza ate la.
       data-scroll-behavior="smooth"
-      // O script abaixo escreve `data-bs-theme` antes da hidratacao, entao o
-      // <html> que o React renderizou de proposito nao bate com o que esta na
-      // tela. E o caso exato para o qual isto existe.
-      suppressHydrationWarning
     >
-      <body>
-        {atributo === null ? <script dangerouslySetInnerHTML={{ __html: SCRIPT_TEMA_DO_SISTEMA }} /> : null}
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   )
 }
