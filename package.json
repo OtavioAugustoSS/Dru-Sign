@@ -28,7 +28,9 @@
     "db:migrar": "node scripts/migrar.mjs",
     "importar:clientes": "tsx scripts/importar-clientes.ts",
     "importar:plano": "tsx scripts/importar-plano.ts",
-    "importar:ordens": "tsx scripts/importar-ordens.ts"
+    "importar:ordens": "tsx scripts/importar-ordens.ts",
+    "exemplo:criar": "tsx scripts/dados-exemplo.ts",
+    "exemplo:remover": "tsx scripts/dados-exemplo-remover.ts"
   },
   "repository": {
     "type": "git",
