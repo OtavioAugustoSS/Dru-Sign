@@ -158,7 +158,19 @@ test.describe('Ordem de serviço', () => {
     await expect(page.getByText(/ASSOCIAÇÃO DE ENSINO E PERQUISA DE UNAÍ · FACTU/)).toBeVisible()
 
     // A data continua no fluxo do botao: ela nao e escolha de lista.
-    await campoDe(page, 'Entrega prometida').fill('2026-09-04')
+    //
+    // O `toPass` nao e paciencia decorativa: logo depois do `reload` o HTML do
+    // servidor ja esta na tela mas o React ainda nao assumiu o formulario. Um
+    // `fill` que caia nessa janela escreve no DOM e NAO no estado do componente,
+    // e a hidratacao devolve o campo ao valor da prop -- vazio. O teste passava
+    // ou falhava conforme a maquina, e o app grava "Salvo." sem a data.
+    // Repetir ate o valor SOBREVIVER e o mesmo que esperar o React assumir.
+    const entrega = campoDe(page, 'Entrega prometida')
+    await expect(async () => {
+      await entrega.fill('2026-09-04')
+      await page.waitForTimeout(150)
+      await expect(entrega).toHaveValue('2026-09-04')
+    }).toPass({ timeout: 20_000 })
     await page.getByRole('button', { name: 'Salvar cabeçalho' }).click()
     await expect(page.getByText('Salvo.')).toBeVisible({ timeout: 30_000 })
     await expect(page.getByText('entrega prometida 4 de setembro')).toBeVisible()
