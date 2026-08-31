@@ -157,7 +157,9 @@ export function PainelPagamento(p: Props) {
 
       {p.recebimentos.length > 0 ? (
         <div className="table-responsive border-top">
-          <table className="table table-sm card-table" aria-label="Recebimentos">
+          {/* Mesmo motivo da tabela de itens: o "Estornar" fica na ponta direita,
+              e estornar o recebimento errado mexe no caixa do dia. */}
+          <table className="table table-sm card-table table-hover" aria-label="Recebimentos">
             <thead><tr><th>Data</th><th>Forma</th><th className="text-end">Valor</th><th className="w-1"></th></tr></thead>
             <tbody>
               {p.recebimentos.map((r) => (

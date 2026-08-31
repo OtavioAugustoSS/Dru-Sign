@@ -90,7 +90,12 @@ export default async function PaginaOrdem({ params }: { params: Promise<{ id: st
                   <div className="card-body text-secondary">{ROTULO_ESTADO[ordem.estadoProducao]}: os itens não podem mais ser alterados.</div>
                 )}
                 <div className="table-responsive">
-                  <table className="table table-vcenter card-table" aria-label="Itens da ordem">
+                  {/* Realce de linha aqui nao e para varrer lista -- uma ordem tem
+                      poucos itens. E para saber de QUEM e o "Remover" que o dedo
+                      esta prestes a apertar: a linha tem seis colunas e quase mil
+                      pixels, e o botao mora na ponta oposta a descricao. Apagar o
+                      item errado de uma ordem custa dinheiro e confianca. */}
+                  <table className="table table-vcenter card-table table-hover" aria-label="Itens da ordem">
                     <thead><tr><th className="text-end">Qtd</th><th>Descrição</th><th>Medida</th><th className="text-end">Unitário</th><th className="text-end">Total</th><th className="w-1"></th></tr></thead>
                     <tbody>
                       {ordem.itens.length === 0 ? <tr><td colSpan={6} className="text-secondary">Nenhum item ainda. Digite a primeira linha acima.</td></tr> : null}
