@@ -165,12 +165,13 @@ test.describe('Ordem de serviço', () => {
     await expect(page.getByText(/ASSOCIAÇÃO DE ENSINO E PERQUISA DE UNAÍ · FACTU/)).toBeVisible()
 
     // A data continua no fluxo do botao: ela nao e escolha de lista.
-    const entrega = campoDe(page, 'Entrega prometida')
-    await expect(async () => {
-      await entrega.fill('2026-09-04')
-      await page.waitForTimeout(150)
-      await expect(entrega).toHaveValue('2026-09-04')
-    }).toPass({ timeout: 20_000 })
+    //
+    // Sem espera nenhuma, de proposito: preencher LOGO depois do `reload` cai na
+    // janela em que o React ainda nao assumiu o formulario, e e exatamente essa
+    // janela que precisa continuar funcionando. Enquanto os campos eram estado do
+    // React, o valor digitado ali era descartado na hidratacao e a tela dizia
+    // "Salvo." sem a data. Este teste e o que trava a correcao.
+    await campoDe(page, 'Entrega prometida').fill('2026-09-04')
     await page.getByRole('button', { name: 'Salvar cabeçalho' }).click()
     await expect(page.getByText('Salvo.')).toBeVisible({ timeout: 30_000 })
     await expect(page.getByText('entrega prometida 4 de setembro')).toBeVisible()
