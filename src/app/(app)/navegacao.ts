@@ -36,12 +36,12 @@ export interface ItemNavegacao {
  * que e de onde ela faz sentido.
  */
 export const NAVEGACAO: ItemNavegacao[] = [
+  // As duas telas que se abrem de manha, acima dos grupos. O Painel vem primeiro
+  // por pedido do Otavio: e a visao geral, e visao geral se le antes do detalhe.
+  { href: '/painel', titulo: 'Painel', icone: 'painel', papel: 'administracao' },
   // Para quem e da operacao, `/` ja e a fila de producao: um item "Fila de trabalho"
   // levando ao mesmo lugar com outro nome so confunde.
   { href: '/', titulo: 'Fila de trabalho', icone: 'fila', papel: 'administracao' },
-  // Acima dos grupos, junto da fila: as duas telas que se abre de manha. A fila
-  // diz o que fazer hoje; o painel diz como a loja esta indo.
-  { href: '/painel', titulo: 'Painel', icone: 'painel', papel: 'administracao' },
 
   { href: '/ordens', titulo: 'Ordens', icone: 'ordens', grupo: 'atendimento' },
   { href: '/clientes', titulo: 'Clientes', icone: 'clientes', grupo: 'atendimento' },

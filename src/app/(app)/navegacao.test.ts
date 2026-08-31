@@ -53,11 +53,18 @@ describe('estrutura do menu', () => {
     ])
   })
 
-  it('quem e da administracao ve tudo, com a fila de trabalho no topo', () => {
+  /*
+   * As duas telas que se abrem de manha ficam ACIMA dos grupos, e nesta ordem:
+   * Painel primeiro. Pedido do Otavio em 31/08/2026 -- visao geral se le antes
+   * do detalhe. Sem grupo nas duas, de proposito: grupo e para o que se procura,
+   * e estas duas nao se procuram, se abrem.
+   */
+  it('quem e da administracao ve tudo, com o painel e a fila acima dos grupos', () => {
     const admin = navegacaoPara('administracao')
     expect(admin).toHaveLength(NAVEGACAO.length)
-    expect(admin[0]?.titulo).toBe('Fila de trabalho')
+    expect(admin.slice(0, 2).map((i) => i.titulo)).toEqual(['Painel', 'Fila de trabalho'])
     expect(admin[0]?.grupo).toBeUndefined()
+    expect(admin[1]?.grupo).toBeUndefined()
   })
 
   // Para a operacao, `/` JA E a fila de producao. Sem esta correcao a pessoa
