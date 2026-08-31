@@ -42,7 +42,11 @@ export default async function PaginaOperacao({ searchParams }: { searchParams: P
 
   return (
     <>
-      <CabecalhoPagina pretitulo="Configuração" titulo="Indicadores" />
+      <CabecalhoPagina
+        pretitulo="Configuração"
+        titulo="Indicadores"
+        descricao="Se o sistema novo está resolvendo o que o antigo deixou parado. Cada número traz o alvo e como estava no legado, para a comparação não depender de memória."
+      />
       <CorpoPagina>
         <form method="get" className="card mb-3">
           <div className="card-body row g-2 align-items-end">
