@@ -122,12 +122,15 @@
   z-index: 1080; /* acima da gaveta do menu no celular */
 }
 
-/* O verde do Tabler (#2FB344) com texto branco da 2,63:1 -- muito abaixo dos
- * 4,5:1 que texto de botao exige. E o botao que a producao aperta o dia inteiro,
- * de pe e as vezes contra a luz da bancada.
+/* O verde CHEIO do Tabler (#2FB344) com texto branco da 2,63:1 -- muito abaixo
+ * dos 4,5:1 que rotulo de botao exige. #1A7F37 com branco da 5,08:1, e no
+ * pressionado #15662C da 7,07:1: continua lendo como verde de "pronto", so deixa
+ * de ser neon.
  *
- * #1A7F37 com branco da 5,08:1, e no pressionado #15662C da 7,07:1. Continua
- * lendo como verde de "pronto"; so deixa de ser neon. */
+ * Nenhuma tela usa `.btn-success` hoje -- o de finalizar servico e
+ * `.btn-outline-success`, mais abaixo. Esta regra fica como rede: se um dia
+ * alguem escrever `btn-success`, o botao nasce legivel em vez de nascer com os
+ * 2,63:1 de fabrica. */
 .btn-success {
   --tblr-btn-bg: #1A7F37;
   --tblr-btn-border-color: #1A7F37;
@@ -532,11 +535,21 @@ summary:focus-visible,
 
 /* O botao de finalizar servico na fila de producao.
  *
- * O Tabler nao pinta `btn-outline-success` no tema escuro com contraste
- * suficiente, e este e o botao mais importante da tela mais usada de pe. Cor de
- * texto e borda vem do verde do ponto de situacao, que ja foi medido: 3,30:1 no
- * claro e 7,64:1 no escuro. No hover e no toque ele enche, para a resposta ser
- * inequivoca com a mao na peca. */
+ * O Tabler nao pinta `btn-outline-success` com contraste suficiente, e este e o
+ * botao mais importante da tela mais usada de pe. Cor de texto e borda vem do
+ * verde de acao, que da 7,64:1 sobre o fundo escuro. No hover e no toque ele
+ * ENCHE, para a resposta ser inequivoca com a mao na peca.
+ *
+ * E aqui mora um defeito que a saida do tema claro trouxe a tona. O rotulo no
+ * estado cheio era branco fixo. Isso servia enquanto `--verde-acao` era o verde
+ * escuro do tema claro (#15803D com branco: 5,01:1). Com o sistema escuro, o
+ * verde de acao passou a ser o claro #34D399 -- e branco sobre ele da **1,72:1**.
+ * O botao ficava ilegivel exatamente no instante em que a pessoa o aperta, que e
+ * quando ela mais precisa ver que apertou.
+ *
+ * O rotulo cheio agora e um token proprio, e nao uma cor fixa: tinta escura
+ * sobre o verde claro do sistema (9,49:1), branco sobre o verde escuro do papel
+ * (5,01:1). */
 .botao-producao.btn-outline-success {
   --tblr-btn-color: var(--verde-acao);
   --tblr-btn-border-color: var(--verde-acao);
@@ -544,23 +557,30 @@ summary:focus-visible,
   --tblr-btn-hover-border-color: var(--verde-acao);
   --tblr-btn-active-bg: var(--verde-acao);
   --tblr-btn-active-border-color: var(--verde-acao);
-  --tblr-btn-hover-color: #fff;
-  --tblr-btn-active-color: #fff;
+  --tblr-btn-hover-color: var(--verde-acao-fg);
+  --tblr-btn-active-color: var(--verde-acao-fg);
   font-size: 1rem;
 }
 
 /* O verde de ACAO nao e o verde do PONTO, pela mesma razao de sempre: o ponto e
- * grafico e pede 3:1, o rotulo do botao e texto e pede 4,5:1. O `--ponto-bom` do
- * tema claro dava 3,15:1 escrito -- passa como circulo, reprova como palavra.
+ * grafico e pede 3:1, o rotulo do botao e texto e pede 4,5:1.
  *
- * Medido: #15803D sobre o cartao branco da 5,01:1; no escuro o proprio
- * `--ponto-bom` ja da 7,64:1 e serve para as duas coisas. */
+ * Medido: #34D399 sobre o corpo escuro da 7,64:1 escrito; na folha impressa,
+ * onde o fundo e branco, o mesmo verde daria 1,72:1 e por isso la ele e o
+ * escuro #15803D, que da 5,01:1.
+ *
+ * `--verde-acao-fg` e o rotulo QUANDO O BOTAO ENCHE, e e o oposto: sobre o verde
+ * claro precisa de tinta escura (#111827 sobre #34D399 = 9,49:1); sobre o verde
+ * escuro do papel precisa de branco (5,01:1). Sem este par, o botao de finalizar
+ * ficava com 1,72:1 no instante do toque. */
 :root {
   --verde-acao: #34D399;
+  --verde-acao-fg: #111827;
 }
 
 [data-bs-theme='light'] {
   --verde-acao: #15803D;
+  --verde-acao-fg: #ffffff;
 }
 
 /* CABECALHO DE COLUNA QUE ORDENA.
