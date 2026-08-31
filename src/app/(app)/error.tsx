@@ -14,7 +14,7 @@ import Link from 'next/link'
  */
 export default function Erro({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (
-    <div className="page-body">
+    <div className="page-body pagina-recado">
       <div className="container-xl">
         <div className="empty">
           <h1 className="empty-title">Não foi possível concluir</h1>

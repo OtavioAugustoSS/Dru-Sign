@@ -226,6 +226,18 @@
   margin-inline: auto;
 }
 
+/* Quando a TELA INTEIRA e o recado -- endereco que nao existe, erro -- o bloco
+ * ficava colado no topo com oitocentos pixels de vazio embaixo, e a tela lia
+ * como uma pagina que nao terminou de carregar. Aqui nao ha conteudo nenhum
+ * competindo por atencao: o recado e o unico assunto e fica no meio.
+ *
+ * `margin-block: auto` e nao `justify-content`: a margem automatica absorve o
+ * espaco livre nos dois eixos do flex, entao funciona sem depender da direcao
+ * que o Tabler der ao `.page-body`. */
+.pagina-recado > .container-xl {
+  margin-block: auto;
+}
+
 /* Vermelho de MENSAGEM DE ERRO.
  *
  * As mensagens de validacao usavam `.text-danger`, a cor cheia: 4,66:1 no claro
