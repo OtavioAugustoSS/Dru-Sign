@@ -30,10 +30,29 @@ export function PainelPagamento(p: Props) {
   const [pendente, iniciar] = useTransition()
   const [resposta, setResposta] = useState<RespostaDinheiro | null>(null)
   const chave = useRef(gerarChave())
-  const [valor, setValor] = useState(p.pagamento.saldo.replace('.', ','))
-  const [forma, setForma] = useState('')
-  const [data, setData] = useState(p.hoje)
-  const [observacao, setObservacao] = useState('')
+  /*
+   * OS CAMPOS DO RECEBIMENTO NAO SAO ESTADO DO REACT, e aqui a razao e dinheiro.
+   *
+   * Eram `useState` semeado pela prop -- e o valor nascia preenchido com o SALDO
+   * INTEIRO. Entre o HTML do servidor aparecer e o React assumir existe uma
+   * janela: quem apagasse os 1.800,00 e digitasse 300,00 ali escrevia no DOM e
+   * nao no estado, e a hidratacao devolvia o campo ao saldo cheio. O clique
+   * seguinte registrava 1.800,00 recebidos, lancava 1.800,00 no caixa e marcava a
+   * ordem como paga. O cliente devendo 1.500 e o sistema dizendo que nao deve
+   * nada -- e a ordem sumindo da fila de cobranca, que e exatamente o buraco por
+   * onde o sistema antigo deixou R$ 207 mil parados.
+   *
+   * A data sofria do mesmo e tambem em silencio: voltava para hoje, e recebimento
+   * com data errada bagunca o fechamento do mes. A forma voltava para vazio, o
+   * que ao menos dava erro visivel.
+   *
+   * Nao controlados, quem manda no campo e o proprio campo. O que estiver escrito
+   * nele na hora de gravar e o que vai.
+   */
+  const refValor = useRef<HTMLInputElement>(null)
+  const refForma = useRef<HTMLSelectElement>(null)
+  const refData = useRef<HTMLInputElement>(null)
+  const refObservacao = useRef<HTMLInputElement>(null)
   const [estornando, setEstornando] = useState<string | null>(null)
   const [motivo, setMotivo] = useState('')
 
@@ -41,8 +60,13 @@ export function PainelPagamento(p: Props) {
     setResposta(r)
     if (r.ok) {
       chave.current = gerarChave()
-      setValor(r.resultado.saldo.replace('.', ','))
-      setForma(''); setObservacao(''); setEstornando(null); setMotivo('')
+      // Depois de um recebimento parcial o campo passa a mostrar o que AINDA
+      // falta -- e a proxima pergunta que a Odete faz. Com campo nao controlado
+      // isso vira escrita explicita, e nao efeito colateral de um `setState`.
+      if (refValor.current) refValor.current.value = r.resultado.saldo.replace('.', ',')
+      if (refForma.current) refForma.current.value = ''
+      if (refObservacao.current) refObservacao.current.value = ''
+      setEstornando(null); setMotivo('')
       iniciar(() => router.refresh())
     } else if (r.conflito) {
       router.refresh()
@@ -54,6 +78,12 @@ export function PainelPagamento(p: Props) {
   function receber(e: FormEvent<HTMLFormElement>, concluir: boolean) {
     e.preventDefault()
     if (pendente) return
+    // Lido do campo, e nao do estado: e o que garante que o digitado antes da
+    // hidratacao seja o que vai para o caixa.
+    const valor = refValor.current?.value ?? ''
+    const forma = refForma.current?.value ?? ''
+    const data = refData.current?.value ?? p.hoje
+    const observacao = refObservacao.current?.value ?? ''
     iniciar(async () => tratar(await registrarRecebimentoAction(p.ordemId, p.versao, chave.current, { valor, forma, data, observacao, concluir })))
   }
 
@@ -95,17 +125,17 @@ export function PainelPagamento(p: Props) {
           <label className="form-label mb-0" htmlFor="valorRecebido">Valor recebido</label>
           <div className="input-group">
             <span className="input-group-text">R$</span>
-            <input id="valorRecebido" className="form-control numero" inputMode="decimal" value={valor} onChange={(e) => setValor(e.target.value)} />
+            <input id="valorRecebido" ref={refValor} className="form-control numero" inputMode="decimal" defaultValue={p.pagamento.saldo.replace('.', ',')} />
           </div>
           <label className="form-label mb-0" htmlFor="formaPagamento">Forma de pagamento</label>
-          <select id="formaPagamento" className="form-select" value={forma} onChange={(e) => setForma(e.target.value)}>
+          <select id="formaPagamento" ref={refForma} className="form-select" defaultValue="">
             <option value="">Escolha a forma</option>
             {FORMAS_PAGAMENTO.map((f) => <option key={f} value={f}>{ROTULO_FORMA[f]}</option>)}
           </select>
           <label className="form-label mb-0" htmlFor="dataRecebimento">Data</label>
-          <input id="dataRecebimento" type="date" className="form-control" value={data} onChange={(e) => setData(e.target.value)} />
+          <input id="dataRecebimento" ref={refData} type="date" className="form-control" defaultValue={p.hoje} />
           <label className="form-label mb-0" htmlFor="observacaoRecebimento">Observação</label>
-          <input id="observacaoRecebimento" className="form-control" value={observacao} onChange={(e) => setObservacao(e.target.value)} placeholder="opcional" />
+          <input id="observacaoRecebimento" ref={refObservacao} className="form-control" defaultValue="" placeholder="opcional" />
           <button type="submit" className="btn btn-primary" disabled={pendente}>{pendente ? SALVANDO : aberta ? 'Concluir e receber' : 'Receber'}</button>
           {aberta ? (
             <button type="button" className="btn btn-link px-0" disabled={pendente}

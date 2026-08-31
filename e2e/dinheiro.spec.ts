@@ -78,6 +78,52 @@ test.describe('Dinheiro', () => {
     await expect(page.getByRole('table', { name: 'Ordens a cobrar' }).getByRole('row').filter({ hasText: numero })).toHaveCount(0)
   })
 
+  /*
+   * A JANELA ENTRE O HTML CHEGAR E O REACT ASSUMIR -- e por que ela e sobre dinheiro.
+   *
+   * O campo do valor nasce preenchido com o SALDO INTEIRO. Enquanto ele era estado
+   * do React, quem apagasse e digitasse um valor parcial nessa janela escrevia so
+   * no DOM: a hidratacao devolvia o saldo cheio, e o clique seguinte registrava o
+   * valor CHEIO no caixa e marcava a ordem como paga. Cliente devendo, sistema
+   * dizendo que nao deve.
+   *
+   * O teste espera DEPOIS de digitar, de proposito: e a espera que da tempo de a
+   * hidratacao acontecer. Se ela reescrever o campo, a assercao cai -- e cai
+   * sempre, nao as vezes.
+   */
+  test('o valor digitado antes de a tela hidratar e o valor que vai para o caixa', async ({ page }) => {
+    await entrar(page)
+    await ordemCom(page, '1 placa 200,00')
+    await expect(campoDe(page, 'Valor recebido')).toHaveValue('200,00')
+
+    // Recarregar e digitar SEM esperar: e a janela entre o HTML do servidor
+    // aparecer e o React assumir o formulario. O campo nasce com o saldo inteiro,
+    // e quem apaga e digita um valor parcial ali escrevia so no DOM -- a
+    // hidratacao devolvia os 200,00 e o clique seguinte mandava 200,00 para o
+    // caixa, marcando como paga uma ordem que o cliente pagou pela metade.
+    await page.reload()
+    // Uma assercao que resolve contra o HTML DO SERVIDOR, antes da hidratacao:
+    // e ela que faz o `fill` comecar o mais cedo possivel, dentro da janela.
+    await expect(page.getByTestId('saldo')).toHaveText('R$ 200,00')
+    await campoDe(page, 'Valor recebido').fill('50')
+    // A espera vem DEPOIS de digitar, de proposito: e ela que da tempo de a
+    // hidratacao acontecer. Se o React reescrever o campo, esta assercao cai.
+    //
+    // HONESTIDADE SOBRE O QUE ESTE TESTE GARANTE: ele e PROBABILISTICO na direcao
+    // de pegar. Medido contra o codigo com o defeito de volta, falhou em 1 de 3
+    // rodadas -- nas outras duas o `fill` chegou depois da hidratacao e nao
+    // alcancou a janela. Com a correcao, 5 de 5 passam. Ou seja: verde aqui NAO
+    // prova que o defeito nao voltou; vermelho prova que voltou. Vale como rede,
+    // nao como certificado.
+    await page.waitForTimeout(1500)
+    await expect(campoDe(page, 'Valor recebido')).toHaveValue('50')
+
+    await campoDe(page, 'Forma de pagamento').selectOption('pix')
+    await page.getByRole('button', { name: 'Só receber', exact: false }).click()
+    await expect(page.getByTestId('estado-pagamento')).toHaveText('Parcial', { timeout: 30_000 })
+    await expect(page.getByTestId('saldo')).toHaveText('R$ 150,00')
+  })
+
   test('acima do saldo e recusado; estorno volta a nao pago e fica riscado no livro', async ({ page }) => {
     await entrar(page)
     await ordemCom(page, '1 placa 100,00')
