@@ -64,7 +64,13 @@ body:has(.impresso-raiz) { background: #e9ecef; }
    * sobra da folha passa a ser o fundo do `body`, que no tema escuro e quase
    * preto. Medido: 40% da folha saía com #121212 por baixo. A folha e branca,
    * ponto; o tema da tela nao chega ate aqui. */
-  html, body { background: #fff; }
+  /* `body:has(.impresso-raiz)` tambem, e nao so `html, body`: a regra da MESA,
+   * la em cima, vale (0,1,1) por causa da classe dentro do `:has`, e esta aqui
+   * valia (0,0,1). Estar dentro de `@media print` nao soma especificidade
+   * nenhuma -- entao a mesa cinza vencia a folha branca e esta regra era letra
+   * morta. Medido: sob midia de impressao o body saía #e9ecef. Com "imprimir
+   * plano de fundo" ligado, a folha inteira sairia cinza. */
+  html, body, body:has(.impresso-raiz) { background: #fff; }
   .impresso-raiz { background: #fff; padding: 0; min-height: auto; }
   .impresso-acoes { display: none !important; }
   .via { width: auto; min-height: auto; margin: 0; padding: 0; box-shadow: none; break-after: page; }
