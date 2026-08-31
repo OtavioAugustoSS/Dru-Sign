@@ -1150,3 +1150,309 @@ a.grafico-lista-linha:hover {
     transition: none;
   }
 }
+
+/* ==========================================================================
+   A FILA DE PRODUÇÃO
+   ==========================================================================
+
+   Lida de pé, na bancada, às vezes de luva, e também do balcão sentado. O que
+   manda aqui é o TRABALHO -- "12 × PLACA ACM" --, não o número da ordem. Número
+   é etiqueta; quem está com a chapa na mão pergunta o que fazer, não qual o
+   número.
+
+   A separação entre as informações vem do tamanho e do espaço, não de risco em
+   volta de cada uma. Foi esse o erro da versão anterior: quatro faixas do mesmo
+   peso, empilhadas, com linha entre todas. */
+
+.grupo-fila {
+  margin-bottom: 2.5rem;
+}
+
+/* O marcador de fábrica do <details> é um triângulo miúdo que não parece coisa
+ * que se clica. O alvo passa a ser a linha inteira do título. */
+.grupo-titulo {
+  cursor: pointer;
+  padding: 0.25rem 0;
+  margin-bottom: 0.5rem;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.grupo-titulo::-webkit-details-marker {
+  display: none;
+}
+
+/* A seta é desenhada aqui para poder girar. O que ela informa é a direção:
+ * apontando para baixo, o grupo está aberto. */
+.grupo-titulo::before {
+  content: '';
+  width: 0.5rem;
+  height: 0.5rem;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform 150ms var(--saida-suave);
+  flex: 0 0 auto;
+  margin-inline: 0.35rem 0.15rem;
+}
+
+.grupo-fila[open] > .grupo-titulo::before {
+  transform: rotate(45deg);
+}
+
+/* ── A LISTA ────────────────────────────────────────────────────────────── */
+
+.bancada-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Três colunas: o trabalho ocupa a largura que sobra, o resto fica encostado na
+ * direita em corpo pequeno. Uma linha SÓ, entre um serviço e o outro -- dentro
+ * do serviço quem agrupa é o espaço. */
+.bancada-servico {
+  display: grid;
+  /* As duas colunas da direita somam 27rem; abaixo de 72rem de janela o que
+   * sobra para o trabalho não dá uma linha de texto, e a descrição quebrava numa
+   * palavra por linha. Daí para baixo a linha vira empilhada -- ver o @media. */
+  grid-template-columns: minmax(0, 1fr) 14rem 13rem;
+  gap: 0 1.5rem;
+  align-items: start;
+  padding: 1rem 0.75rem;
+  border-radius: var(--tblr-border-radius);
+}
+
+/* A linha acende sob o mouse, pelo mesmo motivo e com o mesmo lavado das tabelas
+ * do sistema: o serviço tem 1.300px de ponta a ponta, e o botão que o conclui
+ * fica na outra extremidade do que se leu. Sem transição -- varrer a fila é
+ * passar por dez serviços em dois segundos, e esmaecimento vira rastro. */
+.bancada-servico:hover {
+  background: var(--linha-mouse);
+}
+
+.bancada-servico + .bancada-servico {
+  border-top: 1px solid var(--tblr-border-color);
+}
+
+/* Célula de grade precisa poder encolher abaixo do conteúdo, senão uma descrição
+ * longa empurra as colunas da direita para fora em vez de quebrar linha. */
+.bancada-trabalho {
+  min-width: 0;
+}
+
+/* O trabalho, em corpo grande: é o que a bancada lê de longe. */
+.bancada-item {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  gap: 0 0.75rem;
+  margin: 0;
+  font-size: 1.375rem;
+  line-height: 1.35;
+}
+
+.bancada-item + .bancada-item {
+  margin-top: 0.35rem;
+}
+
+/* A COLUNA DAS QUANTIDADES é o que faz a lista funcionar de relance.
+ *
+ * Alinhadas à direita e em dígitos tabulares, "12", "2" e "30" formam uma borda
+ * numérica reta descendo a página: dá para varrer o volume de trabalho sem ler
+ * uma palavra. Solta no meio da frase, a quantidade se perdia. */
+.bancada-qtd {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--tblr-secondary);
+  /* Sem isto o × cai para a linha de baixo quando a coluna aperta, e "30 ×" vira
+   * "30" com um × solto embaixo. */
+  white-space: nowrap;
+}
+
+/* O × vem do CSS e não do texto: assim ele não entra na seleção nem no que o
+ * leitor de tela dita, e a quantidade continua sendo um número. */
+.bancada-qtd::after {
+  content: '×';
+  margin-left: 0.35em;
+  font-weight: 400;
+}
+
+/* A medida na mesma linha da descrição, mais clara: é detalhe de execução, não
+ * identidade do serviço. */
+.bancada-medida {
+  color: var(--tblr-secondary);
+  white-space: nowrap;
+}
+
+.bancada-medida::before {
+  content: '·';
+  margin-inline: 0.4em;
+}
+
+/* Tudo o que não é o trabalho: pequeno, quieto, empilhado. */
+.bancada-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  min-width: 0;
+  padding-top: 0.15rem;
+}
+
+.bancada-os {
+  font-size: 0.875rem;
+  letter-spacing: 0.04em;
+  color: var(--tblr-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.bancada-cliente {
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+/* As duas ações empilhadas e em pesos DIFERENTES: finalizar é a que muda o
+ * mundo -- verde, 56px, a altura que se acerta de luva. Ver o serviço é consulta:
+ * sem preenchimento, mais baixa, texto apagado. Do mesmo tamanho e lado a lado,
+ * como estavam, as duas competiam e nenhuma liderava. */
+.bancada-acao {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+/* Consulta, e não ação: sem preenchimento, sem borda, na cor apagada e alinhado
+ * à esquerda com o resto do contexto. Continua sendo um botão de verdade e não
+ * um texto sublinhado, porque na bancada isto é apertado com o dedo -- 44px de
+ * altura e o recuo negativo para o rótulo cair na mesma vertical do telefone. */
+.bancada-ver {
+  min-height: 44px;
+  align-self: flex-start;
+  margin-left: -0.75rem;
+  background: transparent;
+  border-color: transparent;
+  /* A cor de link do sistema, que é como toda outra coisa clicável se anuncia
+   * aqui. Sublinhado ficou de fora: num `<button>` com recuo interno ele passa
+   * da palavra e vira um risco solto. O que diz "clique" é a cor, mais o realce
+   * que chega no mouse e no foco. */
+  color: var(--tblr-link-color);
+}
+
+.bancada-ver:hover,
+.bancada-ver:focus-visible {
+  background: transparent;
+  color: var(--tblr-link-hover-color);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+/* Numa janela estreita as três colunas viram uma: o trabalho por cima, o resto
+ * embaixo. */
+@media (max-width: 72rem) {
+  .bancada-servico {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.75rem;
+  }
+
+  .bancada-meta {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 1rem;
+  }
+
+  .bancada-acao {
+    flex-direction: row;
+  }
+
+  .bancada-acao > * {
+    flex: 1 1 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grupo-titulo::before {
+    transition: none;
+  }
+}
+
+/* ── O DETALHE DO SERVIÇO ───────────────────────────────────────────────────
+ *
+ * `<dialog>` nativo: prender o foco, fechar no Esc e escurecer o fundo vêm de
+ * graça e corretos -- que é justamente o que uma caixa desenhada à mão erra.
+ *
+ * A mesma hierarquia da lista: o trabalho grande em cima, o contexto pequeno
+ * embaixo. Sem etiqueta em caixa alta nomeando cada bloco: eyebrow acima de toda
+ * seção é o andaime que denuncia tela gerada. */
+.detalhe-servico {
+  width: min(38rem, calc(100vw - 2rem));
+  max-height: calc(100vh - 4rem);
+  padding: 0;
+  border: 1px solid var(--tblr-border-color);
+  border-radius: var(--tblr-border-radius-lg, 8px);
+  background: var(--tblr-bg-surface);
+  color: var(--tblr-body-color);
+  overflow: hidden auto;
+}
+
+.detalhe-servico::backdrop {
+  /* Escuro o bastante para a fila atrás sair de foco sem sumir: quem consulta
+   * quer continuar sabendo que está na fila. */
+  background: rgb(0 0 0 / 0.6);
+}
+
+.detalhe-faixa {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem 0.75rem;
+}
+
+/* O número é etiqueta, não manchete: quem abriu já sabe qual serviço abriu. */
+.detalhe-numero {
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--tblr-secondary);
+  margin: 0 0 0.35rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* O trabalho: o maior corpo da caixa, porque é o que se abriu para ver. */
+.detalhe-trabalho {
+  padding: 0.25rem 1.5rem 1.25rem;
+  font-size: 1.375rem;
+}
+
+/* Contexto em pares rótulo/valor numa grade de duas colunas: rótulo estreito e
+ * apagado, valor com a largura que sobra. Não precisa de linha entre eles -- o
+ * alinhamento já separa. */
+.detalhe-contexto {
+  display: grid;
+  grid-template-columns: 7rem minmax(0, 1fr);
+  gap: 0.5rem 1rem;
+  margin: 0;
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid var(--tblr-border-color);
+}
+
+.detalhe-contexto dt {
+  font-weight: 400;
+  color: var(--tblr-secondary);
+}
+
+.detalhe-contexto dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.detalhe-acoes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0 1.5rem 1.5rem;
+}

@@ -9,19 +9,45 @@ export const ROTULO_URGENCIA: Record<GrupoUrgencia, string> = {
   sem_data: 'Sem data combinada',
 }
 
+/**
+ * Uma linha de trabalho, em partes.
+ *
+ * Era uma string pronta ("12 x PLACA ACM ... - 0,61 x 0,40 m"). Virou tres campos
+ * porque a tela precisa alinhar as QUANTIDADES numa coluna propria: com "12 x" e
+ * "2 x" um embaixo do outro, alinhados a direita e em digitos tabulares, a lista
+ * ganha uma borda numerica que se le de relance -- e de relance e como a bancada
+ * le. Montar a string aqui e desmontar la com expressao regular seria o caminho
+ * errado: a view nao deve fazer analise sintatica do que o servidor ja sabia.
+ *
+ * Nada disso e regra: `classificarUrgencia` continua identica.
+ */
+export interface ItemDaProducao {
+  quantidade: number
+  descricao: string
+  /** "0,61 x 0,40 m" quando a cobranca tem medida; null quando e por unidade. */
+  medida: string | null
+}
+
 /** Serializavel, e sem dinheiro: a producao nao ve preco (spec, secao 3). */
 export interface OrdemDaProducao {
   id: string
   numero: number
   clienteNome: string | null
   clienteApelido: string | null
+  /**
+   * O telefone que a ordem congelou na criacao (`ordem_servico.cliente_telefone`),
+   * e nao uma consulta ao cadastro. Entrou porque a bancada precisa ligar: peca
+   * pronta, duvida no meio do servico, medida que nao bate. Nao muda regra
+   * nenhuma -- e leitura, como todo o resto deste tipo.
+   */
+  clienteTelefone: string | null
   abertaEm: string
   /** ISO da @db.Date; null quando nao foi combinada. */
   prometidaPara: string | null
   /** Para o botao "Servico finalizado" ir com a trava otimista. */
   versao: number
-  /** Descricao dos itens, na ordem de exibicao: e o que a producao precisa ler. */
-  itens: string[]
+  /** O que produzir, na ordem de exibicao: e o que a bancada le para trabalhar. */
+  itens: ItemDaProducao[]
 }
 
 export interface GrupoDaFila {
