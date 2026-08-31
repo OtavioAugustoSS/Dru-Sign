@@ -41,6 +41,15 @@ export interface OrdemDaProducao {
    * nenhuma -- e leitura, como todo o resto deste tipo.
    */
   clienteTelefone: string | null
+  /**
+   * O que o atendimento anotou para a bancada: "entregar direto no local",
+   * "cliente vai buscar sabado", "conferir a cor com a arte antiga". Estava no
+   * banco e nao chegava na fila -- a producao tinha de abrir a ordem para
+   * descobrir que havia recado, ou nao descobria.
+   */
+  observacoes: string | null
+  /** Quem no balcao atendeu: a bancada precisa saber a quem perguntar. */
+  responsavelNome: string
   abertaEm: string
   /** ISO da @db.Date; null quando nao foi combinada. */
   prometidaPara: string | null

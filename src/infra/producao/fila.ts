@@ -32,7 +32,8 @@ export async function carregarFilaProducao(empresaId: string, agora: Date = new 
     where: { empresaId, estadoProducao: 'aberta' },
     select: {
       id: true, numero: true, clienteNome: true, clienteApelido: true, clienteTelefone: true,
-      abertaEm: true, prometidaPara: true, versao: true,
+      observacoes: true, abertaEm: true, prometidaPara: true, versao: true,
+      responsavel: { select: { nome: true } },
       itens: {
         where: { removidoEm: null },
         orderBy: { ordemExibicao: 'asc' },
@@ -43,6 +44,8 @@ export async function carregarFilaProducao(empresaId: string, agora: Date = new 
   const lista: OrdemDaProducao[] = ordens.map((o) => ({
     id: o.id, numero: o.numero, clienteNome: o.clienteNome, clienteApelido: o.clienteApelido,
     clienteTelefone: o.clienteTelefone,
+    observacoes: o.observacoes,
+    responsavelNome: o.responsavel.nome,
     abertaEm: o.abertaEm.toISOString(), prometidaPara: o.prometidaPara?.toISOString() ?? null,
     versao: o.versao, itens: o.itens.map(linhaDoItem),
   }))

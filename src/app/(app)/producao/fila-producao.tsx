@@ -1,3 +1,5 @@
+import Link from 'next/link'
+import { IconPrinter } from '@tabler/icons-react'
 import { CabecalhoPagina } from '@/componentes/cabecalho-pagina'
 import { CorpoPagina } from '@/componentes/corpo-pagina'
 import { EstadoVazio } from '@/componentes/estado-vazio'
@@ -7,6 +9,7 @@ import { formatarTelefone } from '@/domain/clientes/telefone'
 import { ROTULO_URGENCIA, type GrupoDaFila, type OrdemDaProducao, type FilaProducao } from '@/domain/producao/urgencia'
 import { BotaoFinalizado } from './botao-finalizado'
 import { DetalheServico } from './detalhe-servico'
+import { contar } from '@/componentes/plural'
 import { esperaDe, nomeDoCliente, prazoDe } from './prazo'
 
 /**
@@ -91,10 +94,30 @@ function Servico({ ordem, agora }: { ordem: OrdemDaProducao; agora: Date }) {
   const prazo = prazoDe(ordem, agora)
   const espera = esperaDe(ordem, agora)
   const telefone = ordem.clienteTelefone?.replace(/\D/g, '') ?? ''
+  const pecas = ordem.itens.reduce((n, i) => n + i.quantidade, 0)
 
   return (
-    <li className="bancada-servico">
-      <div className="bancada-trabalho">
+    // `data-tom` pinta a FAIXA da esquerda. Ela é o que se vê antes de ler: uma
+    // coluna de cor descendo a página, vermelha onde atrasou e âmbar onde vence
+    // hoje. Quem chega na bancada acha o trabalho urgente sem ler uma palavra.
+    <li className="bancada-servico" data-tom={prazo.tom}>
+      {/* Faixa 1 -- QUEM E QUANDO. Uma linha, corpo pequeno: é identificação, não
+          é o trabalho. */}
+      <div className="servico-identidade">
+        <span className="bancada-os">
+          <NumeroOs numero={ordem.numero} />
+        </span>
+        <Situacao tom={prazo.tom}>{prazo.texto}</Situacao>
+        <span className="anotacao">{espera}</span>
+        <span className="servico-cliente-nome">{nomeDoCliente(ordem)}</span>
+        {telefone ? (
+          <a className="servico-telefone" href={`tel:${telefone}`}>{formatarTelefone(telefone)}</a>
+        ) : null}
+        <span className="anotacao servico-responsavel">atendeu {ordem.responsavelNome}</span>
+      </div>
+
+      {/* Faixa 2 -- O TRABALHO. É a manchete, e ocupa a largura inteira. */}
+      <div className="servico-trabalho">
         {ordem.itens.length === 0 ? (
           <p className="anotacao-solta m-0">Nenhum item lançado nesta ordem</p>
         ) : (
@@ -110,23 +133,30 @@ function Servico({ ordem, agora }: { ordem: OrdemDaProducao; agora: Date }) {
         )}
       </div>
 
-      <div className="bancada-meta">
-        <span className="bancada-os">
-          <NumeroOs numero={ordem.numero} />
-        </span>
-        <Situacao tom={prazo.tom}>{prazo.texto}</Situacao>
-        <span className="bancada-cliente">{nomeDoCliente(ordem)}</span>
-        {telefone ? (
-          <a className="text-secondary" href={`tel:${telefone}`}>{formatarTelefone(telefone)}</a>
-        ) : null}
-        {/* "Ver o serviço" mora aqui e não na coluna das ações: empilhado sob o
-            botão verde, ele esticava a linha de um serviço de um item só em 76px
-            de ar. Aqui ele é o que é -- consulta, ao lado do resto do contexto. */}
-        <DetalheServico ordem={ordem} prazo={prazo} espera={espera} />
-      </div>
+      {/* O recado do balcão para a bancada. Estava no banco e não chegava aqui:
+          quem produzia tinha de abrir a ordem para descobrir que havia recado --
+          ou não descobria, e a peça saía errada. */}
+      {ordem.observacoes?.trim() ? (
+        <p className="servico-recado">{ordem.observacoes.trim()}</p>
+      ) : null}
 
-      <div className="bancada-acao">
-        <BotaoFinalizado ordemId={ordem.id} versao={ordem.versao} />
+      {/* Faixa 3 -- O QUE DÁ PARA FAZER DAQUI.
+          Três ações e três pesos. Finalizar muda o mundo e é a verde de 56px.
+          Imprimir existe porque a peça vai para a bancada COM a folha: era o
+          caminho mais usado da tela da ordem e obrigava a sair da fila para
+          chegar nele. Ver o serviço é consulta. */}
+      <div className="servico-acoes">
+        <span className="servico-contagem anotacao-solta">
+          {contar(pecas, 'peça', 'peças')} em {contar(ordem.itens.length, 'item', 'itens')}
+        </span>
+        <DetalheServico ordem={ordem} prazo={prazo} espera={espera} />
+        <Link href={`/ordens/${ordem.id}/impresso`} className="btn bancada-imprimir">
+          <IconPrinter className="icon" aria-hidden="true" />
+          Imprimir
+        </Link>
+        <div className="servico-finalizar">
+          <BotaoFinalizado ordemId={ordem.id} versao={ordem.versao} />
+        </div>
       </div>
     </li>
   )

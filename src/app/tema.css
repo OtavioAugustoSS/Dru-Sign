@@ -1230,7 +1230,12 @@ a.grafico-lista-linha:hover {
   transform: rotate(45deg);
 }
 
-/* ── A LISTA ────────────────────────────────────────────────────────────── */
+/* ── A LISTA ──────────────────────────────────────────────────────────────
+ *
+ * Três faixas empilhadas, e cada uma responde uma pergunta diferente: quem e
+ * quando, o que fazer, e o que dá para fazer daqui. Empilhadas e não em colunas
+ * porque a linha tem 1.300px: em três colunas o trabalho ficava curto à esquerda
+ * e sobrava um vão morto de meia tela no meio. */
 
 .bancada-lista {
   list-style: none;
@@ -1238,40 +1243,92 @@ a.grafico-lista-linha:hover {
   padding: 0;
 }
 
-/* Três colunas: o trabalho ocupa a largura que sobra, o resto fica encostado na
- * direita em corpo pequeno. Uma linha SÓ, entre um serviço e o outro -- dentro
- * do serviço quem agrupa é o espaço. */
+/* A FAIXA DA ESQUERDA é o que se vê antes de ler.
+ *
+ * Uma coluna de cor descendo a página: vermelha onde atrasou, âmbar onde vence
+ * hoje ou amanhã, apagada no resto. Quem chega na bancada acha o trabalho
+ * urgente sem ler uma palavra -- e a cor nunca está sozinha, porque a palavra
+ * ("Atrasada há 2 dias") vem logo ao lado. */
 .bancada-servico {
-  display: grid;
-  /* As duas colunas da direita somam 27rem; abaixo de 72rem de janela o que
-   * sobra para o trabalho não dá uma linha de texto, e a descrição quebrava numa
-   * palavra por linha. Daí para baixo a linha vira empilhada -- ver o @media. */
-  grid-template-columns: minmax(0, 1fr) 14rem 13rem;
-  gap: 0 1.5rem;
-  align-items: start;
-  padding: 1rem 0.75rem;
+  --tom-da-faixa: var(--tblr-border-color);
+  position: relative;
+  padding: 1rem 1rem 1rem 1.5rem;
   border-radius: var(--tblr-border-radius);
 }
 
-/* A linha acende sob o mouse, pelo mesmo motivo e com o mesmo lavado das tabelas
- * do sistema: o serviço tem 1.300px de ponta a ponta, e o botão que o conclui
- * fica na outra extremidade do que se leu. Sem transição -- varrer a fila é
- * passar por dez serviços em dois segundos, e esmaecimento vira rastro. */
-.bancada-servico:hover {
-  background: var(--linha-mouse);
+.bancada-servico::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.75rem;
+  bottom: 0.75rem;
+  width: 4px;
+  border-radius: 999px;
+  background: var(--tom-da-faixa);
+}
+
+.bancada-servico[data-tom='ruim'] {
+  --tom-da-faixa: var(--ponto-ruim);
+}
+
+.bancada-servico[data-tom='atencao'] {
+  --tom-da-faixa: var(--ponto-atencao);
 }
 
 .bancada-servico + .bancada-servico {
   border-top: 1px solid var(--tblr-border-color);
 }
 
-/* Célula de grade precisa poder encolher abaixo do conteúdo, senão uma descrição
- * longa empurra as colunas da direita para fora em vez de quebrar linha. */
-.bancada-trabalho {
+/* A linha acende sob o mouse, pelo mesmo motivo e com o mesmo lavado das tabelas
+ * do sistema. Sem transição: varrer a fila é passar por dez serviços em dois
+ * segundos, e esmaecimento deixa o realce atrás do ponteiro. */
+.bancada-servico:hover {
+  background: var(--linha-mouse);
+}
+
+/* Faixa 1: identificação, numa linha só e em corpo pequeno. Quebra em telas
+ * estreitas em vez de espremer. */
+.servico-identidade {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.bancada-os {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--tblr-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.servico-cliente-nome {
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.servico-telefone {
+  color: var(--tblr-secondary);
+}
+
+/* Empurrado para a ponta: é quem responder por essa ordem, não parte do nome.
+ * E sem o ponto separador da `.anotacao`: ele existe para colar um aparte ao que
+ * vem antes, e aqui não vem nada antes -- na ponta direita ele fica solto. */
+.servico-responsavel::before {
+  content: none;
+}
+
+.servico-responsavel {
+  margin-left: auto;
+}
+
+/* Faixa 2: o trabalho, em corpo grande. É a manchete. */
+.servico-trabalho {
   min-width: 0;
 }
 
-/* O trabalho, em corpo grande: é o que a bancada lê de longe. */
 .bancada-item {
   display: grid;
   grid-template-columns: 2.5rem minmax(0, 1fr);
@@ -1295,8 +1352,7 @@ a.grafico-lista-linha:hover {
   font-variant-numeric: tabular-nums;
   font-weight: 600;
   color: var(--tblr-secondary);
-  /* Sem isto o × cai para a linha de baixo quando a coluna aperta, e "30 ×" vira
-   * "30" com um × solto embaixo. */
+  /* Sem isto o × cai para a linha de baixo quando a coluna aperta. */
   white-space: nowrap;
 }
 
@@ -1320,52 +1376,43 @@ a.grafico-lista-linha:hover {
   margin-inline: 0.4em;
 }
 
-/* Tudo o que não é o trabalho: pequeno, quieto, empilhado. */
-.bancada-meta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.25rem;
-  min-width: 0;
-  padding-top: 0.15rem;
-}
-
-.bancada-os {
-  font-size: 0.875rem;
-  letter-spacing: 0.04em;
+/* O RECADO DO BALCÃO PARA A BANCADA.
+ *
+ * Estava no banco e não chegava nesta tela: quem produzia tinha de abrir a ordem
+ * para descobrir que havia recado -- ou não descobria, e a peça saía errada.
+ * Recuado e com marca própria para não se confundir com item: item é o que
+ * fazer, recado é como fazer. */
+.servico-recado {
+  margin: 0.75rem 0 0;
+  padding-left: 0.75rem;
+  border-left: 2px solid var(--tblr-border-color);
   color: var(--tblr-secondary);
-  font-variant-numeric: tabular-nums;
+  white-space: pre-line;
 }
 
-.bancada-cliente {
-  font-weight: 500;
-  overflow-wrap: anywhere;
-}
-
-/* As duas ações empilhadas e em pesos DIFERENTES: finalizar é a que muda o
- * mundo -- verde, 56px, a altura que se acerta de luva. Ver o serviço é consulta:
- * sem preenchimento, mais baixa, texto apagado. Do mesmo tamanho e lado a lado,
- * como estavam, as duas competiam e nenhuma liderava. */
-.bancada-acao {
+/* Faixa 3: as ações, e três pesos diferentes.
+ *
+ * Finalizar muda o mundo: verde, 56px, a altura que se acerta de luva. Imprimir
+ * é caminho -- a peça vai para a bancada COM a folha, e antes era preciso sair
+ * da fila e abrir a ordem para chegar nele. Ver o serviço é consulta, e fica na
+ * cor de link sem preenchimento. Do mesmo tamanho, as três competiriam. */
+.servico-acoes {
   display: flex;
-  flex-direction: column;
-  align-items: stretch;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
 }
 
-/* Consulta, e não ação: sem preenchimento, sem borda, na cor apagada e alinhado
- * à esquerda com o resto do contexto. Continua sendo um botão de verdade e não
- * um texto sublinhado, porque na bancada isto é apertado com o dedo -- 44px de
- * altura e o recuo negativo para o rótulo cair na mesma vertical do telefone. */
+/* A contagem empurra as ações para a direita e diz, de passagem, o tamanho do
+ * serviço: "38 peças em 3 itens" responde "isso é rápido?" antes de somar. */
+.servico-contagem {
+  margin-right: auto;
+}
+
 .bancada-ver {
   min-height: 44px;
-  align-self: flex-start;
-  margin-left: -0.75rem;
   background: transparent;
   border-color: transparent;
-  /* A cor de link do sistema, que é como toda outra coisa clicável se anuncia
-   * aqui. Sublinhado ficou de fora: num `<button>` com recuo interno ele passa
-   * da palavra e vira um risco solto. O que diz "clique" é a cor, mais o realce
-   * que chega no mouse e no foco. */
   color: var(--tblr-link-color);
 }
 
@@ -1377,33 +1424,35 @@ a.grafico-lista-linha:hover {
   text-underline-offset: 0.2em;
 }
 
-/* Numa janela estreita as três colunas viram uma: o trabalho por cima, o resto
- * embaixo. */
-@media (max-width: 72rem) {
-  .bancada-servico {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0.75rem;
-  }
-
-  .bancada-meta {
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.25rem 1rem;
-  }
-
-  .bancada-acao {
-    flex-direction: row;
-  }
-
-  .bancada-acao > * {
-    flex: 1 1 0;
-  }
+.bancada-imprimir {
+  min-height: 44px;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .grupo-titulo::before {
-    transition: none;
+/* O botão verde não estica: 56px de altura e a largura do rótulo. Esticado pela
+ * linha inteira ele virava uma barra e o verde deixava de significar. */
+.servico-finalizar .botao-producao {
+  width: auto;
+  padding-inline: 1.5rem;
+}
+
+/* Numa janela estreita as ações empilham e o verde ocupa a largura -- é a mão de
+ * quem está de pé com o celular ou o tablet da bancada. */
+@media (max-width: 48rem) {
+  .servico-acoes {
+    flex-wrap: wrap;
+  }
+
+  .servico-contagem {
+    flex: 1 0 100%;
+    margin: 0 0 0.5rem;
+  }
+
+  .servico-finalizar {
+    flex: 1 1 100%;
+  }
+
+  .servico-finalizar .botao-producao {
+    width: 100%;
   }
 }
 
@@ -1484,3 +1533,4 @@ a.grafico-lista-linha:hover {
   gap: 0.5rem;
   padding: 0 1.5rem 1.5rem;
 }
+

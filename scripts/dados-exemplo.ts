@@ -93,6 +93,8 @@ async function ordem(dados: {
   /** Há quantos dias a ordem foi aberta. */
   abertaHa: number
   itens: Item[]
+  /** O recado do balcão para a bancada, quando existe. */
+  recado?: string
 }): Promise<{ id: string; versao: number; numero: number }> {
   const clienteId = dados.cliente ? await cliente(dados.cliente) : null
   const o = await criarOrdem(ctx(), { estado: dados.estado, clienteId, prometidaPara: dados.prometida })
@@ -109,10 +111,15 @@ async function ordem(dados: {
   // `abertaEm` não é parâmetro de `criarOrdem` -- e não deve ser, porque no uso
   // real a ordem nasce agora. Aqui ela é recuada depois, só para o Painel ter
   // barras em mais de um mês e a fila ter idades diferentes.
+  const recuo: { abertaEm?: Date; observacoes?: string } = {}
   if (dados.abertaHa > 0) {
     const quando = new Date(HOJE)
     quando.setDate(quando.getDate() - dados.abertaHa)
-    await prisma.ordemServico.update({ where: { id: o.id }, data: { abertaEm: quando } })
+    recuo.abertaEm = quando
+  }
+  if (dados.recado) recuo.observacoes = dados.recado
+  if (Object.keys(recuo).length > 0) {
+    await prisma.ordemServico.update({ where: { id: o.id }, data: recuo })
   }
   return { id: o.id, versao, numero: o.numero }
 }
@@ -122,18 +129,21 @@ const FORMAS = ['pix', 'dinheiro', 'cartao_debito', 'transferencia', 'cartao_cre
 console.log('criando ordens em produção...')
 
 /* NA BANCADA AGORA: é a Fila de produção, e o que alimenta "em aberto" no Painel. */
-const emProducao: { cliente: string | null; prometida: string | null; abertaHa: number; itens: Item[] }[] = [
+const emProducao: { cliente: string | null; prometida: string | null; abertaHa: number; itens: Item[]; recado?: string }[] = [
   { cliente: 'PREFEITURA MUN/ UNAI SAUDE', prometida: dia(-3), abertaHa: 12, itens: [
     [12, 'PLACA ACM BRANCO COM ADESIVO IMPRESSO', '61.00', '0.61', '0.40'],
-    [2, 'FAIXA LONA COM ILHOS', '45.00', '3.00', '0.80'] ] },
+    [2, 'FAIXA LONA COM ILHOS', '45.00', '3.00', '0.80'] ],
+    recado: 'Entregar direto na recepção da policlínica, falar com a Dona Marta.' },
   { cliente: 'SINDICATO DOS PRODUTORES', prometida: dia(-1), abertaHa: 9, itens: [
     [1, 'LETRA CAIXA PVC EXPANDIDO 10MM PINTADA', '380.00', '2.40', '0.35'] ] },
   { cliente: 'MAPA CONSTRUTORA', prometida: dia(0), abertaHa: 4, itens: [
     [6, 'PLACA DE OBRA EM LONA COM ESTRUTURA', '190.00', '2.00', '1.00'],
     [6, 'ADESIVO VINIL RECORTE ELETRONICO', '35.00'],
-    [1, 'INSTALACAO NO LOCAL', '250.00'] ] },
+    [1, 'INSTALACAO NO LOCAL', '250.00'] ],
+    recado: 'A cor do azul tem que bater com a placa antiga — conferir antes de imprimir.' },
   { cliente: 'UNAI LEILOES', prometida: dia(0), abertaHa: 2, itens: [
-    [30, 'CRACHA PVC IMPRESSO FRENTE E VERSO', '9.50'] ] },
+    [30, 'CRACHA PVC IMPRESSO FRENTE E VERSO', '9.50'] ],
+    recado: 'Cliente busca no balcão hoje às 17h.' },
   { cliente: 'AGRORESERVAS DO BRASIL', prometida: dia(1), abertaHa: 3, itens: [
     [2, 'BANNER LONA 440G IMPRESSO', '55.00', '1.20', '0.80'] ] },
   { cliente: null, prometida: dia(2), abertaHa: 1, itens: [

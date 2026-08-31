@@ -6,7 +6,7 @@ const dia = (s: string) => `${s}T00:00:00.000Z`
 
 function ordem(p: Partial<OrdemDaProducao> & { numero: number }): OrdemDaProducao {
   return {
-    id: `id-${p.numero}`, clienteNome: null, clienteApelido: null, clienteTelefone: null,
+    id: `id-${p.numero}`, clienteNome: null, clienteApelido: null, clienteTelefone: null, observacoes: null, responsavelNome: 'Administrador',
     abertaEm: '2026-08-20T12:00:00.000Z', prometidaPara: null, versao: 1, itens: [{ quantidade: 1, descricao: 'PLACA ACM', medida: null }], ...p,
   }
 }
