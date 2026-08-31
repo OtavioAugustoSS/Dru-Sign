@@ -22,8 +22,22 @@ interface Props {
  */
 export function SeletorTema({ inicial, escolherAction }: Props) {
   const [tema, setTema] = useState<Tema>(inicial)
-  const [, iniciar] = useTransition()
+  const [gravando, iniciar] = useTransition()
 
+  /*
+   * `gravando` entra nas dependencias por um defeito medido, nao por precaucao.
+   *
+   * Toda server action faz o Next re-renderizar a rota a partir da raiz, mesmo
+   * sem `revalidatePath`. Nessa re-renderizacao o layout devolve
+   * `data-bs-theme={undefined}` -- porque quem escolheu "Sistema" nao tem
+   * atributo no servidor -- e o React APAGA o atributo que este efeito tinha
+   * acabado de escrever. Sem uma dependencia que mude, o efeito nao roda de
+   * novo, e o sistema ficava presto no tema claro ate a pessoa recarregar a
+   * pagina. Escolher "Sistema" simplesmente nao funcionava.
+   *
+   * `gravando` vira `true` no clique e `false` quando a action termina, que e
+   * exatamente depois da re-renderizacao: o efeito reescreve o atributo.
+   */
   useEffect(() => {
     const raiz = document.documentElement
 
@@ -40,7 +54,7 @@ export function SeletorTema({ inicial, escolherAction }: Props) {
     aplicar()
     consulta.addEventListener('change', aplicar)
     return () => consulta.removeEventListener('change', aplicar)
-  }, [tema])
+  }, [tema, gravando])
 
   return (
     <>
