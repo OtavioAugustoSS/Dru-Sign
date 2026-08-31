@@ -1230,6 +1230,17 @@ a.grafico-lista-linha:hover {
   transform: rotate(45deg);
 }
 
+/* A guarda de movimento reduzido fica COLADA na animacao que ela guarda.
+ *
+ * Ela existia e se perdeu quando reescrevi o CSS desta tela -- a varredura da
+ * vistoria pegou. Guarda longe do que guarda e guarda que some numa reescrita;
+ * por isso agora ela mora aqui, e nao num bloco geral no fim do arquivo. */
+@media (prefers-reduced-motion: reduce) {
+  .grupo-titulo::before {
+    transition: none;
+  }
+}
+
 /* ── A LISTA ──────────────────────────────────────────────────────────────
  *
  * Três faixas empilhadas, e cada uma responde uma pergunta diferente: quem e
