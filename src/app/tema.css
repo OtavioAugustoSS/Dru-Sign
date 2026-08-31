@@ -1082,3 +1082,51 @@ a.grafico-lista-linha:hover {
 .nav-link {
   transition-duration: 150ms;
 }
+
+/* A BARRA QUE ACOMPANHA O ITEM EM VIGOR NO MENU LATERAL.
+ *
+ * A do Tabler e um `::after` com `border-left: 3px` que só EXISTE no item aceso
+ * -- nos outros o `content` é `none`. Um elemento que não existe nos dois lados
+ * não tem como ir de um ao outro: ele pisca fora de um e dentro do outro. Esta é
+ * um elemento só, que vive na lista inteira e muda de lugar.
+ *
+ * O que ela informa: de onde para onde você foi. São catorze itens em cinco
+ * grupos, e a barra atravessando é o que liga a tela que você deixou à tela que
+ * abriu -- é continuidade, não enfeite. É também a única coisa que se move na
+ * lateral: o resto fica parado.
+ *
+ * Só `transform` anima. A altura é escrita uma vez pela medida e não entra na
+ * transição -- os catorze itens têm os mesmos 40px, então ela nunca muda. */
+.lateral-navegacao {
+  position: relative;
+}
+
+.lateral-barra {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: var(--barra-altura, 40px);
+  background: var(--tblr-primary);
+  transform: translateY(var(--barra-y, 0));
+  /* Acima do item, senão o realce de fundo do item aceso passa por cima dela. */
+  z-index: 1;
+}
+
+/* A transição só entra depois da primeira pintura -- ver o componente. Abrir o
+ * sistema e ver a barra subindo do topo até o item certo seria movimento sem
+ * informação: não houve troca nenhuma, a pessoa acabou de chegar. */
+.lateral-barra.desliza {
+  transition: transform 150ms var(--saida-suave);
+}
+
+/* A do Tabler sai de cena: duas barras no mesmo lugar seriam duas. */
+.lateral-navegacao .nav-item.active::after {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lateral-barra.desliza {
+    transition: none;
+  }
+}
