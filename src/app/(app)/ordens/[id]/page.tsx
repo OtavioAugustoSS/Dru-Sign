@@ -13,7 +13,7 @@ import { obterOrdemParaTela } from '@/infra/ordens/repositorio'
 import { dinheiro } from '@/domain/precificacao/dinheiro'
 import { formatarTelefone } from '@/domain/clientes/telefone'
 import { permissoes, ROTULO_ESTADO } from '@/domain/ordem/estados'
-import { formatarDataCalendario, formatarDataHora, formatarDataLonga, hojeCalendario } from '@/domain/ordem/datas'
+import { formatarDataHora, formatarDataLonga, hojeCalendario } from '@/domain/ordem/datas'
 import { descreverCobranca, formatarDimensao } from '@/domain/ordem/impresso'
 import type { MaterialCatalogo } from '@/domain/precificacao/resolucao'
 import { EntradaLinha } from './entrada-linha'
@@ -122,15 +122,27 @@ export default async function PaginaOrdem({ params }: { params: Promise<{ id: st
             <div className="col-lg-4">
               <div className="card">
                 <div className="card-body">
+                  {/* SO APARECE A LINHA QUE DIZ ALGO DIFERENTE DA DE BAIXO.
+                      "Materiais e serviços", "Calculado" e "Preço final" sao o
+                      MESMO numero enquanto nao ha acrescimo nem ajuste -- que e a
+                      ordem comum. O cartao repetia R$ 2.740,00 tres vezes com tres
+                      rotulos, e quem le tres numeros iguais para de ler os rotulos:
+                      no dia em que um deles for diferente, ninguem repara. Somar
+                      itens so vale como linha quando ha acrescimo depois dela; o
+                      calculado so vale quando o preco final foi mexido a mao. */}
                   <dl className="row mb-0">
-                    <dt className="col-7">Materiais e serviços</dt><dd className="col-5 numero">{valorEmReais(ordem.subtotalItens)}</dd>
+                    {ordem.acrescimos.length > 0 ? (
+                      <><dt className="col-7">Materiais e serviços</dt><dd className="col-5 numero">{valorEmReais(ordem.subtotalItens)}</dd></>
+                    ) : null}
                     {ordem.acrescimos.map((a) => (
                       <div className="row g-0 col-12" key={a.id}>
                         <dt className="col-7 fw-normal">{ROTULO_ACRESCIMO[a.tipo]}{a.descricao ? ` · ${a.descricao}` : ''}</dt>
                         <dd className="col-5 numero d-flex justify-content-end gap-2">{valorEmReais(a.valor)}{pode.editarItens ? <BotaoMutacao acao={acao(removerAcrescimoAction, a.id)} rotulo="Remover" className="btn btn-ghost-danger btn-sm py-0" /> : null}</dd>
                       </div>
                     ))}
-                    <dt className="col-7">Calculado</dt><dd className="col-5 numero">{valorEmReais(ordem.precoCalculado)}</dd>
+                    {ordem.ajuste ? (
+                      <><dt className="col-7">Calculado</dt><dd className="col-5 numero">{valorEmReais(ordem.precoCalculado)}</dd></>
+                    ) : null}
                     <dt className="col-7">Preço final{ordem.ajuste ? <Anotacao tom="marca">ajustado</Anotacao> : null}</dt>
                     <dd className="col-5 numero fs-2 fw-bold" data-testid="preco-final">{valorEmReais(ordem.precoFinal)}</dd>
                   </dl>
@@ -170,7 +182,11 @@ export default async function PaginaOrdem({ params }: { params: Promise<{ id: st
                 <div className="card-body border-top d-flex flex-column gap-2">
                   {pode.aprovarOrcamento ? <BotaoMutacao acao={acao(aprovarOrcamentoAction)} rotulo="Aprovar orçamento" className="btn btn-primary" /> : null}
                   {pode.cancelar ? <FormCancelar ordemId={ordem.id} versao={ordem.versao} /> : null}
-                  {ordem.prometidaPara ? <div className="small text-secondary">Entrega prometida para {formatarDataCalendario(new Date(ordem.prometidaPara))}</div> : null}
+                  {/* A entrega prometida saiu daqui: ela ja aparece na linha de
+                      identificacao no alto e no campo que a edita, no cabecalho.
+                      Tres vezes a mesma data na mesma tela, e a terceira solta
+                      embaixo de "Cancelar ordem" -- onde lia como nota de rodape
+                      do cancelamento, que e outra coisa. */}
                 </div>
               </div>
               <div className="mt-3">
