@@ -24,9 +24,16 @@ const LINHAS_18449 = [
   '03 PLACAS  50 X 60 E ADES/ IMP      75,00 CD 225,00',
 ]
 
+/**
+ * A tela de nova ordem agora e ABA + formulario: a aba escolhe o que se esta
+ * abrindo e o botao abaixo dela e o ato de abrir. Por isso sao dois passos aqui
+ * -- e o `?tipo=` no endereco e o mesmo que a aba escreveria, entao serve tanto
+ * para o teste quanto para um link que alguem guarde.
+ */
 async function novaOrdem(page: Page, estado: 'Ordem de serviço' | 'Orçamento' = 'Ordem de serviço'): Promise<string> {
-  await page.goto('/ordens/nova')
-  await page.getByRole('button', { name: estado, exact: true }).click()
+  const orcamento = estado === 'Orçamento'
+  await page.goto(orcamento ? '/ordens/nova?tipo=orcamento' : '/ordens/nova')
+  await page.getByRole('button', { name: orcamento ? 'Abrir orçamento' : 'Abrir ordem de serviço' }).click()
   await expect(page).toHaveURL(/\/ordens\/[0-9a-f-]{36}$/, { timeout: 60_000 })
   return page.url()
 }
@@ -158,13 +165,6 @@ test.describe('Ordem de serviço', () => {
     await expect(page.getByText(/ASSOCIAÇÃO DE ENSINO E PERQUISA DE UNAÍ · FACTU/)).toBeVisible()
 
     // A data continua no fluxo do botao: ela nao e escolha de lista.
-    //
-    // O `toPass` nao e paciencia decorativa: logo depois do `reload` o HTML do
-    // servidor ja esta na tela mas o React ainda nao assumiu o formulario. Um
-    // `fill` que caia nessa janela escreve no DOM e NAO no estado do componente,
-    // e a hidratacao devolve o campo ao valor da prop -- vazio. O teste passava
-    // ou falhava conforme a maquina, e o app grava "Salvo." sem a data.
-    // Repetir ate o valor SOBREVIVER e o mesmo que esperar o React assumir.
     const entrega = campoDe(page, 'Entrega prometida')
     await expect(async () => {
       await entrega.fill('2026-09-04')

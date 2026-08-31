@@ -6,7 +6,9 @@ test.describe('Impresso da ordem', () => {
   test('mostra numero, itens e total; some a barra em print; gera PDF A4', async ({ page, browserName, headless }) => {
     await entrar(page)
     await page.goto('/ordens/nova')
-    await page.getByRole('button', { name: 'Ordem de serviço', exact: true }).click()
+    // "Ordem de serviço" virou ABA na tela de nova ordem, e quem cria e o botao
+  // do formulario abaixo dela -- que diz o que vai acontecer.
+  await page.getByRole('button', { name: 'Abrir ordem de serviço' }).click()
     await expect(page).toHaveURL(/\/ordens\/[0-9a-f-]{36}$/, { timeout: 60_000 })
     const campo = campoDe(page, 'Lançar item ou acréscimo')
     for (const linha of ['12 PLACAS ACM 61 X 40 E ADES/ IMP 61,00  CD 732,00', '+instalacao 280']) {

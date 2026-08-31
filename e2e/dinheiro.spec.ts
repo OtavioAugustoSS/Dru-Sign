@@ -3,7 +3,9 @@ import { campoDe, entrar, entrarComo, LOGIN_OPERACAO, SENHA_OPERACAO } from './a
 
 async function ordemCom(page: Page, linha: string): Promise<string> {
   await page.goto('/ordens/nova')
-  await page.getByRole('button', { name: 'Ordem de serviço', exact: true }).click()
+  // "Ordem de serviço" virou ABA na tela de nova ordem, e quem cria e o botao
+  // do formulario abaixo dela -- que diz o que vai acontecer.
+  await page.getByRole('button', { name: 'Abrir ordem de serviço' }).click()
   await expect(page).toHaveURL(/\/ordens\/[0-9a-f-]{36}$/, { timeout: 60_000 })
   const campo = campoDe(page, 'Lançar item ou acréscimo')
   await campo.fill(linha)

@@ -163,10 +163,38 @@
   overflow: hidden;
 }
 
-/* A lista de clientes que aparece enquanto se digita precisa passar por cima do
- * que vem depois no formulario. Era estilo inline no JSX. */
+/* A LISTA DE CLIENTES QUE APARECE ENQUANTO SE DIGITA.
+ *
+ * Ela flutua sobre o formulario, e por isso precisa ser OPACA -- o que ela nao
+ * era. O `.list-group-item` do Tabler nasce com fundo transparente, entao os
+ * nomes dos clientes apareciam misturados com o rotulo do campo de baixo:
+ * "Responsavel" atravessado por "ASSOCIACAO DE ENSINO E PERQUISA DE UNAI", e nao
+ * dava para ler nem um nem outro. Achado na tela de nova ordem, mas o defeito
+ * era o mesmo na busca de cliente DENTRO da ordem, que usa a mesma marcacao.
+ *
+ * O `<li>` e `role="option"` e nao deve mostrar marcador: o item ja e
+ * identificado pelo papel, e o ponto do navegador aparecia solto a esquerda. */
 .lista-sugestoes {
   z-index: 10;
+  list-style: none;
+  margin-top: 0.25rem;
+  border-radius: var(--tblr-border-radius);
+  overflow: hidden;
+  max-height: 18rem;
+  overflow-y: auto;
+}
+
+.lista-sugestoes > li {
+  list-style: none;
+}
+
+.lista-sugestoes .list-group-item {
+  background: var(--tblr-bg-surface);
+}
+
+.lista-sugestoes .list-group-item:hover,
+.lista-sugestoes .list-group-item:focus-visible {
+  background: var(--tblr-primary-lt);
 }
 
 /* A producao usa o sistema de pe, as vezes de luva: o alvo de toque nao pode
