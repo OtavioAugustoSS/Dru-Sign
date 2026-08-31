@@ -965,3 +965,69 @@ a.grafico-lista-linha:hover {
     transition: none;
   }
 }
+
+/* A LINHA SOB O MOUSE.
+ *
+ * O lavado de fábrica do Tabler é `rgba(55,65,81,.075)`: sobre o branco do cartão
+ * ele dá 240,241,242, ou seja **1,13:1**. Some. E este sistema é usado na bancada,
+ * às vezes contra a luz da janela -- 1,13:1 ali não existe.
+ *
+ * Os valores abaixo foram medidos, não estimados, pela composição real do alfa
+ * sobre o fundo do cartão:
+ *   claro  rgba(55,65,81,.16) sobre #FFFFFF -> 223,224,227 ..... 1,32:1
+ *   escuro rgba(255,255,255,.11) sobre #1F2937 -> 55,64,76 ...... 1,40:1
+ * O texto do corpo continua com folga por cima: 7,81:1 no claro, 8,48:1 no escuro.
+ *
+ * Um terço a mais de contraste é de propósito: o bastante para o olho seguir a linha por 1.264px, e
+ * pouco o bastante para não se confundir com seleção -- selecionar, neste
+ * sistema, é da cor da marca, e passar o mouse não seleciona nada.
+ *
+ * SEM TRANSIÇÃO, e isto é decisão, não esquecimento. Varrer uma lista é passar
+ * por vinte linhas em dois segundos; com 150ms de esmaecimento o realce fica
+ * ATRÁS do ponteiro e vira rastro. Onde a resposta é o produto, o instantâneo é a
+ * resposta certa -- é o mesmo motivo pelo qual a faixa da aba, que precisa
+ * mostrar percurso, tem transição, e esta não tem. Nem todo movimento é bom
+ * movimento, e uniformizar os dois seria o erro.
+ *
+ * A pintura é `box-shadow: inset` do próprio Tabler, aplicada só nas células da
+ * linha sob o mouse: repinta uma linha, não a tabela. */
+:root {
+  --linha-mouse: rgba(55, 65, 81, 0.16);
+}
+
+[data-bs-theme='dark'] {
+  --linha-mouse: rgba(255, 255, 255, 0.11);
+}
+
+/* O token vai na PRÓPRIA tabela, e não no `:root`.
+ *
+ * Custou uma medição para descobrir: o Tabler declara `--tblr-table-hover-bg`
+ * dentro da regra `.table`, ou seja, no próprio elemento. Propriedade
+ * personalizada escrita no elemento vence a que ele herdaria do `:root`, por
+ * mais específico que o seletor do `:root` seja -- não é disputa de
+ * especificidade, é herança contra valor local. Declarado no `:root`, o meu
+ * valor era simplesmente ignorado e a tabela seguia com os 7,5% de fábrica. */
+.table-hover {
+  --tblr-table-hover-bg: var(--linha-mouse);
+}
+
+/* A linha de GRUPO não é um registro: é uma divisória com o nome do grupo, no
+ * meio da tabela. Não leva a lugar nenhum e não se lê da esquerda para a
+ * direita, então acender não informa nada. */
+.table-hover > tbody > tr.linha-grupo:hover > * {
+  --tblr-table-bg-state: transparent;
+}
+
+/* CABEÇALHO DE CARTÃO QUE FICOU SEM NADA DENTRO.
+ *
+ * A tela de Ordens desenhava uma faixa de 33px com borda e sem uma palavra
+ * escrita, toda vez que a lista cabia numa página só. A causa é que `paginacao`
+ * chega ao `CartaoTabela` como ELEMENTO React -- sempre verdadeiro -- enquanto a
+ * `PaginacaoCompacta` decide devolver `null` lá dentro, quando só há uma página.
+ * Quem monta o cartão não tem como saber disso; quem sabe é o navegador, depois
+ * de renderizar. Então é ele quem responde.
+ *
+ * `:empty` casa com o `<div>` que não recebeu nó nenhum -- é o caso exato. */
+.card-header:not(:has(.card-title)):has(> .cabecalho-extras:empty) {
+  display: none;
+}
