@@ -155,3 +155,88 @@ describe('lerMedida e proximaUnidade', () => {
     expect(proximaUnidade('metro_linear')).toBe('unidade')
   })
 })
+
+/*
+ * O cadastro de material pede uma linha por variacao -- fosco, brilhoso,
+ * transparente sao tres materiais -- e usa `categoria` como a familia que junta
+ * as tres. Ate aqui a familia so servia de filtro na lista de materiais: ela
+ * nao atravessava para a tela da ordem, e a pontuacao por palavra nunca
+ * ofereceria "brilhoso" a quem digitou "fosco", porque nao ha palavra em comum.
+ */
+const FAMILIA: MaterialCatalogo[] = [
+  { id: 'fosco', nome: 'Adesivo vinil fosco', preco: '38.0000', unidadeCobranca: 'm2', categoria: 'Adesivo vinil' },
+  { id: 'brilho', nome: 'Adesivo vinil brilhoso', preco: '36.0000', unidadeCobranca: 'm2', categoria: 'Adesivo vinil' },
+  { id: 'transp', nome: 'Adesivo vinil transparente', preco: '44.0000', unidadeCobranca: 'm2', categoria: 'adesivo vinil' },
+  { id: 'lona440', nome: 'Lona 440 g', preco: '83.0000', unidadeCobranca: 'm2', categoria: 'Lona' },
+  { id: 'avulso', nome: 'Chapa de MDF cru', preco: '90.0000', unidadeCobranca: 'unidade' },
+]
+
+describe('resolverLinha — a familia oferece as irmas', () => {
+  it('vinculou o fosco: as outras variacoes viram alternativa', () => {
+    const r = item('3 adesivo vinil fosco 1x2', FAMILIA)
+    expect(r.material?.id).toBe('fosco')
+    expect(r.candidatos.map((c) => c.id).sort()).toEqual(['brilho', 'transp'])
+  })
+
+  it('a familia compara sem acento e sem caixa: "adesivo vinil" e "Adesivo vinil" sao a mesma', () => {
+    const r = item('3 adesivo vinil brilhoso 1x2', FAMILIA)
+    expect(r.candidatos.map((c) => c.id)).toContain('transp')
+  })
+
+  it('nao mistura familia: a lona nunca aparece entre as alternativas do adesivo', () => {
+    const r = item('3 adesivo vinil fosco 1x2', FAMILIA)
+    expect(r.candidatos.map((c) => c.id)).not.toContain('lona440')
+  })
+
+  it('material sem categoria nao inventa familia', () => {
+    const r = item('2 chapa de MDF cru', FAMILIA)
+    expect(r.material?.id).toBe('avulso')
+    expect(r.candidatos).toEqual([])
+  })
+
+  /*
+   * O caminho de volta. Antes, escolher o material a mao zerava a lista: quem
+   * trocasse para o errado so saia dali apagando a linha e digitando de novo.
+   */
+  it('trocar a mao continua oferecendo as outras, inclusive a que o parser tinha achado', () => {
+    const r = resolverLinha('3 adesivo vinil fosco 1x2', FAMILIA, { materialEscolhido: FAMILIA[1]! })
+    if (r.tipo !== 'item') throw new Error('esperava item')
+    expect(r.material?.id).toBe('brilho')
+    expect(r.candidatos.map((c) => c.id).sort()).toEqual(['fosco', 'transp'])
+  })
+
+  it('descartar o material vinculado deixa a linha livre e ainda oferece o catalogo parecido', () => {
+    const r = resolverLinha('3 adesivo vinil fosco 1x2 25,00', FAMILIA, { materialEscolhido: null })
+    if (r.tipo !== 'item') throw new Error('esperava item')
+    expect(r.material).toBeNull()
+    expect(r.candidatos.map((c) => c.id)).toContain('fosco')
+    expect(r.unidade).toBe('unidade')
+  })
+})
+
+describe('descricaoParaGravar — o nome do material nao se repete nem se contradiz', () => {
+  it('sem material, grava o que foi digitado', () => {
+    expect(item('2 placa de leilao em PVC').descricaoParaGravar).toBe('placa de leilao em PVC')
+  })
+
+  it('vinculou: o nome do material nao vira eco do que foi digitado', () => {
+    expect(item('3 adesivo vinil fosco 1x2', FAMILIA).descricaoParaGravar).toBe('Adesivo vinil fosco')
+  })
+
+  it('o que a pessoa escreveu alem do material continua, com a escrita dela', () => {
+    expect(item('3 adesivo vinil fosco recorte especial 1x2', FAMILIA).descricaoParaGravar)
+      .toBe('Adesivo vinil fosco — recorte especial')
+  })
+
+  it('plural do jeito da loja tambem some: "placas ACM" nao volta como resto', () => {
+    const catalogo: MaterialCatalogo[] = [{ id: 'acm', nome: 'Placa ACM 3mm branco', preco: '61.0000', unidadeCobranca: 'unidade' }]
+    expect(item('12 placas ACM 3mm branco 61x40 61,00', catalogo).descricaoParaGravar).toBe('Placa ACM 3mm branco')
+  })
+
+  /* O caso que motivou tudo: trocar o material a mao gravava a contradicao. */
+  it('trocou o material a mao: a palavra do material antigo nao sobra na descricao', () => {
+    const r = resolverLinha('3 adesivo vinil fosco 1x2', FAMILIA, { materialEscolhido: FAMILIA[1]! })
+    if (r.tipo !== 'item') throw new Error('esperava item')
+    expect(r.descricaoParaGravar).toBe('Adesivo vinil brilhoso')
+  })
+})

@@ -10,6 +10,13 @@ export interface MaterialCatalogo {
   nome: string
   preco: string
   unidadeCobranca: UnidadeCobranca
+  /**
+   * A familia que junta as variacoes -- "Adesivo vinil" para o fosco, o brilhoso
+   * e o transparente. E por ela que a linha vinculada oferece as irmas: quem
+   * digitou "adesivo fosco" nao escreveu nada que pontue "brilhoso", entao a
+   * pontuacao por palavra nunca as ofereceria.
+   */
+  categoria?: string | null
 }
 
 export type TipoAcrescimo = 'instalacao' | 'deslocamento' | 'frete' | 'imposto'
@@ -21,8 +28,18 @@ export interface ItemResolvido {
   quantidade: number
   descricao: string
   material: MaterialCatalogo | null
-  /** Outros materiais com a mesma pontuacao: a tela oferece a troca. */
+  /**
+   * O que mais esta linha poderia ser, sem o que ela ja e. Junta tres origens:
+   * os materiais que empataram na pontuacao, os que ficaram perto demais para
+   * ignorar, e as irmas de familia do material vinculado.
+   */
   candidatos: MaterialCatalogo[]
+  /**
+   * O que vai para a coluna `descricao` do item. Nao e a mesma coisa que
+   * `descricao`: aqui o nome do material ja entra na frente e as palavras que
+   * so serviram para achar esse material saem. Ver `comporDescricao`.
+   */
+  descricaoParaGravar: string
   altura?: number
   largura?: number
   unidade: UnidadeCobranca
@@ -132,6 +149,65 @@ export function acharMaterial(
   return { escolhido: empatados[0] ?? null, candidatos: [...empatados.slice(1), ...porPontuacao(fracos)] }
 }
 
+/**
+ * As variacoes irmas do material vinculado: mesma familia, linha diferente.
+ *
+ * O cadastro pede uma linha por variacao e usa `categoria` como a familia que
+ * junta as tres. Sem isto a familia era so um filtro na lista de materiais --
+ * ela nunca chegava na tela da ordem, e quem digitasse "adesivo fosco" nao
+ * tinha como descobrir que existe brilhoso sem sair da ordem e ir olhar.
+ *
+ * Compara normalizado porque a categoria e texto livre: "Adesivo Vinil" e
+ * "adesivo vinil" sao a mesma familia para quem cadastrou.
+ */
+function irmasDeFamilia(escolhido: MaterialCatalogo, catalogo: MaterialCatalogo[]): MaterialCatalogo[] {
+  const familia = normalizarTexto(escolhido.categoria ?? '').trim()
+  if (familia === '') return []
+  return catalogo.filter(
+    (m) => m.id !== escolhido.id && normalizarTexto(m.categoria ?? '').trim() === familia,
+  )
+}
+
+/**
+ * A descricao que vai para o banco.
+ *
+ * O nome do material ja diz o que a linha e. Repetir as palavras que a pessoa
+ * digitou justamente para achar esse material produzia "Lona 440 g — lona 440".
+ * Isso ficou anos sem aparecer porque nenhuma linha da base tinha material
+ * vinculado -- todas eram descricao livre, herdadas do legado.
+ *
+ * Com a troca de material na tela a repeticao deixa de ser redundante e passa a
+ * MENTIR: quem digita "adesivo vinil fosco" e troca para o brilhoso gravava
+ * "Adesivo vinil brilhoso — adesivo vinil fosco". Por isso as palavras do
+ * material SUGERIDO PELO TEXTO tambem saem, e nao so as do escolhido.
+ *
+ * O que a pessoa escreveu alem disso fica, com a escrita dela: "12 placas ACM
+ * 61x40 recorte especial" vira "Placa ACM 3mm branco — recorte especial".
+ */
+function comporDescricao(
+  digitada: string,
+  material: MaterialCatalogo | null,
+  sugerido: MaterialCatalogo | null,
+): string {
+  if (!material) return digitada
+  const doMaterial = new Set([...tokens(material.nome), ...(sugerido ? tokens(sugerido.nome) : [])])
+  const resto = digitada
+    .split(/\s+/)
+    .filter((palavra) => {
+      const partes = tokens(palavra)
+      return partes.length > 0 && !partes.every((t) => doMaterial.has(t))
+    })
+    .join(' ')
+    .trim()
+  return resto === '' ? material.nome : `${material.nome} — ${resto}`
+}
+
+/** Preserva a ordem de chegada e descarta o id repetido. */
+function unicos(materiais: MaterialCatalogo[]): MaterialCatalogo[] {
+  const vistos = new Set<string>()
+  return materiais.filter((m) => (vistos.has(m.id) ? false : (vistos.add(m.id), true)))
+}
+
 function paraNumero(token: string): number {
   return Number(token.replace(/\./g, '').replace(',', '.'))
 }
@@ -174,10 +250,19 @@ export function resolverLinha(texto: string, catalogo: MaterialCatalogo[], opcoe
   })
 
   const linha = interpretarLinha(semSufixo)
-  const busca = opcoes.materialEscolhido !== undefined
-    ? { escolhido: opcoes.materialEscolhido, candidatos: [] }
-    : acharMaterial(linha.descricao, catalogo)
-  const material = busca.escolhido
+  const busca = acharMaterial(linha.descricao, catalogo)
+  const material = opcoes.materialEscolhido !== undefined ? opcoes.materialEscolhido : busca.escolhido
+
+  // A busca roda SEMPRE, mesmo com material escolhido a mao. Antes ela era
+  // pulada nesse caso e a lista de alternativas vinha vazia: quem trocasse para
+  // o material errado ficava sem caminho de volta a nao ser apagar a linha e
+  // digitar tudo de novo. O que o parser achou continua na lista, e o que esta
+  // vinculado agora sai dela.
+  const candidatos = unicos([
+    ...(busca.escolhido ? [busca.escolhido] : []),
+    ...busca.candidatos,
+    ...(material ? irmasDeFamilia(material, catalogo) : []),
+  ]).filter((m) => m.id !== material?.id)
 
   // Regra do legado e da spec: sem material do catalogo o preco e por unidade; m2 so vem do
   // material, do sufixo ou da escolha do operador. A sugestao do parser nao e usada.
@@ -202,7 +287,8 @@ export function resolverLinha(texto: string, catalogo: MaterialCatalogo[], opcoe
     quantidade: linha.quantidade,
     descricao: linha.descricao,
     material,
-    candidatos: busca.candidatos,
+    candidatos,
+    descricaoParaGravar: comporDescricao(linha.descricao, material, busca.escolhido),
     altura: linha.altura,
     largura: linha.largura,
     unidade,

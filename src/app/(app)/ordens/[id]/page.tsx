@@ -33,13 +33,13 @@ export default async function PaginaOrdem({ params }: { params: Promise<{ id: st
   const { id } = await params
   const [ordem, materiais, usuarios] = await Promise.all([
     obterOrdemParaTela(usuario.empresaId, id),
-    prisma.material.findMany({ where: { empresaId: usuario.empresaId, ativo: true }, orderBy: { nome: 'asc' }, select: { id: true, nome: true, unidadeCobranca: true, preco: true } }),
+    prisma.material.findMany({ where: { empresaId: usuario.empresaId, ativo: true }, orderBy: { nome: 'asc' }, select: { id: true, nome: true, unidadeCobranca: true, preco: true, categoria: true } }),
     prisma.usuario.findMany({ where: { empresaId: usuario.empresaId, ativo: true }, orderBy: { nome: 'asc' }, select: { id: true, nome: true } }),
   ])
   if (!ordem) notFound()
 
   const pode = permissoes(ordem.estadoProducao)
-  const catalogo: MaterialCatalogo[] = materiais.map((m) => ({ id: m.id, nome: m.nome, unidadeCobranca: m.unidadeCobranca, preco: m.preco.toFixed() }))
+  const catalogo: MaterialCatalogo[] = materiais.map((m) => ({ id: m.id, nome: m.nome, unidadeCobranca: m.unidadeCobranca, preco: m.preco.toFixed(), categoria: m.categoria }))
   const numero = formatarNumeroOs(ordem.numero)
   const acao = <A extends unknown[]>(fn: (ordemId: string, versao: number, ...rest: [...A, string]) => ReturnType<typeof removerItemAction>, ...args: A) =>
     fn.bind(null, ordem.id, ordem.versao, ...args) as (chave: string) => ReturnType<typeof removerItemAction>

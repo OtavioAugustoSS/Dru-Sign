@@ -24,10 +24,19 @@ const ROTULO_PENDENCIA = {
 
 const ROTULO_ORIGEM = { material: 'unidade do material', padrao: 'sem material no catálogo: por unidade', sufixo: 'unidade pelo sufixo', escolhida: 'unidade escolhida' } as const
 
+/**
+ * Quantas alternativas cabem sem virar parede de botao. Cinco e o tamanho de uma
+ * familia realista -- fosco, brilhoso, transparente, jateado, refletivo. Passando
+ * disso o caminho certo e escrever mais um pedaco do nome, nao caçar na lista.
+ */
+const MAX_ALTERNATIVAS = 5
+
 export function EntradaLinha({ ordemId, versao, catalogo }: Props) {
   const router = useRouter()
   const [texto, setTexto] = useState('')
   const [unidadeEscolhida, setUnidadeEscolhida] = useState<UnidadeCobranca | undefined>()
+  /** `undefined` deixa o parser decidir; `null` e a escolha explicita de nao vincular material. */
+  const [materialEscolhido, setMaterialEscolhido] = useState<MaterialCatalogo | null | undefined>()
   const [resposta, setResposta] = useState<Resposta | null>(null)
   const [mostrarPendencia, setMostrarPendencia] = useState(false)
   const [pendente, iniciar] = useTransition()
@@ -49,19 +58,26 @@ export function EntradaLinha({ ordemId, versao, catalogo }: Props) {
     enviado.current = null
     // Se a pessoa ja comecou a digitar a proxima linha durante o "Gravando…", nao apaga o que ela escreveu.
     setTexto((atual) => (atual === texto ? '' : atual))
-    setUnidadeEscolhida(undefined); setMostrarPendencia(false)
+    setUnidadeEscolhida(undefined); setMaterialEscolhido(undefined); setMostrarPendencia(false)
     campo.current?.focus({ preventScroll: true })
   }, [pendente])
 
   const resolvido = useMemo(
-    () => (texto.trim() === '' ? null : resolverLinha(texto, catalogo, { unidadeEscolhida })),
-    [texto, catalogo, unidadeEscolhida],
+    () => (texto.trim() === '' ? null : resolverLinha(texto, catalogo, { unidadeEscolhida, materialEscolhido })),
+    [texto, catalogo, unidadeEscolhida, materialEscolhido],
   )
   const preview = resolvido ? descreverLinha(resolvido) : null
 
   function limpar() {
-    setTexto(''); setUnidadeEscolhida(undefined); setResposta(null); setMostrarPendencia(false)
+    setTexto(''); setUnidadeEscolhida(undefined); setMaterialEscolhido(undefined); setResposta(null); setMostrarPendencia(false)
     campo.current?.focus()
+  }
+
+  /** Trocar o material devolve o foco ao campo: Enter tem que continuar adicionando a linha. */
+  function escolher(material: MaterialCatalogo | null) {
+    setMaterialEscolhido(material)
+    setMostrarPendencia(false)
+    campo.current?.focus({ preventScroll: true })
   }
 
   function confirmar() {
@@ -73,7 +89,7 @@ export function EntradaLinha({ ordemId, versao, catalogo }: Props) {
       const r = resolvido.tipo === 'acrescimo'
         ? await adicionarAcrescimoAction(...base, { tipo: resolvido.tipoAcrescimo!, descricao: resolvido.descricao, valor: resolvido.valor!.toFixed(2) })
         : await adicionarItemAction(...base, {
-            descricao: resolvido.material ? `${resolvido.material.nome}${resolvido.descricao ? ` — ${resolvido.descricao}` : ''}` : resolvido.descricao,
+            descricao: resolvido.descricaoParaGravar,
             materialId: resolvido.material?.id ?? null,
             quantidade: resolvido.quantidade,
             altura: resolvido.altura?.toFixed(4) ?? null,
@@ -112,7 +128,7 @@ export function EntradaLinha({ ordemId, versao, catalogo }: Props) {
         ref={campo} id="linha" className="form-control form-control-lg" autoComplete="off"
         placeholder="12 placas ACM 61x40 61,00 — ou +instalacao 280"
         value={texto} onKeyDown={aoTeclar}
-        onChange={(e) => { setTexto(e.target.value); setUnidadeEscolhida(undefined); setMostrarPendencia(false); if (erro) setResposta(null) }}
+        onChange={(e) => { setTexto(e.target.value); setUnidadeEscolhida(undefined); setMaterialEscolhido(undefined); setMostrarPendencia(false); if (erro) setResposta(null) }}
       />
       <div className="mt-2" aria-live="polite" id="preview">
         {resolvido && preview ? (
@@ -137,6 +153,32 @@ export function EntradaLinha({ ordemId, versao, catalogo }: Props) {
         {mostrarPendencia && resolvido && resolvido.pendencias[0] ? <div className="text-danger-emphasis mt-1" role="alert">{ROTULO_PENDENCIA[resolvido.pendencias[0]]}</div> : null}
         {erro ? <div className="text-danger-emphasis mt-1" role="alert">{erro} Enter para tentar de novo.</div> : null}
       </div>
+      {/* As alternativas ficam FORA do `aria-live` de cima de proposito: dentro
+          dele, cada tecla digitada faria o leitor de tela recitar a lista de
+          botoes inteira. Aqui elas sao alcancaveis por Tab e o rotulo explica
+          o que sao, sem falar por cima de quem esta digitando.
+
+          So aparecem quando ha alternativa de verdade -- linha ambigua ou
+          material com irmas de familia. Na linha que resolve limpo, que e a
+          comum, o campo continua sozinho. */}
+      {resolvido?.tipo === 'item' && resolvido.candidatos.length > 0 ? (
+        <div className="mt-2 d-flex flex-wrap align-items-center gap-1" role="group" aria-label="Outros materiais do catálogo">
+          <span className="small text-secondary me-1">{resolvido.material ? 'Trocar por' : 'Vincular a'}</span>
+          {resolvido.candidatos.slice(0, MAX_ALTERNATIVAS).map((c) => (
+            <button key={c.id} type="button" className="btn btn-sm" onClick={() => escolher(c)}>{c.nome}</button>
+          ))}
+          {resolvido.candidatos.length > MAX_ALTERNATIVAS ? (
+            <span className="small text-secondary">e mais {resolvido.candidatos.length - MAX_ALTERNATIVAS} — escreva outro pedaço do nome</span>
+          ) : null}
+          {/* Vincular material muda a unidade de cobranca e a origem do preco.
+              Quem nao quer isso precisa de saida sem apagar a linha inteira. */}
+          {resolvido.material ? (
+            <button type="button" className="btn btn-sm btn-ghost-secondary" onClick={() => escolher(null)}>
+              Sem material do catálogo
+            </button>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   )
 }

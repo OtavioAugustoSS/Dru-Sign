@@ -221,4 +221,45 @@ test.describe('Ordem de serviço', () => {
     await expect(segunda.getByText('Salvo.')).toBeVisible({ timeout: 30_000 })
     await segunda.close()
   })
+
+  /*
+   * A familia atravessando do banco ate o botao. O dominio ja tem onze testes
+   * disso, mas nenhum deles pegaria a fiacao: `categoria` estava no cadastro de
+   * material e simplesmente nao entrava no catalogo que a tela da ordem recebe.
+   *
+   * Os dois materiais nascem aqui de proposito -- a faxina apaga material criado
+   * durante a rodada, entao o teste nao depende do que ja existe na base.
+   */
+  test('a familia oferece a variacao irma, e trocar nao deixa o nome antigo na descricao', async ({ page }) => {
+    const marca = Date.now().toString(36).slice(-4)
+    const familia = `Vinil ${marca}`
+
+    await page.goto('/materiais')
+    for (const [variacao, preco] of [['fosco', '40,00'], ['brilhoso', '30,00']] as const) {
+      await campoDe(page, 'Material').fill(`${familia} ${variacao}`)
+      await campoDe(page, 'Categoria').fill(familia)
+      await campoDe(page, 'Preço').fill(preco)
+      await campoDe(page, 'Cobrado').selectOption('m2')
+      await page.getByRole('button', { name: 'Salvar' }).click()
+      await expect(page.getByRole('row', { name: new RegExp(`${familia} ${variacao}`) })).toBeVisible({ timeout: 30_000 })
+    }
+
+    await novaOrdem(page)
+    const campo = campoDe(page, 'Lançar item ou acréscimo')
+    await campo.fill(`2 ${familia} fosco 1,00x2,00`)
+    await expect(page.getByText('→ R$ 160,00')).toBeVisible()
+
+    // "brilhoso" nao tem nenhuma palavra em comum com o que foi digitado: quem
+    // o oferece e a familia, nao a pontuacao por palavra.
+    await page.getByRole('button', { name: `${familia} brilhoso` }).click()
+    await expect(page.getByText('→ R$ 120,00')).toBeVisible()
+
+    await campo.press('Enter')
+    await expect(campo).toHaveValue('', { timeout: 30_000 })
+    const linha = page.getByRole('row', { name: new RegExp(`${familia} brilhoso`) })
+    await expect(linha).toBeVisible()
+    // O que importa nao e so o nome novo estar la: e o antigo NAO estar. Antes
+    // disto a linha gravava "… brilhoso — … fosco", dizendo as duas coisas.
+    await expect(linha).not.toContainText('fosco')
+  })
 })

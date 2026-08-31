@@ -109,12 +109,19 @@ test.describe('Dinheiro', () => {
     // A espera vem DEPOIS de digitar, de proposito: e ela que da tempo de a
     // hidratacao acontecer. Se o React reescrever o campo, esta assercao cai.
     //
-    // HONESTIDADE SOBRE O QUE ESTE TESTE GARANTE: ele e PROBABILISTICO na direcao
-    // de pegar. Medido contra o codigo com o defeito de volta, falhou em 1 de 3
+    // HONESTIDADE SOBRE O QUE ESTE TESTE GARANTE: ele e PROBABILISTICO nas DUAS
+    // direcoes. Medido contra o codigo com o defeito de volta, falhou em 1 de 3
     // rodadas -- nas outras duas o `fill` chegou depois da hidratacao e nao
-    // alcancou a janela. Com a correcao, 5 de 5 passam. Ou seja: verde aqui NAO
-    // prova que o defeito nao voltou; vermelho prova que voltou. Vale como rede,
-    // nao como certificado.
+    // alcancou a janela. Com a correcao, 5 de 5 passam isolado.
+    //
+    // Mas em 31/08 ele ficou vermelho uma vez na suite inteira, com o campo
+    // voltando a "200,00", e NAO era o defeito: 5 de 5 verdes logo em seguida,
+    // isolado, e a mudanca daquela rodada nem tocava nesta tela. Sob carga a
+    // pagina pode re-renderizar por outro motivo e desfazer o `fill`.
+    //
+    // Entao: verde nao prova que o defeito nao voltou, e vermelho tambem nao
+    // prova que voltou. Vermelho e MOTIVO PARA INVESTIGAR -- rode isolado com
+    // --repeat-each=5 antes de acusar regressao.
     await page.waitForTimeout(1500)
     await expect(campoDe(page, 'Valor recebido')).toHaveValue('50')
 
