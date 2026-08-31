@@ -499,8 +499,11 @@ summary:focus-visible,
  * perceber que da para clicar: a borda acende na primaria e o cursor muda. Sem
  * levantar, sem sombra crescendo -- sao quatro deles em fila no alto da tela, e
  * quatro cartoes se mexendo ao passar o mouse e barulho, nao informacao. */
+/* 150ms e nao os 120ms de antes: e o mesmo tempo do `.btn` e do `.page-link` que
+ * o Tabler ja traz, e o mesmo da faixa da aba. Um sistema com tres tempos de
+ * reacao parece tres sistemas. */
 .cartao-clicavel {
-  transition: border-color 120ms ease-out;
+  transition: border-color 150ms var(--saida-suave);
 }
 
 .cartao-clicavel:hover,
@@ -971,6 +974,13 @@ a.grafico-lista-linha:hover {
   color: var(--tblr-primary-text-emphasis);
 }
 
+/* O cabeçalho de coluna não é botão: não tem fundo para acender. O que ele tem é
+ * a cor, que já muda ao passar o mouse -- então ela fica presa enquanto o
+ * servidor reordena, e o dedo pode sair de cima. */
+.coluna-ordenavel:has(.marca-pendente[data-pendente]) {
+  color: var(--tblr-link-color);
+}
+
 /* MOVIMENTO REDUZIDO.
  *
  * Some o movimento, não a informação: a faixa continua marcando a aba em vigor e
@@ -1047,4 +1057,28 @@ a.grafico-lista-linha:hover {
  * `:empty` casa com o `<div>` que não recebeu nó nenhum -- é o caso exato. */
 .card-header:not(:has(.card-title)):has(> .cabecalho-extras:empty) {
   display: none;
+}
+
+/* "PÁGINA 3 DE 738" NÃO É UM BOTÃO DESLIGADO.
+ *
+ * Ele mora num `.page-item.disabled` porque não se clica nele -- mas o
+ * Bootstrap pinta tudo que é `disabled` com a cor do corpo a 40% de alfa, e
+ * medido isso dá **3,12:1** sobre o rodapé do cartão. Reprova os 4,5:1 de texto,
+ * e não cabe na isenção que a WCAG dá a controle inativo: "Anterior" desligado é
+ * um botão que não faz nada, este é o único lugar da tela que diz em qual das
+ * 738 páginas a pessoa está.
+ *
+ * O `aria-current="page"` distingue os dois casos sem inventar classe: só o
+ * indicador o tem. As setas continuam apagadas quando não levam a lugar nenhum,
+ * que é o certo. */
+.page-item.disabled .page-link[aria-current='page'] {
+  color: var(--tblr-body-color);
+}
+
+/* O `.nav-link` vem do Tabler com 300ms na troca de cor, o dobro do resto do
+ * sistema. Descendo o menu lateral, o realce acendia atras do ponteiro e ficava
+ * aceso depois que ele já tinha passado -- um rastro de meia dúzia de itens.
+ * Não é movimento novo: é o movimento que já existia, no tempo certo. */
+.nav-link {
+  transition-duration: 150ms;
 }

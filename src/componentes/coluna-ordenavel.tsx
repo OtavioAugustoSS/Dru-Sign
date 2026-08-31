@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { IconArrowDown, IconArrowUp, IconArrowsSort } from '@tabler/icons-react'
+import { MarcaPendente } from './pendente'
 
 export type Direcao = 'asc' | 'desc'
 
@@ -65,6 +66,10 @@ export function ColunaOrdenavel({ campo, children, atual, base, parametros, prim
       <Link href={`${base}?${busca.toString()}`} className="coluna-ordenavel">
         {children}
         <Seta className={ativa ? 'icon coluna-seta' : 'icon coluna-seta coluna-seta-fria'} aria-hidden="true" />
+        {/* Ordenar 2.849 clientes troca o endereco e nao a rota, entao o
+            esqueleto nao cobre: a tabela ficava identica por meio segundo
+            depois do clique. Ver `MarcaPendente`. */}
+        <MarcaPendente classe="marca-pendente" />
       </Link>
     </th>
   )
