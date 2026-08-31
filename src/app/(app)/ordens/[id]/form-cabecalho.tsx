@@ -1,5 +1,5 @@
 'use client'
-import { SALVANDO } from '@/componentes/rotulos'
+import { CONFLITO_ORDEM, SALVANDO } from '@/componentes/rotulos'
 import { Apelido } from '@/componentes/situacao'
 
 import { useEffect, useRef, useState, useTransition, type KeyboardEvent } from 'react'
@@ -207,7 +207,18 @@ export function FormCabecalho(p: Props) {
         <button type="submit" className="btn" disabled={pendente}>{pendente ? SALVANDO : 'Salvar cabeçalho'}</button>
         <span className="small text-secondary">Ctrl+S</span>
         {resposta?.ok ? <span className="text-success small">Salvo.</span> : null}
-        {resposta && !resposta.ok && !resposta.conflito ? <span className="text-danger-emphasis small" role="alert">{resposta.erro}</span> : null}
+        {/* O conflito TAMBEM aparece. Antes ele era o unico erro escondido: a
+            gravacao era recusada, `router.refresh()` trazia os dados novos, e o
+            campo -- que nao e controlado -- continuava mostrando o que a pessoa
+            tinha escrito. Ela via seu texto na tela e ia embora achando que
+            estava gravado. Numa ordem, isso e um "cliente vem buscar" que a
+            bancada nunca le. Tentar de novo funciona: o refresh ja trouxe a
+            versao nova junto. */}
+        {resposta && !resposta.ok ? (
+          <span className="text-danger-emphasis small" role="alert">
+            {resposta.conflito ? CONFLITO_ORDEM : resposta.erro}
+          </span>
+        ) : null}
       </div>
     </form>
   )

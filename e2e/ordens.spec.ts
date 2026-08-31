@@ -189,4 +189,36 @@ test.describe('Ordem de serviço', () => {
     await page.reload()
     await expect(page.getByText(new RegExp(nome))).toBeVisible()
   })
+
+  /**
+   * A trava otimista sempre funcionou; o que faltava era ela APARECER.
+   *
+   * O balcao e a bancada abrem a mesma ordem ao mesmo tempo o dia inteiro. Quem
+   * gravava por ultimo tinha a gravacao recusada e nao era avisado de nada: o
+   * campo nao e controlado, entao continuava mostrando o texto digitado, e a
+   * pessoa saia de perto achando que o recado estava na ordem. Este teste falha
+   * se alguem voltar a esconder o conflito.
+   */
+  test('duas telas na mesma ordem: quem perde a corrida e avisado, e nao fica olhando texto que nao gravou', async ({ page }) => {
+    const url = await novaOrdem(page)
+    const segunda = await page.context().newPage()
+    await segunda.goto(url)
+    await expect(campoDe(segunda, 'Observações')).toBeVisible({ timeout: 30_000 })
+
+    // A primeira grava. A versao da ordem no banco avanca, e a segunda tela
+    // continua com a versao que carregou.
+    await campoDe(page, 'Observações').fill('entregar na fazenda')
+    await page.getByRole('button', { name: 'Salvar cabeçalho' }).click()
+    await expect(page.getByText('Salvo.')).toBeVisible({ timeout: 30_000 })
+
+    await campoDe(segunda, 'Observações').fill('cliente vem buscar')
+    await segunda.getByRole('button', { name: 'Salvar cabeçalho' }).click()
+    await expect(segunda.getByText('A ordem mudou. Confira os valores e tente de novo.')).toBeVisible({ timeout: 30_000 })
+
+    // O aviso nao e beco sem saida: a recusa ja recarregou a ordem, entao a
+    // segunda tentativa grava.
+    await segunda.getByRole('button', { name: 'Salvar cabeçalho' }).click()
+    await expect(segunda.getByText('Salvo.')).toBeVisible({ timeout: 30_000 })
+    await segunda.close()
+  })
 })

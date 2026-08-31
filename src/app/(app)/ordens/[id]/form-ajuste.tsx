@@ -1,5 +1,5 @@
 'use client'
-import { SALVANDO } from '@/componentes/rotulos'
+import { CONFLITO_ORDEM, SALVANDO } from '@/componentes/rotulos'
 
 import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
@@ -45,7 +45,14 @@ export function FormAjuste({ ordemId, versao, precoFinal, motivo }: { ordemId: s
       <input id="motivoAjuste" className="form-control" value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="arredondamento comercial, cliente antigo…" required />
       <button type="submit" className="btn" disabled={pendente}>{pendente ? SALVANDO : 'Ajustar preço'}</button>
       {invalido ? <div className="text-danger-emphasis small" role="alert">Preço inválido. Use 2528,00 ou 2528.</div> : null}
-      {resposta && !resposta.ok && !resposta.conflito ? <div className="text-danger-emphasis small" role="alert">{resposta.erro}</div> : null}
+      {/* Inclusive o conflito, que era o unico erro sem aviso. Aqui o silencio
+          custava mais que no cabecalho: o campo de preco continua com o valor
+          digitado, entao a tela mostrava um preco que o banco recusou. */}
+      {resposta && !resposta.ok ? (
+        <div className="text-danger-emphasis small" role="alert">
+          {resposta.conflito ? CONFLITO_ORDEM : resposta.erro}
+        </div>
+      ) : null}
     </form>
   )
 }
