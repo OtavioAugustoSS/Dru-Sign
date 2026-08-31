@@ -128,7 +128,9 @@ test.describe('Administração', () => {
     await expect(page.getByRole('alert').filter({ hasText: 'CNPJ inválido' })).toBeVisible({ timeout: 30_000 })
 
     await page.goto('/ordens/nova')
-    await page.getByRole('button', { name: 'Ordem de serviço', exact: true }).click()
+    // "Ordem de serviço" virou ABA na tela de nova ordem, e quem cria e o botao
+  // do formulario abaixo dela -- que diz o que vai acontecer.
+  await page.getByRole('button', { name: 'Abrir ordem de serviço' }).click()
     await expect(page).toHaveURL(/\/ordens\/[0-9a-f-]{36}$/, { timeout: 60_000 })
     const id = page.url().split('/').pop()
     await page.goto(`/ordens/${id}/impresso`)

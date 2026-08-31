@@ -1,5 +1,5 @@
 import { prisma } from '@/infra/db/prisma'
-import { classificarUrgencia, type FilaProducao, type OrdemDaProducao } from '@/domain/producao/urgencia'
+import { classificarUrgencia, type FilaProducao, type ItemDaProducao, type OrdemDaProducao } from '@/domain/producao/urgencia'
 import { formatarDimensao } from '@/domain/ordem/impresso'
 import { paraDominio } from '@/infra/db/decimal'
 
@@ -13,11 +13,14 @@ import { paraDominio } from '@/infra/db/decimal'
  *
  * A medida entra junto quando existe: e a diferenca entre cortar 60x80 e 80x60.
  */
-function linhaDoItem(i: { descricao: string; quantidade: number; altura: unknown; largura: unknown }): string {
+function linhaDoItem(i: { descricao: string; quantidade: number; altura: unknown; largura: unknown }): ItemDaProducao {
   const altura = i.altura === null ? null : Number(paraDominio(i.altura as never).toFixed())
   const largura = i.largura === null ? null : Number(paraDominio(i.largura as never).toFixed())
-  const medida = altura !== null && largura !== null ? ` · ${formatarDimensao(altura, largura)}` : ''
-  return `${i.quantidade} × ${i.descricao}${medida}`
+  return {
+    quantidade: i.quantidade,
+    descricao: i.descricao,
+    medida: altura !== null && largura !== null ? formatarDimensao(altura, largura) : null,
+  }
 }
 
 /**
@@ -28,7 +31,9 @@ export async function carregarFilaProducao(empresaId: string, agora: Date = new 
   const ordens = await prisma.ordemServico.findMany({
     where: { empresaId, estadoProducao: 'aberta' },
     select: {
-      id: true, numero: true, clienteNome: true, clienteApelido: true, abertaEm: true, prometidaPara: true, versao: true,
+      id: true, numero: true, clienteNome: true, clienteApelido: true, clienteTelefone: true,
+      observacoes: true, abertaEm: true, prometidaPara: true, versao: true,
+      responsavel: { select: { nome: true } },
       itens: {
         where: { removidoEm: null },
         orderBy: { ordemExibicao: 'asc' },
@@ -38,6 +43,9 @@ export async function carregarFilaProducao(empresaId: string, agora: Date = new 
   })
   const lista: OrdemDaProducao[] = ordens.map((o) => ({
     id: o.id, numero: o.numero, clienteNome: o.clienteNome, clienteApelido: o.clienteApelido,
+    clienteTelefone: o.clienteTelefone,
+    observacoes: o.observacoes,
+    responsavelNome: o.responsavel.nome,
     abertaEm: o.abertaEm.toISOString(), prometidaPara: o.prometidaPara?.toISOString() ?? null,
     versao: o.versao, itens: o.itens.map(linhaDoItem),
   }))

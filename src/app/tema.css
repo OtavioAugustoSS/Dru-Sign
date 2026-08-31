@@ -1,12 +1,19 @@
 /* Tema DruSign: a camada de marca sobre o Tabler.
  *
- * O Tabler 1.4.0 ja traz o tema escuro inteiro, acionado por [data-bs-theme=dark]
- * no <html>. Cartao, tabela, dropdown, modal e navbar leem os tokens dele e mudam
- * sozinhos. O que precisa de par aqui e so a marca.
+ * O SISTEMA E ESCURO. Nao ha modo claro para escolher, e nao ha seletor de tema:
+ * decisao do Otavio em 31/08/2026. O <html> nasce com [data-bs-theme=dark] fixo
+ * e o Tabler 1.4.0 entrega o resto -- cartao, tabela, dropdown, modal e navbar
+ * leem os tokens dele. O que precisa de marca e so o que esta aqui.
  *
- * REGRA: todo token declarado no :root PRECISA ter par no bloco escuro. O :root
- * casa nos dois temas; sem o par, o valor claro vaza para o escuro. Era esse o
- * defeito da versao anterior deste arquivo.
+ * O CLARO SOBREVIVE EM UM LUGAR SO: a folha impressa. O route group (impresso)
+ * declara [data-bs-theme=light] no proprio <main> porque papel e branco com
+ * tinta preta em qualquer sistema. Por isso os valores claros continuam abaixo,
+ * num bloco `[data-bs-theme='light']` que casa exatamente com aquele <main> --
+ * e com nada mais.
+ *
+ * REGRA, e ela inverteu: o padrao vive no :root e o par claro existe so onde a
+ * folha precisa dele. Como as propriedades personalizadas HERDAM, um token
+ * escuro sem par claro vaza para dentro da folha impressa.
  *
  * Os contrastes abaixo foram calculados (WCAG 2.1 relative luminance), nao
  * estimados. Minimo 4,5:1 para texto e 3:1 para componente.
@@ -17,43 +24,12 @@
   --tblr-font-sans-serif: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
   --tblr-font-monospace: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  /* Primaria DruSign (spec, secao 8).
-   * #0E7C93 sobre branco ........ 4,86:1  texto OK
-   * branco sobre #0E7C93 ........ 4,86:1  botao OK
-   * #0E7C93 sobre o corpo ....... 4,57:1  texto OK  */
-  --tblr-primary: #0E7C93;
-  --tblr-primary-rgb: 14, 124, 147;
-  --tblr-primary-fg: #ffffff;
-  --tblr-primary-darken: #0A6478;          /* branco sobre ele: 6,76:1 */
-  --tblr-primary-lt: #E4F2F6;              /* fundo de selo e avatar */
-  --tblr-primary-lt-rgb: 228, 242, 246;
-  --tblr-primary-200: rgba(14, 124, 147, 0.2);
-  --tblr-primary-text-emphasis: #0A6478;   /* sobre --primary-lt: 5,90:1 */
-  --tblr-primary-bg-subtle: #E4F2F6;
-  --tblr-primary-border-subtle: #9FD0DB;
-
-  /* Links */
-  --tblr-link-color: #0E7C93;
-  --tblr-link-color-rgb: 14, 124, 147;
-  --tblr-link-hover-color: #0A6478;
-  --tblr-link-hover-color-rgb: 10, 100, 120;
-
-  /* Foco (btn, form-control, form-select, form-check) */
-  --tblr-focus-ring-color: rgba(14, 124, 147, 0.25);
-}
-
-/* Tema escuro.
- *
- * A primaria clara nao serve aqui: #0E7C93 sobre o corpo #111827 da 3,65:1, que
- * passa como componente e reprova como texto. Quem serve e o ciano da logo,
- * #5FC4D8 -- justamente a cor que foi PROIBIDA como botao no claro por ter so
- * 2,02:1 sobre branco. No escuro ela da 8,76:1. A marca finalmente aparece
- * inteira em algum lugar.
- *
- * Mesma especificidade do :root (0,1,0), declarado depois: este bloco vence.
- */
-[data-bs-theme='dark'] {
-  /* #5FC4D8 sobre o corpo #111827 ..... 8,76:1  texto OK
+  /* A PRIMARIA DO SISTEMA e o ciano da logo, #5FC4D8 -- justamente a cor que
+   * fora PROIBIDA como botao enquanto havia tema claro, por ter so 2,02:1 sobre
+   * branco. Sobre o escuro ela da 8,76:1. Com o claro fora do caminho, a marca
+   * aparece inteira, e o azul-petroleo #0E7C93 passa a ser a cor do papel.
+   *
+   * #5FC4D8 sobre o corpo #111827 ..... 8,76:1  texto OK
    * #5FC4D8 sobre superficie #1F2937 ... 7,25:1  texto OK
    * #111827 sobre #5FC4D8 (botao) ...... 8,76:1  botao OK  */
   --tblr-primary: #5FC4D8;
@@ -67,12 +43,48 @@
   --tblr-primary-bg-subtle: #0B2A33;
   --tblr-primary-border-subtle: #2A6B7D;
 
+  /* Links */
   --tblr-link-color: #5FC4D8;
   --tblr-link-color-rgb: 95, 196, 216;
   --tblr-link-hover-color: #8FD7E5;        /* sobre o corpo: 11,00:1 */
   --tblr-link-hover-color-rgb: 143, 215, 229;
 
+  /* Foco (btn, form-control, form-select, form-check) */
   --tblr-focus-ring-color: rgba(95, 196, 216, 0.35);
+}
+
+/* A FOLHA IMPRESSA -- e so ela.
+ *
+ * Casa com o `<main data-bs-theme="light">` de `(impresso)/layout.tsx`. Sem este
+ * bloco os tokens escuros do :root herdariam para dentro da folha e o botao
+ * "Imprimir" ficaria ciano sobre papel branco: 2,02:1.
+ *
+ * De quebra, conserta um defeito que ja existia. O Tabler declara os proprios
+ * `--tblr-primary` dentro da regra `[data-bs-theme=light]`, ou seja, NO ELEMENTO
+ * -- e valor local vence valor herdado. Entao a folha nunca usou o azul-petroleo
+ * da DruSign: usava o azul de fabrica do Tabler, #066fd1. Medido no navegador.
+ * Este bloco tem a mesma especificidade e vem depois, entao passa a valer.
+ *
+ * #0E7C93 sobre branco ........ 4,86:1  texto OK
+ * branco sobre #0E7C93 ........ 4,86:1  botao OK  */
+[data-bs-theme='light'] {
+  --tblr-primary: #0E7C93;
+  --tblr-primary-rgb: 14, 124, 147;
+  --tblr-primary-fg: #ffffff;
+  --tblr-primary-darken: #0A6478;          /* branco sobre ele: 6,76:1 */
+  --tblr-primary-lt: #E4F2F6;              /* fundo de selo e avatar */
+  --tblr-primary-lt-rgb: 228, 242, 246;
+  --tblr-primary-200: rgba(14, 124, 147, 0.2);
+  --tblr-primary-text-emphasis: #0A6478;   /* sobre --primary-lt: 5,90:1 */
+  --tblr-primary-bg-subtle: #E4F2F6;
+  --tblr-primary-border-subtle: #9FD0DB;
+
+  --tblr-link-color: #0E7C93;
+  --tblr-link-color-rgb: 14, 124, 147;
+  --tblr-link-hover-color: #0A6478;
+  --tblr-link-hover-color-rgb: 10, 100, 120;
+
+  --tblr-focus-ring-color: rgba(14, 124, 147, 0.25);
 }
 
 /* Selos: o texto vem da cor de enfase, nao da cor cheia.
@@ -110,12 +122,15 @@
   z-index: 1080; /* acima da gaveta do menu no celular */
 }
 
-/* O verde do Tabler (#2FB344) com texto branco da 2,63:1 -- muito abaixo dos
- * 4,5:1 que texto de botao exige. E o botao que a producao aperta o dia inteiro,
- * de pe e as vezes contra a luz da bancada.
+/* O verde CHEIO do Tabler (#2FB344) com texto branco da 2,63:1 -- muito abaixo
+ * dos 4,5:1 que rotulo de botao exige. #1A7F37 com branco da 5,08:1, e no
+ * pressionado #15662C da 7,07:1: continua lendo como verde de "pronto", so deixa
+ * de ser neon.
  *
- * #1A7F37 com branco da 5,08:1, e no pressionado #15662C da 7,07:1. Continua
- * lendo como verde de "pronto"; so deixa de ser neon. */
+ * Nenhuma tela usa `.btn-success` hoje -- o de finalizar servico e
+ * `.btn-outline-success`, mais abaixo. Esta regra fica como rede: se um dia
+ * alguem escrever `btn-success`, o botao nasce legivel em vez de nascer com os
+ * 2,63:1 de fabrica. */
 .btn-success {
   --tblr-btn-bg: #1A7F37;
   --tblr-btn-border-color: #1A7F37;
@@ -148,10 +163,38 @@
   overflow: hidden;
 }
 
-/* A lista de clientes que aparece enquanto se digita precisa passar por cima do
- * que vem depois no formulario. Era estilo inline no JSX. */
+/* A LISTA DE CLIENTES QUE APARECE ENQUANTO SE DIGITA.
+ *
+ * Ela flutua sobre o formulario, e por isso precisa ser OPACA -- o que ela nao
+ * era. O `.list-group-item` do Tabler nasce com fundo transparente, entao os
+ * nomes dos clientes apareciam misturados com o rotulo do campo de baixo:
+ * "Responsavel" atravessado por "ASSOCIACAO DE ENSINO E PERQUISA DE UNAI", e nao
+ * dava para ler nem um nem outro. Achado na tela de nova ordem, mas o defeito
+ * era o mesmo na busca de cliente DENTRO da ordem, que usa a mesma marcacao.
+ *
+ * O `<li>` e `role="option"` e nao deve mostrar marcador: o item ja e
+ * identificado pelo papel, e o ponto do navegador aparecia solto a esquerda. */
 .lista-sugestoes {
   z-index: 10;
+  list-style: none;
+  margin-top: 0.25rem;
+  border-radius: var(--tblr-border-radius);
+  overflow: hidden;
+  max-height: 18rem;
+  overflow-y: auto;
+}
+
+.lista-sugestoes > li {
+  list-style: none;
+}
+
+.lista-sugestoes .list-group-item {
+  background: var(--tblr-bg-surface);
+}
+
+.lista-sugestoes .list-group-item:hover,
+.lista-sugestoes .list-group-item:focus-visible {
+  background: var(--tblr-primary-lt);
 }
 
 /* A producao usa o sistema de pe, as vezes de luva: o alvo de toque nao pode
@@ -183,6 +226,18 @@
   margin-inline: auto;
 }
 
+/* Quando a TELA INTEIRA e o recado -- endereco que nao existe, erro -- o bloco
+ * ficava colado no topo com oitocentos pixels de vazio embaixo, e a tela lia
+ * como uma pagina que nao terminou de carregar. Aqui nao ha conteudo nenhum
+ * competindo por atencao: o recado e o unico assunto e fica no meio.
+ *
+ * `margin-block: auto` e nao `justify-content`: a margem automatica absorve o
+ * espaco livre nos dois eixos do flex, entao funciona sem depender da direcao
+ * que o Tabler der ao `.page-body`. */
+.pagina-recado > .container-xl {
+  margin-block: auto;
+}
+
 /* Vermelho de MENSAGEM DE ERRO.
  *
  * As mensagens de validacao usavam `.text-danger`, a cor cheia: 4,66:1 no claro
@@ -200,11 +255,12 @@
  *   escuro #F87171 sobre o corpo #111827 ..... 6,39:1  texto OK
  */
 :root {
-  --tblr-danger-text-emphasis: #B42318;
+  --tblr-danger-text-emphasis: #F87171;
 }
 
-[data-bs-theme='dark'] {
-  --tblr-danger-text-emphasis: #F87171;
+/* Na folha impressa, onde o fundo e branco */
+[data-bs-theme='light'] {
+  --tblr-danger-text-emphasis: #B42318;
 }
 
 /* Tres controles que vem com cor FIXA, escrita por cima da maquinaria de tokens
@@ -381,19 +437,22 @@ summary:focus-visible,
  * ou ambar, e acima dos 3:1 que a WCAG pede para grafico com significado. E a
  * palavra ao lado continua dizendo tudo, entao ninguem depende da cor. */
 :root {
-  --ponto-neutro: #6B7280;   /* sobre branco ..... 4,61:1 */
-  --ponto-marca: #0E7C93;    /* sobre branco ..... 4,86:1 */
-  --ponto-bom: #16A34A;      /* sobre branco ..... 3,30:1 */
-  --ponto-atencao: #B45309;  /* sobre branco ..... 5,02:1 */
-  --ponto-ruim: #DC2626;     /* sobre branco ..... 4,83:1 */
-}
-
-[data-bs-theme='dark'] {
   --ponto-neutro: #9CA3AF;
   --ponto-marca: #5FC4D8;
   --ponto-bom: #34D399;
   --ponto-atencao: #FBBF24;
   --ponto-ruim: #F87171;
+}
+
+/* Os mesmos tons na folha impressa, onde o fundo e branco. Sao os graficos e a
+ * situacao das ordens: se herdassem os tons do escuro, o amarelo #FBBF24 daria
+ * 1,71:1 no papel. */
+[data-bs-theme='light'] {
+  --ponto-neutro: #6B7280;   /* sobre branco ..... 4,61:1 */
+  --ponto-marca: #0E7C93;    /* sobre branco ..... 4,86:1 */
+  --ponto-bom: #16A34A;      /* sobre branco ..... 3,30:1 */
+  --ponto-atencao: #B45309;  /* sobre branco ..... 5,02:1 */
+  --ponto-ruim: #DC2626;     /* sobre branco ..... 4,83:1 */
 }
 
 /* 10px e nao 8: num circulo pequeno, cada pixel a mais ajuda a reconhecer a cor,
@@ -483,8 +542,11 @@ summary:focus-visible,
  * perceber que da para clicar: a borda acende na primaria e o cursor muda. Sem
  * levantar, sem sombra crescendo -- sao quatro deles em fila no alto da tela, e
  * quatro cartoes se mexendo ao passar o mouse e barulho, nao informacao. */
+/* 150ms e nao os 120ms de antes: e o mesmo tempo do `.btn` e do `.page-link` que
+ * o Tabler ja traz, e o mesmo da faixa da aba. Um sistema com tres tempos de
+ * reacao parece tres sistemas. */
 .cartao-clicavel {
-  transition: border-color 120ms ease-out;
+  transition: border-color 150ms var(--saida-suave);
 }
 
 .cartao-clicavel:hover,
@@ -513,11 +575,21 @@ summary:focus-visible,
 
 /* O botao de finalizar servico na fila de producao.
  *
- * O Tabler nao pinta `btn-outline-success` no tema escuro com contraste
- * suficiente, e este e o botao mais importante da tela mais usada de pe. Cor de
- * texto e borda vem do verde do ponto de situacao, que ja foi medido: 3,30:1 no
- * claro e 7,64:1 no escuro. No hover e no toque ele enche, para a resposta ser
- * inequivoca com a mao na peca. */
+ * O Tabler nao pinta `btn-outline-success` com contraste suficiente, e este e o
+ * botao mais importante da tela mais usada de pe. Cor de texto e borda vem do
+ * verde de acao, que da 7,64:1 sobre o fundo escuro. No hover e no toque ele
+ * ENCHE, para a resposta ser inequivoca com a mao na peca.
+ *
+ * E aqui mora um defeito que a saida do tema claro trouxe a tona. O rotulo no
+ * estado cheio era branco fixo. Isso servia enquanto `--verde-acao` era o verde
+ * escuro do tema claro (#15803D com branco: 5,01:1). Com o sistema escuro, o
+ * verde de acao passou a ser o claro #34D399 -- e branco sobre ele da **1,72:1**.
+ * O botao ficava ilegivel exatamente no instante em que a pessoa o aperta, que e
+ * quando ela mais precisa ver que apertou.
+ *
+ * O rotulo cheio agora e um token proprio, e nao uma cor fixa: tinta escura
+ * sobre o verde claro do sistema (9,49:1), branco sobre o verde escuro do papel
+ * (5,01:1). */
 .botao-producao.btn-outline-success {
   --tblr-btn-color: var(--verde-acao);
   --tblr-btn-border-color: var(--verde-acao);
@@ -525,23 +597,30 @@ summary:focus-visible,
   --tblr-btn-hover-border-color: var(--verde-acao);
   --tblr-btn-active-bg: var(--verde-acao);
   --tblr-btn-active-border-color: var(--verde-acao);
-  --tblr-btn-hover-color: #fff;
-  --tblr-btn-active-color: #fff;
+  --tblr-btn-hover-color: var(--verde-acao-fg);
+  --tblr-btn-active-color: var(--verde-acao-fg);
   font-size: 1rem;
 }
 
 /* O verde de ACAO nao e o verde do PONTO, pela mesma razao de sempre: o ponto e
- * grafico e pede 3:1, o rotulo do botao e texto e pede 4,5:1. O `--ponto-bom` do
- * tema claro dava 3,15:1 escrito -- passa como circulo, reprova como palavra.
+ * grafico e pede 3:1, o rotulo do botao e texto e pede 4,5:1.
  *
- * Medido: #15803D sobre o cartao branco da 5,01:1; no escuro o proprio
- * `--ponto-bom` ja da 7,64:1 e serve para as duas coisas. */
+ * Medido: #34D399 sobre o corpo escuro da 7,64:1 escrito; na folha impressa,
+ * onde o fundo e branco, o mesmo verde daria 1,72:1 e por isso la ele e o
+ * escuro #15803D, que da 5,01:1.
+ *
+ * `--verde-acao-fg` e o rotulo QUANDO O BOTAO ENCHE, e e o oposto: sobre o verde
+ * claro precisa de tinta escura (#111827 sobre #34D399 = 9,49:1); sobre o verde
+ * escuro do papel precisa de branco (5,01:1). Sem este par, o botao de finalizar
+ * ficava com 1,72:1 no instante do toque. */
 :root {
-  --verde-acao: #15803D;
+  --verde-acao: #34D399;
+  --verde-acao-fg: #111827;
 }
 
-[data-bs-theme='dark'] {
-  --verde-acao: #34D399;
+[data-bs-theme='light'] {
+  --verde-acao: #15803D;
+  --verde-acao-fg: #ffffff;
 }
 
 /* CABECALHO DE COLUNA QUE ORDENA.
@@ -639,9 +718,10 @@ summary:hover {
 
 /* GRAFICOS: desenhados no servidor, em CSS, sem biblioteca.
  *
- * A cor sai dos mesmos tokens de --ponto-* que a situacao usa, entao os
- * graficos acompanham o modo claro e o escuro sozinhos, e verde continua
- * querendo dizer a mesma coisa aqui e na lista de ordens. */
+ * A cor sai dos mesmos tokens de --ponto-* que a situacao usa, entao verde quer
+ * dizer a mesma coisa aqui e na lista de ordens -- e a folha impressa, que e a
+ * unica superficie clara que sobrou, ja recebe a versao escurecida desses tokens
+ * sem que estes graficos precisem saber disso. */
 .grafico-tempo {
   display: flex;
   align-items: flex-end;
@@ -782,3 +862,698 @@ a.grafico-lista-linha:hover {
 .card-header > .card-header-tabs .nav-link {
   white-space: nowrap;
 }
+
+/* ==========================================================================
+   A CAMADA DE INTERAÇÃO
+   ==========================================================================
+
+   Regra desta camada: cada movimento aqui responde "o que isto informa?". O que
+   informa "fica bonito" não entra. E o sistema é usado o dia inteiro por duas
+   pessoas -- o alvo é continuidade e resposta, não encanto de primeira visita.
+
+   O ritmo já existia e não é meu: o Tabler traz 153 regras de transição, e as
+   que se veem são `.btn` e `.page-link` a 150ms. O que entra aqui usa os mesmos
+   150ms, para o sistema ter UM tempo de reação e não três.
+
+   `--saida-suave` é a curva de desaceleração natural. Sem bounce e sem elástico:
+   os dois chamam atenção para a animação em vez de para a informação. */
+
+:root {
+  --saida-suave: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* A FAIXA QUE ATRAVESSA DE UMA ABA PARA A OUTRA.
+ *
+ * Ela é um `<span>` dentro do próprio link, e não um elemento solto posicionado
+ * por medida em JavaScript. Isso é possível por causa de um fato que só o
+ * navegador revelou: ao trocar de aba, o `<ul>` e os dois `<a>` são LITERALMENTE
+ * os mesmos nós do DOM -- marquei os nós, naveguei, e as marcas sobreviveram. O
+ * Next navega no cliente e o React reconcilia; só a classe `active` muda de
+ * lugar. Havendo DOM compartilhado, um `transform` em CSS basta, e não é preciso
+ * View Transitions (que, aliás, este React 19.2.8 não expõe) nem biblioteca.
+ *
+ * Só `transform` anima. Nada de `width`, `left` ou `margin`: são propriedades
+ * que forçam o navegador a recalcular o layout da fileira inteira a cada quadro. */
+.nav-tabs .nav-link {
+  position: relative;
+}
+
+.aba-faixa {
+  position: absolute;
+  /* -1px assenta a faixa exatamente sobre a linha do `<ul>`, e não abaixo dela. */
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--tblr-primary);
+  transform: scaleX(0);
+  transition: transform 150ms var(--saida-suave);
+}
+
+/* A ORIGEM APONTA PARA A BORDA QUE AS DUAS ABAS DIVIDEM.
+ *
+ * É o detalhe que faz a coisa toda funcionar. A faixa da aba que sai encolhe ATÉ
+ * a borda comum, e a da aba que entra cresce A PARTIR dela -- as duas se
+ * encontram no mesmo ponto, no mesmo instante, e o olho lê uma faixa só
+ * atravessando, não duas piscando. As mesmas origens servem nos dois sentidos,
+ * porque a borda compartilhada é a mesma indo e voltando.
+ *
+ * As duas telas que têm abas têm exatamente duas abas, adjacentes. Se um dia
+ * houver três, a do meio cresce do centro -- que é o comportamento correto para
+ * quem não tem um vizinho só. */
+.nav-tabs > .nav-item:first-child .aba-faixa {
+  transform-origin: right;
+}
+
+.nav-tabs > .nav-item:last-child .aba-faixa {
+  transform-origin: left;
+}
+
+.nav-link.active .aba-faixa {
+  transform: scaleX(1);
+}
+
+/* A ABA CLICADA ASSUME A FAIXA NO MESMO QUADRO DO CLIQUE.
+ *
+ * Sem isto a faixa só se moveria quando o servidor respondesse -- 325ms depois,
+ * no melhor caso medido, e 990ms no pior. Movimento que começa um terço de
+ * segundo depois do dedo não lê como resposta; lê como travamento. Com isto, a
+ * ordem é a certa: a pessoa clica, a faixa anda, e o conteúdo chega depois. */
+.aba-faixa[data-pendente] {
+  transform: scaleX(1);
+}
+
+.nav-tabs:has(.aba-faixa[data-pendente]) .nav-link.active .aba-faixa {
+  transform: scaleX(0);
+}
+
+/* O CONTORNO DA ABA EM VIGOR -- que NÃO é o anel de foco.
+ *
+ * São duas informações diferentes e não podem se confundir: o anel diz "o teclado
+ * está aqui agora" e some quando o foco sai; o contorno diz "é esta aba que você
+ * está vendo" e fica. Ficaram distintos em forma, não só em cor: o anel é
+ * destacado do controle (`outline-offset: 2px`), fecha em volta dos quatro lados
+ * e é da primária; o contorno é colado, tem o pé aberto para o painel de baixo e
+ * é neutro.
+ *
+ * Precisava existir porque, medido, a aba em vigor não se distinguia: o fundo
+ * dela dava 1,00:1 contra o corpo da página (é a mesma cor) e a borda de fábrica
+ * dava 1,18:1 no claro e 1,72:1 no escuro. Sobrava só o tom do texto. Quem
+ * carrega o estado agora é a faixa da primária -- 4,65:1 no claro e 8,76:1 no
+ * escuro, acima dos 3:1 que a WCAG pede para um indicador. O contorno acompanha,
+ * dando ao conjunto a forma de aba. */
+:root {
+  --aba-contorno: #4B5563;
+}
+
+[data-bs-theme='light'] {
+  --aba-contorno: #B9C0CA;
+}
+
+.nav-tabs .nav-link.active {
+  border-color: var(--aba-contorno);
+  /* O pé fica aberto: a aba é a boca do painel que vem abaixo, não uma caixa. */
+  border-bottom-color: transparent;
+}
+
+/* O RÓTULO DA ABA QUE NÃO ESTÁ EM VIGOR.
+ *
+ * O cinza de fábrica dava 3,67:1 sobre o corpo do tema escuro -- reprova os
+ * 4,5:1 que texto pequeno exige, e é o nome de uma aba, não uma legenda. Não
+ * tinha sido notado antes porque, sem faixa e sem contorno, o contraste baixo
+ * passava por "aba desligada" em vez de por defeito.
+ *
+ * Agora que o estado é carregado pela faixa (4,65:1 no claro, 8,76:1 no escuro),
+ * a aba fria não precisa mais ser apagada para ceder o lugar: pode ser legível.
+ *
+ * Medido: claro #6B7280 sobre o corpo #F9FAFB dá 4,63:1 e sobre o cabeçalho
+ * branco do cartão dá 4,83:1; escuro #9CA3AF sobre o corpo #111827 dá 6,33:1. */
+:root {
+  --aba-rotulo-frio: #9CA3AF;
+}
+
+[data-bs-theme='light'] {
+  --aba-rotulo-frio: #6B7280;
+}
+
+.nav-tabs .nav-link:not(.active) {
+  color: var(--aba-rotulo-frio);
+}
+
+/* A RESPOSTA AO CLIQUE, onde o esqueleto não alcança.
+ *
+ * `(app)/loading.tsx` é limite de SEGMENTO de rota. Trocar só o parâmetro do
+ * endereço -- virar página, trocar de aba -- não cria segmento novo, então o Next
+ * atualiza dentro de uma transition e segura a tela antiga de propósito. Medido:
+ * 444ms de tela IDÊNTICA ao virar página do histórico (990ms na primeira vez), e
+ * o esqueleto nunca aparecia. Pelo menu lateral, que troca de segmento, ele
+ * aparece em 208ms e está tudo certo -- por isso nada muda lá.
+ *
+ * O que se mostra aqui não é roda-roda: é a verdade sobre o que está na tela. As
+ * linhas que a pessoa está vendo são as da página ANTIGA, e dizer isso é o
+ * trabalho. Elas apagam o suficiente para se lerem como "não é mais isto", e
+ * continuam legíveis para quem estava no meio de uma. */
+.marca-pendente {
+  display: none;
+}
+
+.card:has(.marca-pendente[data-pendente]) .card-table tbody {
+  opacity: 0.6;
+  transition: opacity 150ms var(--saida-suave);
+}
+
+/* E o próprio controle segura o estado apertado até a página chegar, senão o
+ * realce do toque some no instante em que o dedo sai e a espera fica muda. */
+.btn:has(.marca-pendente[data-pendente]) {
+  background: var(--tblr-primary-lt);
+  color: var(--tblr-primary-text-emphasis);
+}
+
+.page-link:has(.marca-pendente[data-pendente]) {
+  background: var(--tblr-primary-lt);
+  color: var(--tblr-primary-text-emphasis);
+}
+
+/* O cabeçalho de coluna não é botão: não tem fundo para acender. O que ele tem é
+ * a cor, que já muda ao passar o mouse -- então ela fica presa enquanto o
+ * servidor reordena, e o dedo pode sair de cima. */
+.coluna-ordenavel:has(.marca-pendente[data-pendente]) {
+  color: var(--tblr-link-color);
+}
+
+/* MOVIMENTO REDUZIDO.
+ *
+ * Some o movimento, não a informação: a faixa continua marcando a aba em vigor e
+ * as linhas antigas continuam apagando -- só que sem percurso, trocando de
+ * estado de um quadro para o outro. */
+@media (prefers-reduced-motion: reduce) {
+  .aba-faixa,
+  .card:has(.marca-pendente[data-pendente]) .card-table tbody {
+    transition: none;
+  }
+}
+
+/* A LINHA SOB O MOUSE.
+ *
+ * O lavado de fábrica do Tabler é `rgba(55,65,81,.075)`: sobre o branco do cartão
+ * ele dá 240,241,242, ou seja **1,13:1**. Some. E este sistema é usado na bancada,
+ * às vezes contra a luz da janela -- 1,13:1 ali não existe.
+ *
+ * Os valores abaixo foram medidos, não estimados, pela composição real do alfa
+ * sobre o fundo do cartão:
+ *   claro  rgba(55,65,81,.16) sobre #FFFFFF -> 223,224,227 ..... 1,32:1
+ *   escuro rgba(255,255,255,.11) sobre #1F2937 -> 55,64,76 ...... 1,40:1
+ * O texto do corpo continua com folga por cima: 7,81:1 no claro, 8,48:1 no escuro.
+ *
+ * Um terço a mais de contraste é de propósito: o bastante para o olho seguir a linha por 1.264px, e
+ * pouco o bastante para não se confundir com seleção -- selecionar, neste
+ * sistema, é da cor da marca, e passar o mouse não seleciona nada.
+ *
+ * SEM TRANSIÇÃO, e isto é decisão, não esquecimento. Varrer uma lista é passar
+ * por vinte linhas em dois segundos; com 150ms de esmaecimento o realce fica
+ * ATRÁS do ponteiro e vira rastro. Onde a resposta é o produto, o instantâneo é a
+ * resposta certa -- é o mesmo motivo pelo qual a faixa da aba, que precisa
+ * mostrar percurso, tem transição, e esta não tem. Nem todo movimento é bom
+ * movimento, e uniformizar os dois seria o erro.
+ *
+ * A pintura é `box-shadow: inset` do próprio Tabler, aplicada só nas células da
+ * linha sob o mouse: repinta uma linha, não a tabela. */
+:root {
+  --linha-mouse: rgba(255, 255, 255, 0.11);
+}
+
+[data-bs-theme='light'] {
+  --linha-mouse: rgba(55, 65, 81, 0.16);
+}
+
+/* O token vai na PRÓPRIA tabela, e não no `:root`.
+ *
+ * Custou uma medição para descobrir: o Tabler declara `--tblr-table-hover-bg`
+ * dentro da regra `.table`, ou seja, no próprio elemento. Propriedade
+ * personalizada escrita no elemento vence a que ele herdaria do `:root`, por
+ * mais específico que o seletor do `:root` seja -- não é disputa de
+ * especificidade, é herança contra valor local. Declarado no `:root`, o meu
+ * valor era simplesmente ignorado e a tabela seguia com os 7,5% de fábrica. */
+.table-hover {
+  --tblr-table-hover-bg: var(--linha-mouse);
+}
+
+/* A linha de GRUPO não é um registro: é uma divisória com o nome do grupo, no
+ * meio da tabela. Não leva a lugar nenhum e não se lê da esquerda para a
+ * direita, então acender não informa nada. */
+.table-hover > tbody > tr.linha-grupo:hover > * {
+  --tblr-table-bg-state: transparent;
+}
+
+/* CABEÇALHO DE CARTÃO QUE FICOU SEM NADA DENTRO.
+ *
+ * A tela de Ordens desenhava uma faixa de 33px com borda e sem uma palavra
+ * escrita, toda vez que a lista cabia numa página só. A causa é que `paginacao`
+ * chega ao `CartaoTabela` como ELEMENTO React -- sempre verdadeiro -- enquanto a
+ * `PaginacaoCompacta` decide devolver `null` lá dentro, quando só há uma página.
+ * Quem monta o cartão não tem como saber disso; quem sabe é o navegador, depois
+ * de renderizar. Então é ele quem responde.
+ *
+ * `:empty` casa com o `<div>` que não recebeu nó nenhum -- é o caso exato. */
+.card-header:not(:has(.card-title)):has(> .cabecalho-extras:empty) {
+  display: none;
+}
+
+/* "PÁGINA 3 DE 738" NÃO É UM BOTÃO DESLIGADO.
+ *
+ * Ele mora num `.page-item.disabled` porque não se clica nele -- mas o
+ * Bootstrap pinta tudo que é `disabled` com a cor do corpo a 40% de alfa, e
+ * medido isso dá **3,12:1** sobre o rodapé do cartão. Reprova os 4,5:1 de texto,
+ * e não cabe na isenção que a WCAG dá a controle inativo: "Anterior" desligado é
+ * um botão que não faz nada, este é o único lugar da tela que diz em qual das
+ * 738 páginas a pessoa está.
+ *
+ * O `aria-current="page"` distingue os dois casos sem inventar classe: só o
+ * indicador o tem. As setas continuam apagadas quando não levam a lugar nenhum,
+ * que é o certo. */
+.page-item.disabled .page-link[aria-current='page'] {
+  color: var(--tblr-body-color);
+}
+
+/* O `.nav-link` vem do Tabler com 300ms na troca de cor, o dobro do resto do
+ * sistema. Descendo o menu lateral, o realce acendia atras do ponteiro e ficava
+ * aceso depois que ele já tinha passado -- um rastro de meia dúzia de itens.
+ * Não é movimento novo: é o movimento que já existia, no tempo certo. */
+.nav-link {
+  transition-duration: 150ms;
+}
+
+/* A BARRA QUE ACOMPANHA O ITEM EM VIGOR NO MENU LATERAL.
+ *
+ * A do Tabler e um `::after` com `border-left: 3px` que só EXISTE no item aceso
+ * -- nos outros o `content` é `none`. Um elemento que não existe nos dois lados
+ * não tem como ir de um ao outro: ele pisca fora de um e dentro do outro. Esta é
+ * um elemento só, que vive na lista inteira e muda de lugar.
+ *
+ * O que ela informa: de onde para onde você foi. São catorze itens em cinco
+ * grupos, e a barra atravessando é o que liga a tela que você deixou à tela que
+ * abriu -- é continuidade, não enfeite. É também a única coisa que se move na
+ * lateral: o resto fica parado.
+ *
+ * Só `transform` anima. A altura é escrita uma vez pela medida e não entra na
+ * transição -- os catorze itens têm os mesmos 40px, então ela nunca muda. */
+.lateral-navegacao {
+  position: relative;
+}
+
+.lateral-barra {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: var(--barra-altura, 40px);
+  background: var(--tblr-primary);
+  transform: translateY(var(--barra-y, 0));
+  /* Acima do item, senão o realce de fundo do item aceso passa por cima dela. */
+  z-index: 1;
+}
+
+/* A transição só entra depois da primeira pintura -- ver o componente. Abrir o
+ * sistema e ver a barra subindo do topo até o item certo seria movimento sem
+ * informação: não houve troca nenhuma, a pessoa acabou de chegar. */
+.lateral-barra.desliza {
+  transition: transform 150ms var(--saida-suave);
+}
+
+/* A do Tabler sai de cena: duas barras no mesmo lugar seriam duas. */
+.lateral-navegacao .nav-item.active::after {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lateral-barra.desliza {
+    transition: none;
+  }
+}
+
+/* ==========================================================================
+   A FILA DE PRODUÇÃO
+   ==========================================================================
+
+   Lida de pé, na bancada, às vezes de luva, e também do balcão sentado. O que
+   manda aqui é o TRABALHO -- "12 × PLACA ACM" --, não o número da ordem. Número
+   é etiqueta; quem está com a chapa na mão pergunta o que fazer, não qual o
+   número.
+
+   A separação entre as informações vem do tamanho e do espaço, não de risco em
+   volta de cada uma. Foi esse o erro da versão anterior: quatro faixas do mesmo
+   peso, empilhadas, com linha entre todas. */
+
+.grupo-fila {
+  margin-bottom: 2.5rem;
+}
+
+/* O marcador de fábrica do <details> é um triângulo miúdo que não parece coisa
+ * que se clica. O alvo passa a ser a linha inteira do título. */
+.grupo-titulo {
+  cursor: pointer;
+  padding: 0.25rem 0;
+  margin-bottom: 0.5rem;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.grupo-titulo::-webkit-details-marker {
+  display: none;
+}
+
+/* A seta é desenhada aqui para poder girar. O que ela informa é a direção:
+ * apontando para baixo, o grupo está aberto. */
+.grupo-titulo::before {
+  content: '';
+  width: 0.5rem;
+  height: 0.5rem;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform 150ms var(--saida-suave);
+  flex: 0 0 auto;
+  margin-inline: 0.35rem 0.15rem;
+}
+
+.grupo-fila[open] > .grupo-titulo::before {
+  transform: rotate(45deg);
+}
+
+/* A guarda de movimento reduzido fica COLADA na animacao que ela guarda.
+ *
+ * Ela existia e se perdeu quando reescrevi o CSS desta tela -- a varredura da
+ * vistoria pegou. Guarda longe do que guarda e guarda que some numa reescrita;
+ * por isso agora ela mora aqui, e nao num bloco geral no fim do arquivo. */
+@media (prefers-reduced-motion: reduce) {
+  .grupo-titulo::before {
+    transition: none;
+  }
+}
+
+/* ── A LISTA ──────────────────────────────────────────────────────────────
+ *
+ * Três faixas empilhadas, e cada uma responde uma pergunta diferente: quem e
+ * quando, o que fazer, e o que dá para fazer daqui. Empilhadas e não em colunas
+ * porque a linha tem 1.300px: em três colunas o trabalho ficava curto à esquerda
+ * e sobrava um vão morto de meia tela no meio. */
+
+.bancada-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* A FAIXA DA ESQUERDA é o que se vê antes de ler.
+ *
+ * Uma coluna de cor descendo a página: vermelha onde atrasou, âmbar onde vence
+ * hoje ou amanhã, apagada no resto. Quem chega na bancada acha o trabalho
+ * urgente sem ler uma palavra -- e a cor nunca está sozinha, porque a palavra
+ * ("Atrasada há 2 dias") vem logo ao lado. */
+.bancada-servico {
+  --tom-da-faixa: var(--tblr-border-color);
+  position: relative;
+  padding: 1rem 1rem 1rem 1.5rem;
+  border-radius: var(--tblr-border-radius);
+}
+
+.bancada-servico::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.75rem;
+  bottom: 0.75rem;
+  width: 4px;
+  border-radius: 999px;
+  background: var(--tom-da-faixa);
+}
+
+.bancada-servico[data-tom='ruim'] {
+  --tom-da-faixa: var(--ponto-ruim);
+}
+
+.bancada-servico[data-tom='atencao'] {
+  --tom-da-faixa: var(--ponto-atencao);
+}
+
+.bancada-servico + .bancada-servico {
+  border-top: 1px solid var(--tblr-border-color);
+}
+
+/* A linha acende sob o mouse, pelo mesmo motivo e com o mesmo lavado das tabelas
+ * do sistema. Sem transição: varrer a fila é passar por dez serviços em dois
+ * segundos, e esmaecimento deixa o realce atrás do ponteiro. */
+.bancada-servico:hover {
+  background: var(--linha-mouse);
+}
+
+/* Faixa 1: identificação, numa linha só e em corpo pequeno. Quebra em telas
+ * estreitas em vez de espremer. */
+.servico-identidade {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.bancada-os {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--tblr-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.servico-cliente-nome {
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.servico-telefone {
+  color: var(--tblr-secondary);
+}
+
+/* Empurrado para a ponta: é quem responder por essa ordem, não parte do nome.
+ * E sem o ponto separador da `.anotacao`: ele existe para colar um aparte ao que
+ * vem antes, e aqui não vem nada antes -- na ponta direita ele fica solto. */
+.servico-responsavel::before {
+  content: none;
+}
+
+.servico-responsavel {
+  margin-left: auto;
+}
+
+/* Faixa 2: o trabalho, em corpo grande. É a manchete. */
+.servico-trabalho {
+  min-width: 0;
+}
+
+.bancada-item {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  gap: 0 0.75rem;
+  margin: 0;
+  font-size: 1.375rem;
+  line-height: 1.35;
+}
+
+.bancada-item + .bancada-item {
+  margin-top: 0.35rem;
+}
+
+/* A COLUNA DAS QUANTIDADES é o que faz a lista funcionar de relance.
+ *
+ * Alinhadas à direita e em dígitos tabulares, "12", "2" e "30" formam uma borda
+ * numérica reta descendo a página: dá para varrer o volume de trabalho sem ler
+ * uma palavra. Solta no meio da frase, a quantidade se perdia. */
+.bancada-qtd {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--tblr-secondary);
+  /* Sem isto o × cai para a linha de baixo quando a coluna aperta. */
+  white-space: nowrap;
+}
+
+/* O × vem do CSS e não do texto: assim ele não entra na seleção nem no que o
+ * leitor de tela dita, e a quantidade continua sendo um número. */
+.bancada-qtd::after {
+  content: '×';
+  margin-left: 0.35em;
+  font-weight: 400;
+}
+
+/* A medida na mesma linha da descrição, mais clara: é detalhe de execução, não
+ * identidade do serviço. */
+.bancada-medida {
+  color: var(--tblr-secondary);
+  white-space: nowrap;
+}
+
+.bancada-medida::before {
+  content: '·';
+  margin-inline: 0.4em;
+}
+
+/* O RECADO DO BALCÃO PARA A BANCADA.
+ *
+ * Estava no banco e não chegava nesta tela: quem produzia tinha de abrir a ordem
+ * para descobrir que havia recado -- ou não descobria, e a peça saía errada.
+ * Recuado e com marca própria para não se confundir com item: item é o que
+ * fazer, recado é como fazer. */
+.servico-recado {
+  margin: 0.75rem 0 0;
+  padding-left: 0.75rem;
+  border-left: 2px solid var(--tblr-border-color);
+  color: var(--tblr-secondary);
+  white-space: pre-line;
+}
+
+/* Faixa 3: as ações, e três pesos diferentes.
+ *
+ * Finalizar muda o mundo: verde, 56px, a altura que se acerta de luva. Imprimir
+ * é caminho -- a peça vai para a bancada COM a folha, e antes era preciso sair
+ * da fila e abrir a ordem para chegar nele. Ver o serviço é consulta, e fica na
+ * cor de link sem preenchimento. Do mesmo tamanho, as três competiriam. */
+.servico-acoes {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+/* A contagem empurra as ações para a direita e diz, de passagem, o tamanho do
+ * serviço: "38 peças em 3 itens" responde "isso é rápido?" antes de somar. */
+.servico-contagem {
+  margin-right: auto;
+}
+
+.bancada-ver {
+  min-height: 44px;
+  background: transparent;
+  border-color: transparent;
+  color: var(--tblr-link-color);
+}
+
+.bancada-ver:hover,
+.bancada-ver:focus-visible {
+  background: transparent;
+  color: var(--tblr-link-hover-color);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.bancada-imprimir {
+  min-height: 44px;
+}
+
+/* O botão verde não estica: 56px de altura e a largura do rótulo. Esticado pela
+ * linha inteira ele virava uma barra e o verde deixava de significar. */
+.servico-finalizar .botao-producao {
+  width: auto;
+  padding-inline: 1.5rem;
+}
+
+/* Numa janela estreita as ações empilham e o verde ocupa a largura -- é a mão de
+ * quem está de pé com o celular ou o tablet da bancada. */
+@media (max-width: 48rem) {
+  .servico-acoes {
+    flex-wrap: wrap;
+  }
+
+  .servico-contagem {
+    flex: 1 0 100%;
+    margin: 0 0 0.5rem;
+  }
+
+  .servico-finalizar {
+    flex: 1 1 100%;
+  }
+
+  .servico-finalizar .botao-producao {
+    width: 100%;
+  }
+}
+
+/* ── O DETALHE DO SERVIÇO ───────────────────────────────────────────────────
+ *
+ * `<dialog>` nativo: prender o foco, fechar no Esc e escurecer o fundo vêm de
+ * graça e corretos -- que é justamente o que uma caixa desenhada à mão erra.
+ *
+ * A mesma hierarquia da lista: o trabalho grande em cima, o contexto pequeno
+ * embaixo. Sem etiqueta em caixa alta nomeando cada bloco: eyebrow acima de toda
+ * seção é o andaime que denuncia tela gerada. */
+.detalhe-servico {
+  width: min(38rem, calc(100vw - 2rem));
+  max-height: calc(100vh - 4rem);
+  padding: 0;
+  border: 1px solid var(--tblr-border-color);
+  border-radius: var(--tblr-border-radius-lg, 8px);
+  background: var(--tblr-bg-surface);
+  color: var(--tblr-body-color);
+  overflow: hidden auto;
+}
+
+.detalhe-servico::backdrop {
+  /* Escuro o bastante para a fila atrás sair de foco sem sumir: quem consulta
+   * quer continuar sabendo que está na fila. */
+  background: rgb(0 0 0 / 0.6);
+}
+
+.detalhe-faixa {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem 0.75rem;
+}
+
+/* O número é etiqueta, não manchete: quem abriu já sabe qual serviço abriu. */
+.detalhe-numero {
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--tblr-secondary);
+  margin: 0 0 0.35rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* O trabalho: o maior corpo da caixa, porque é o que se abriu para ver. */
+.detalhe-trabalho {
+  padding: 0.25rem 1.5rem 1.25rem;
+  font-size: 1.375rem;
+}
+
+/* Contexto em pares rótulo/valor numa grade de duas colunas: rótulo estreito e
+ * apagado, valor com a largura que sobra. Não precisa de linha entre eles -- o
+ * alinhamento já separa. */
+.detalhe-contexto {
+  display: grid;
+  grid-template-columns: 7rem minmax(0, 1fr);
+  gap: 0.5rem 1rem;
+  margin: 0;
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid var(--tblr-border-color);
+}
+
+.detalhe-contexto dt {
+  font-weight: 400;
+  color: var(--tblr-secondary);
+}
+
+.detalhe-contexto dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.detalhe-acoes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0 1.5rem 1.5rem;
+}
+

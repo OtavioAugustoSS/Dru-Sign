@@ -1,5 +1,5 @@
 'use client'
-import { SALVANDO } from '@/componentes/rotulos'
+import { CONFLITO_ORDEM, SALVANDO } from '@/componentes/rotulos'
 import { Apelido } from '@/componentes/situacao'
 
 import { useEffect, useRef, useState, useTransition, type KeyboardEvent } from 'react'
@@ -29,9 +29,27 @@ export function FormCabecalho(p: Props) {
   const [clienteNome, setClienteNome] = useState(p.cliente ? `${p.cliente.nome}${p.cliente.apelido ? ` (${p.cliente.apelido})` : ''}` : '')
   const [termo, setTermo] = useState('')
   const [sugestoes, setSugestoes] = useState<ClienteResumo[]>([])
-  const [prometida, setPrometida] = useState(p.prometidaPara?.slice(0, 10) ?? '')
-  const [responsavelId, setResponsavelId] = useState(p.responsavelId)
-  const [observacoes, setObservacoes] = useState(p.observacoes ?? '')
+  /*
+   * ENTREGA, RESPONSAVEL E OBSERVACOES NAO SAO ESTADO DO REACT -- e essa e a
+   * correcao de um defeito de perda silenciosa.
+   *
+   * Enquanto eram `useState` inicializado pela prop, existia uma janela entre o
+   * HTML do servidor aparecer e o React assumir o formulario. Quem digitasse ali
+   * escrevia no DOM e NAO no estado; a hidratacao entao devolvia o campo ao valor
+   * da prop -- vazio -- e o `salvar` mandava vazio junto. A tela respondia
+   * "Salvo." e a data de entrega ia embora sem ninguem ver. Numa grafica isso
+   * significa peca produzida sem prazo combinado.
+   *
+   * Nao controlados, quem manda no campo e o proprio campo: o que estiver
+   * escrito nele na hora de gravar e o que vai, hidratado ou nao. O React nunca
+   * mais reescreve por cima do que a pessoa digitou.
+   *
+   * O campo do CLIENTE continua controlado de proposito: ele nao e so um valor,
+   * e uma busca com lista de sugestoes -- ali o estado e a propria funcao.
+   */
+  const refPrometida = useRef<HTMLInputElement>(null)
+  const refResponsavel = useRef<HTMLSelectElement>(null)
+  const refObservacoes = useRef<HTMLTextAreaElement>(null)
   /* Cadastro de cliente sem sair da ordem: `null` enquanto ninguem pediu. */
   const [cadastrando, setCadastrando] = useState<{ nome: string; telefone: string } | null>(null)
   const [erroCadastro, setErroCadastro] = useState<string | null>(null)
@@ -75,6 +93,11 @@ export function FormCabecalho(p: Props) {
     // A gravacao vinda de `escolher` passa pelo guarda: ela nasce DENTRO da
     // transicao do cadastro rapido, entao `pendente` ja e true ali.
     if (pendente && sobrescreve === undefined) return
+    // Lido do campo, e nao do estado: e o que garante que o digitado antes da
+    // hidratacao va junto.
+    const observacoes = refObservacoes.current?.value ?? ''
+    const prometida = refPrometida.current?.value ?? ''
+    const responsavelId = refResponsavel.current?.value ?? p.responsavelId
     iniciar(async () => {
       const r = await atualizarCabecalhoAction(p.ordemId, p.versao, chave.current, p.somenteObservacoes
         ? { observacoes }
@@ -166,11 +189,11 @@ export function FormCabecalho(p: Props) {
           </div>
           <div className="col-md-3">
             <label className="form-label" htmlFor="prometida">Entrega prometida</label>
-            <input id="prometida" type="date" className="form-control" value={prometida} onChange={(e) => setPrometida(e.target.value)} />
+            <input id="prometida" ref={refPrometida} type="date" className="form-control" defaultValue={p.prometidaPara?.slice(0, 10) ?? ''} />
           </div>
           <div className="col-md-3">
             <label className="form-label" htmlFor="responsavel">Responsável</label>
-            <select id="responsavel" className="form-select" value={responsavelId} onChange={(e) => setResponsavelId(e.target.value)}>
+            <select id="responsavel" ref={refResponsavel} className="form-select" defaultValue={p.responsavelId}>
               {p.usuarios.map((u) => <option key={u.id} value={u.id}>{u.nome}</option>)}
             </select>
           </div>
@@ -178,13 +201,24 @@ export function FormCabecalho(p: Props) {
       ) : null}
       <div className="col-12">
         <label className="form-label" htmlFor="observacoes">Observações</label>
-        <textarea id="observacoes" className="form-control" rows={2} value={observacoes} onChange={(e) => setObservacoes(e.target.value)} />
+        <textarea id="observacoes" ref={refObservacoes} className="form-control" rows={2} defaultValue={p.observacoes ?? ''} />
       </div>
       <div className="col-12 d-flex align-items-center gap-2">
         <button type="submit" className="btn" disabled={pendente}>{pendente ? SALVANDO : 'Salvar cabeçalho'}</button>
         <span className="small text-secondary">Ctrl+S</span>
         {resposta?.ok ? <span className="text-success small">Salvo.</span> : null}
-        {resposta && !resposta.ok && !resposta.conflito ? <span className="text-danger-emphasis small" role="alert">{resposta.erro}</span> : null}
+        {/* O conflito TAMBEM aparece. Antes ele era o unico erro escondido: a
+            gravacao era recusada, `router.refresh()` trazia os dados novos, e o
+            campo -- que nao e controlado -- continuava mostrando o que a pessoa
+            tinha escrito. Ela via seu texto na tela e ia embora achando que
+            estava gravado. Numa ordem, isso e um "cliente vem buscar" que a
+            bancada nunca le. Tentar de novo funciona: o refresh ja trouxe a
+            versao nova junto. */}
+        {resposta && !resposta.ok ? (
+          <span className="text-danger-emphasis small" role="alert">
+            {resposta.conflito ? CONFLITO_ORDEM : resposta.erro}
+          </span>
+        ) : null}
       </div>
     </form>
   )

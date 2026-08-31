@@ -18,7 +18,11 @@ export default async function PaginaUsuarios() {
 
   return (
     <>
-      <CabecalhoPagina pretitulo="Configuração" titulo="Usuários" />
+      <CabecalhoPagina
+        pretitulo="Configuração"
+        titulo="Usuários"
+        descricao="Quem entra no sistema e o que cada um enxerga. Operação vê a fila de produção e marca serviço pronto; administração vê também o dinheiro e a configuração."
+      />
       <CorpoPagina>
         {/* Cabecalho no cartao de criacao, como em Materiais e no Plano de contas:
             sem ele o formulario aparecia solto no topo, sem dizer o que cria. */}

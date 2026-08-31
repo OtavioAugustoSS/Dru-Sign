@@ -3,8 +3,6 @@ import { CascaLateral } from '@/componentes/casca-lateral'
 import { MenuUsuario } from '@/componentes/menu-usuario'
 import { ROTULO_PAPEL } from '@/componentes/rotulos'
 import { sair } from '@/app/(auth)/entrar/actions'
-import { escolherTema } from '@/app/acoes-tema'
-import { lerTemaDoCookie } from '@/infra/tema/cookie'
 import { navegacaoPara } from './navegacao'
 
 function iniciais(nome: string): string {
@@ -17,7 +15,7 @@ function iniciais(nome: string): string {
 }
 
 export default async function LayoutApp({ children }: { children: React.ReactNode }) {
-  const [usuario, tema] = await Promise.all([exigirUsuario(), lerTemaDoCookie()])
+  const usuario = await exigirUsuario()
 
   return (
     <div className="page">
@@ -33,9 +31,7 @@ export default async function LayoutApp({ children }: { children: React.ReactNod
             nome={usuario.nome}
             papel={ROTULO_PAPEL[usuario.papel]}
             iniciais={iniciais(usuario.nome)}
-            tema={tema}
             sairAction={sair}
-            escolherTemaAction={escolherTema}
           />
         }
       />

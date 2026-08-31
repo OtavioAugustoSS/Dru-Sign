@@ -1,32 +1,33 @@
 import Link from 'next/link'
+import { IconPrinter } from '@tabler/icons-react'
 import { CabecalhoPagina } from '@/componentes/cabecalho-pagina'
 import { CorpoPagina } from '@/componentes/corpo-pagina'
 import { EstadoVazio } from '@/componentes/estado-vazio'
 import { NumeroOs } from '@/componentes/numero-os'
-import { TEXTO_URGENCIA } from '@/componentes/situacao'
-import { formatarDataCalendario } from '@/domain/ordem/datas'
+import { Situacao, TEXTO_URGENCIA } from '@/componentes/situacao'
+import { formatarTelefone } from '@/domain/clientes/telefone'
 import { ROTULO_URGENCIA, type GrupoDaFila, type OrdemDaProducao, type FilaProducao } from '@/domain/producao/urgencia'
 import { BotaoFinalizado } from './botao-finalizado'
+import { DetalheServico } from './detalhe-servico'
+import { contar } from '@/componentes/plural'
+import { esperaDe, nomeDoCliente, prazoDe } from './prazo'
 
 /**
- * A fila da bancada: densidade baixa, tipo grande, lida de longe (spec, tela 8).
+ * A fila da bancada.
  *
- * O que mudou depois da vistoria, e por que:
+ * O que a versão anterior errava, e o Otavio nomeou em uma frase: parecia feita
+ * por IA. Estava certo, e a causa dá para apontar com o dedo. O cartão eram
+ * quatro faixas do MESMO peso, empilhadas, com risco entre todas, tarja colorida
+ * no topo e dois botões gêmeos no rodapé -- separação feita só por linha, sem
+ * hierarquia nenhuma de tipo ou de espaço. É a gramática que um gerador produz
+ * quando lê "separe cada informação" e desenha uma caixa em volta de cada uma.
  *
- * - **O que fazer virou o maior bloco do cartao.** Antes o item ficava em letra
- *   miuda, com marcador, depois do nome do cliente; e o item e exatamente o que a
- *   producao precisa ler para trabalhar.
- * - **A data aparece uma vez, nao duas.** Cada cartao trazia "Entrega 4 de
- *   setembro" E "04/09/2026", a mesma informacao repetida.
- * - **Cada grupo abre e fecha.** A tela tinha 13.045px de altura porque despejava
- *   as ~100 ordens de uma vez, e 87 delas eram do grupo "sem data combinada", que
- *   nao e fila: e pendencia de combinar prazo. Os grupos com prazo nascem
- *   abertos; o sem data nasce fechado, com a contagem a vista.
- * - **O verde deixou de ser o fundo da tela.** Nao mudou o botao: mudou o peso do
- *   resto. Cem botoes verdes iguais faziam o verde nao significar nada, e o
- *   numero da OS era menor que o botao.
+ * E havia um erro anterior a esse, de conteúdo: o número da OS era a manchete.
+ * Quem está de pé com a chapa na mão não pergunta "qual o número?"; pergunta "o
+ * que eu faço agora?". O trabalho é a manchete. O número é etiqueta.
  */
 export function FilaDeProducao({ fila }: { fila: FilaProducao }) {
+  const agora = new Date()
   return (
     <>
       <CabecalhoPagina
@@ -53,86 +54,110 @@ export function FilaDeProducao({ fila }: { fila: FilaProducao }) {
             descricao="Todo serviço aberto já foi finalizado. Quando o atendimento abrir uma ordem, ela aparece aqui."
           />
         ) : (
-          fila.grupos.map((g) => <Grupo key={g.grupo} grupo={g} unico={fila.grupos.length === 1} />)
+          fila.grupos.map((g) => (
+            <Grupo key={g.grupo} grupo={g} unico={fila.grupos.length === 1} agora={agora} />
+          ))
         )}
       </CorpoPagina>
     </>
   )
 }
 
-function Grupo({ grupo, unico }: { grupo: GrupoDaFila; unico: boolean }) {
-  const semPrazo = grupo.grupo === 'sem_data'
-  const atrasado = grupo.grupo === 'atrasada'
+/* Sem cartão, sem tarja, sem risco entre as partes. O que separa uma informação
+ * da outra é o TAMANHO e o ESPAÇO: o trabalho em corpo grande ocupando a largura,
+ * o resto em corpo pequeno e cor secundária, encostado na direita. Entre um
+ * serviço e outro, uma linha só.
+ *
+ * A coluna das quantidades é o detalhe que faz a lista funcionar de longe: "12",
+ * "2", "30" alinhados à direita em dígitos tabulares formam uma borda numérica
+ * reta, e o olho desce por ela sem ler palavra nenhuma. */
 
+function Grupo({ grupo, unico, agora }: { grupo: GrupoDaFila; unico: boolean; agora: Date }) {
+  const semPrazo = grupo.grupo === 'sem_data'
   return (
-    // `open` por padrao em tudo que tem prazo. O grupo sem data e o unico que
-    // nasce fechado: sao ordens esperando alguem combinar entrega, nao trabalho
-    // da vez. A contagem fica a vista, entao nada some em silencio.
-    <details className="mb-4" open={!semPrazo || unico}>
-      {/* O nome do grupo e um h2, nao so texto dentro do `summary`. Esta tela
-          nao tinha titulo nenhum abaixo do h1: quem usa leitor de tela via uma
-          lista de ~100 cartoes sem nada para separar "Atrasadas" de "Hoje". O
-          `fw-normal` e proposital -- mantem o peso que o summary ja tinha, para
-          a tela sair igual, e as classes ficam no `summary` para o marcador de
-          abrir/fechar manter a cor da urgencia (conferido por diff de pixel). */}
-      <summary className={`fs-2 mb-3 ${TEXTO_URGENCIA[grupo.grupo]}`}>
-        <h2 className="fs-2 fw-normal d-inline">
+    <details className="grupo-fila" open={!semPrazo || unico}>
+      <summary className="grupo-titulo">
+        <h2 className={`fs-2 fw-normal d-inline ${TEXTO_URGENCIA[grupo.grupo]}`}>
           {ROTULO_URGENCIA[grupo.grupo]} <span className="text-secondary">({grupo.ordens.length})</span>
         </h2>
       </summary>
-      <div className="row g-3">
+      <ol className="bancada-lista">
         {grupo.ordens.map((o) => (
-          <Cartao key={o.id} ordem={o} atrasada={atrasado} />
+          <Servico key={o.id} ordem={o} agora={agora} />
         ))}
-      </div>
+      </ol>
     </details>
   )
 }
 
-function Cartao({ ordem, atrasada }: { ordem: OrdemDaProducao; atrasada: boolean }) {
-  const cliente = ordem.clienteApelido ?? ordem.clienteNome
+function Servico({ ordem, agora }: { ordem: OrdemDaProducao; agora: Date }) {
+  const prazo = prazoDe(ordem, agora)
+  const espera = esperaDe(ordem, agora)
+  const telefone = ordem.clienteTelefone?.replace(/\D/g, '') ?? ''
+  const pecas = ordem.itens.reduce((n, i) => n + i.quantidade, 0)
 
   return (
-    <div className="col-12 col-md-6 col-xl-4 col-xxl-3">
-      <div className={`card h-100${atrasada ? ' border-danger' : ''}`}>
-        <div className="card-body">
-          <div className="d-flex align-items-baseline justify-content-between gap-2">
-            <Link href={`/ordens/${ordem.id}`} className="text-reset text-decoration-none fs-1 fw-bold numero">
-              <NumeroOs numero={ordem.numero} />
-            </Link>
-            {ordem.prometidaPara ? (
-              <span className={`fs-3 ${atrasada ? 'text-danger-emphasis fw-bold' : ''}`}>
-                {formatarDataCalendario(new Date(ordem.prometidaPara))}
+    // `data-tom` pinta a FAIXA da esquerda. Ela é o que se vê antes de ler: uma
+    // coluna de cor descendo a página, vermelha onde atrasou e âmbar onde vence
+    // hoje. Quem chega na bancada acha o trabalho urgente sem ler uma palavra.
+    <li className="bancada-servico" data-tom={prazo.tom}>
+      {/* Faixa 1 -- QUEM E QUANDO. Uma linha, corpo pequeno: é identificação, não
+          é o trabalho. */}
+      <div className="servico-identidade">
+        <span className="bancada-os">
+          <NumeroOs numero={ordem.numero} />
+        </span>
+        <Situacao tom={prazo.tom}>{prazo.texto}</Situacao>
+        <span className="anotacao">{espera}</span>
+        <span className="servico-cliente-nome">{nomeDoCliente(ordem)}</span>
+        {telefone ? (
+          <a className="servico-telefone" href={`tel:${telefone}`}>{formatarTelefone(telefone)}</a>
+        ) : null}
+        <span className="anotacao servico-responsavel">atendeu {ordem.responsavelNome}</span>
+      </div>
+
+      {/* Faixa 2 -- O TRABALHO. É a manchete, e ocupa a largura inteira. */}
+      <div className="servico-trabalho">
+        {ordem.itens.length === 0 ? (
+          <p className="anotacao-solta m-0">Nenhum item lançado nesta ordem</p>
+        ) : (
+          ordem.itens.map((i, n) => (
+            <p className="bancada-item" key={`${ordem.id}-${n}`}>
+              <span className="bancada-qtd numero">{i.quantidade}</span>
+              <span>
+                {i.descricao}
+                {i.medida ? <span className="bancada-medida">{i.medida}</span> : null}
               </span>
-            ) : (
-              <span className="fs-4 text-secondary">sem data</span>
-            )}
-          </div>
+            </p>
+          ))
+        )}
+      </div>
 
-          <div className="fs-4 text-secondary mb-3">{cliente ?? 'Venda de balcão'}</div>
+      {/* O recado do balcão para a bancada. Estava no banco e não chegava aqui:
+          quem produzia tinha de abrir a ordem para descobrir que havia recado --
+          ou não descobria, e a peça saía errada. */}
+      {ordem.observacoes?.trim() ? (
+        <p className="servico-recado">{ordem.observacoes.trim()}</p>
+      ) : null}
 
-          {/* O trabalho. E o maior bloco do cartao de proposito. */}
-          <ul className="list-unstyled fs-2 mb-0">
-            {ordem.itens.length === 0 ? (
-              <li className="fs-4 text-secondary">Nenhum item lançado nesta ordem</li>
-            ) : (
-              ordem.itens.map((i, n) => (
-                <li className="mb-1" key={`${ordem.id}-${n}`}>
-                  {i}
-                </li>
-              ))
-            )}
-          </ul>
-        </div>
-
-        {/* O rodape do cartao, nao um cartaz. O alvo de toque continua com 56px
-            de altura -- a producao trabalha de pe, as vezes de luva -- mas o
-            verde cheio numa fileira de dez cartoes virava uma parede, e o botao
-            passava a pesar mais que o servico que ele conclui. */}
-        <div className="card-footer py-2">
+      {/* Faixa 3 -- O QUE DÁ PARA FAZER DAQUI.
+          Três ações e três pesos. Finalizar muda o mundo e é a verde de 56px.
+          Imprimir existe porque a peça vai para a bancada COM a folha: era o
+          caminho mais usado da tela da ordem e obrigava a sair da fila para
+          chegar nele. Ver o serviço é consulta. */}
+      <div className="servico-acoes">
+        <span className="servico-contagem anotacao-solta">
+          {contar(pecas, 'peça', 'peças')} em {contar(ordem.itens.length, 'item', 'itens')}
+        </span>
+        <DetalheServico ordem={ordem} prazo={prazo} espera={espera} />
+        <Link href={`/ordens/${ordem.id}/impresso`} className="btn bancada-imprimir">
+          <IconPrinter className="icon" aria-hidden="true" />
+          Imprimir
+        </Link>
+        <div className="servico-finalizar">
           <BotaoFinalizado ordemId={ordem.id} versao={ordem.versao} />
         </div>
       </div>
-    </div>
+    </li>
   )
 }

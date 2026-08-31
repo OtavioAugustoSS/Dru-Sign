@@ -185,6 +185,17 @@ export default async function PaginaHistorico({
                 ? 'A busca olha o número, o nome do cliente e o texto da ordem. Tente um pedaço menor.'
                 : 'As 18.443 ordens do sistema antigo ainda não foram importadas. Enquanto isso, só existe aqui o que foi feito no sistema novo.'
             }
+            /* Toda tela vazia do sistema oferece a saida no proprio bloco; esta
+               era a unica que nao oferecia, e mandava a pessoa procurar o botao
+               "Limpar" no formulario acima. Quem chega numa tela vazia esta
+               procurando o caminho de volta, nao o formulario. */
+            acoes={
+              filtrando ? (
+                <Link href={`/historico?aba=${aba}`} className="btn btn-primary">Limpar o filtro</Link>
+              ) : (
+                <Link href="/historico?aba=novo" className="btn">Ver o sistema novo</Link>
+              )
+            }
           />
         ) : (
           <CartaoTabela

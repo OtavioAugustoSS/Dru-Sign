@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
+import { MarcaPendente } from './pendente'
 
 /** Quantas linhas cabem numa tela sem virar rolagem infinita. */
 export const POR_PAGINA = 50
@@ -71,7 +72,10 @@ export function Paginacao(p: Base) {
           <ul className="pagination m-0">
             <li className={temAnterior ? 'page-item' : 'page-item disabled'}>
               {temAnterior ? (
-                <Link className="page-link" href={endereco(p.pagina - 1)} rel="prev">Anterior</Link>
+                <Link className="page-link" href={endereco(p.pagina - 1)} rel="prev">
+                  Anterior
+                  <MarcaPendente classe="marca-pendente" />
+                </Link>
               ) : (
                 <span className="page-link" aria-disabled="true">Anterior</span>
               )}
@@ -81,7 +85,10 @@ export function Paginacao(p: Base) {
             </li>
             <li className={temProxima ? 'page-item' : 'page-item disabled'}>
               {temProxima ? (
-                <Link className="page-link" href={endereco(p.pagina + 1)} rel="next">Próxima</Link>
+                <Link className="page-link" href={endereco(p.pagina + 1)} rel="next">
+                  Próxima
+                  <MarcaPendente classe="marca-pendente" />
+                </Link>
               ) : (
                 <span className="page-link" aria-disabled="true">Próxima</span>
               )}
@@ -113,6 +120,7 @@ export function PaginacaoCompacta(p: Base) {
       {temAnterior ? (
         <Link className="btn btn-sm btn-ghost-secondary btn-icon" href={endereco(p.pagina - 1)} rel="prev" aria-label="Página anterior">
           <IconChevronLeft className="icon" />
+          <MarcaPendente classe="marca-pendente" />
         </Link>
       ) : (
         <span className="btn btn-sm btn-ghost-secondary btn-icon disabled" aria-hidden="true"><IconChevronLeft className="icon" /></span>
@@ -121,6 +129,7 @@ export function PaginacaoCompacta(p: Base) {
       {temProxima ? (
         <Link className="btn btn-sm btn-ghost-secondary btn-icon" href={endereco(p.pagina + 1)} rel="next" aria-label="Próxima página">
           <IconChevronRight className="icon" />
+          <MarcaPendente classe="marca-pendente" />
         </Link>
       ) : (
         <span className="btn btn-sm btn-ghost-secondary btn-icon disabled" aria-hidden="true"><IconChevronRight className="icon" /></span>

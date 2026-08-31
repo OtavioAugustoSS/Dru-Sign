@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { MarcaPendente } from './pendente'
 import { atalhoAtivo, type Periodo } from './periodos'
 
 interface Props {
@@ -38,6 +39,9 @@ export function AtalhosPeriodo({ periodos, de, ate, base, parametros = {} }: Pro
             aria-current={marcado ? 'true' : undefined}
           >
             {p.rotulo}
+            {/* Trocar de periodo refaz a tela inteira e leva o mesmo meio
+                segundo mudo das outras navegacoes por parametro. */}
+            <MarcaPendente classe="marca-pendente" />
           </Link>
         )
       })}

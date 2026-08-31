@@ -44,7 +44,12 @@ export function CartaoTabela({ rotulo, colunas, children, titulo, aoLado, pagina
               de titulos que o leitor de tela oferece. O `.card-title` fixa o
               tamanho, entao a tag nao muda nada de aparencia. */}
           {titulo ? <h2 className="card-title">{titulo}</h2> : null}
-          <div className="ms-auto d-flex align-items-center gap-3">
+          {/* A classe existe para o CSS poder perguntar se sobrou alguma coisa
+              aqui dentro. `paginacao` chega como elemento React, que e sempre
+              verdadeiro, mas a `PaginacaoCompacta` devolve `null` quando a lista
+              cabe numa pagina so -- e a tela de Ordens desenhava uma faixa de
+              cabecalho de 33px sem nada escrito nela. */}
+          <div className="ms-auto d-flex align-items-center gap-3 cabecalho-extras">
             {aoLado}
             {paginacao}
           </div>
@@ -54,7 +59,12 @@ export function CartaoTabela({ rotulo, colunas, children, titulo, aoLado, pagina
         <div className="card-body">{vazio}</div>
       ) : (
         <div className="table-responsive">
-          <table className={`table table-vcenter card-table${denso ? ' table-sm' : ''}`} aria-label={rotulo}>
+          {/* `table-hover` estava disponivel e nao era usada em lugar nenhum, e as
+              listas daqui tem de 25 a 50 linhas e ate 8 colunas -- a da carteira
+              mede 1.264px de largura. Numa linha dessas o olho vai do nome, na
+              ponta esquerda, ate a fatia do faturamento, na direita, e sem realce
+              ele sobe ou desce uma linha no caminho. */}
+          <table className={`table table-vcenter card-table table-hover${denso ? ' table-sm' : ''}`} aria-label={rotulo}>
             <thead>
               <tr>{colunas}</tr>
             </thead>

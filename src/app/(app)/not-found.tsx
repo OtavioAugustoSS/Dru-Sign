@@ -1,20 +1,10 @@
-import Link from 'next/link'
+import { NaoEncontrado } from '@/componentes/nao-encontrado'
 
-export default function NaoEncontrado() {
-  return (
-    <div className="page-body">
-      <div className="container-xl">
-        <div className="empty">
-          <h1 className="empty-title">Não encontramos esse cadastro</h1>
-          <p className="empty-subtitle text-secondary">
-            O endereço pode estar errado, ou o registro não existe mais nesta empresa.
-          </p>
-          <div className="empty-action d-flex gap-2 justify-content-center">
-            <Link href="/clientes" className="btn btn-primary">Ir para clientes</Link>
-            <Link href="/" className="btn btn-link">Fila de trabalho</Link>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+/**
+ * O limite de último recurso, para rota dentro do app que não tenha um
+ * `not-found` próprio. Cada cadastro que se busca por endereço tem o seu,
+ * porque a saída útil depende do que se procurava.
+ */
+export default function NaoEncontradoNoApp() {
+  return <NaoEncontrado oQue="esse registro" href="/ordens" rotulo="Ver as ordens" />
 }

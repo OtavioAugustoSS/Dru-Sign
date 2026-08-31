@@ -3,7 +3,9 @@ import { campoDe, entrar, entrarComo, LOGIN_OPERACAO, SENHA_OPERACAO } from './a
 
 async function ordemPara(page: Page, linha: string, prometida: string | null): Promise<string> {
   await page.goto('/ordens/nova')
-  await page.getByRole('button', { name: 'Ordem de serviço', exact: true }).click()
+  // "Ordem de serviço" virou ABA na tela de nova ordem, e quem cria e o botao
+  // do formulario abaixo dela -- que diz o que vai acontecer.
+  await page.getByRole('button', { name: 'Abrir ordem de serviço' }).click()
   await expect(page).toHaveURL(/\/ordens\/[0-9a-f-]{36}$/, { timeout: 60_000 })
   const campo = campoDe(page, 'Lançar item ou acréscimo')
   await campo.fill(linha)
@@ -29,18 +31,20 @@ test.describe('Produção', () => {
     await expect(page.getByRole('heading', { name: /^Sem data combinada/ })).toBeVisible()
 
     // O que a producao precisa ler esta na tela; o que ela nao pode ver, nao esta.
-    await expect(page.locator('.card').filter({ hasText: atrasada }).getByText('PLACA ACM ATRASADA')).toBeVisible()
+    // `.bancada-servico` e a linha de um servico na fila: a tela deixou de ser
+    // uma grade de cartoes e virou uma lista, onde o TRABALHO e a manchete.
+    const servico = page.locator('.bancada-servico').filter({ hasText: atrasada })
+    await expect(servico.getByText('PLACA ACM ATRASADA')).toBeVisible()
     await expect(page.getByText('R$ 100,00')).toHaveCount(0)
     await expect(page.getByText('R$')).toHaveCount(0)
 
-    const cartao = page.locator('.card').filter({ hasText: atrasada })
-    await cartao.getByRole('button', { name: 'Serviço finalizado' }).click()
-    await expect(page.locator('.card').filter({ hasText: atrasada })).toHaveCount(0, { timeout: 30_000 })
+    await servico.getByRole('button', { name: 'Serviço finalizado' }).click()
+    await expect(page.locator('.bancada-servico').filter({ hasText: atrasada })).toHaveCount(0, { timeout: 30_000 })
     // O grupo "sem data combinada" nasce fechado -- sao ordens esperando alguem
     // combinar entrega, nao trabalho da vez -- entao o cartao existe e esta oculto.
     // Abrir o grupo para conferir que a ordem continua na fila.
     await page.locator('summary').filter({ hasText: 'Sem data combinada' }).click()
-    await expect(page.locator('.card').filter({ hasText: semData })).toBeVisible()
+    await expect(page.locator('.bancada-servico').filter({ hasText: semData })).toBeVisible()
 
     // Finalizar na producao move o eixo de producao e nao encosta no de pagamento.
     await page.goto(`/ordens?q=${atrasada}`)
