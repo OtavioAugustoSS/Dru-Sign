@@ -782,3 +782,186 @@ a.grafico-lista-linha:hover {
 .card-header > .card-header-tabs .nav-link {
   white-space: nowrap;
 }
+
+/* ==========================================================================
+   A CAMADA DE INTERAÇÃO
+   ==========================================================================
+
+   Regra desta camada: cada movimento aqui responde "o que isto informa?". O que
+   informa "fica bonito" não entra. E o sistema é usado o dia inteiro por duas
+   pessoas -- o alvo é continuidade e resposta, não encanto de primeira visita.
+
+   O ritmo já existia e não é meu: o Tabler traz 153 regras de transição, e as
+   que se veem são `.btn` e `.page-link` a 150ms. O que entra aqui usa os mesmos
+   150ms, para o sistema ter UM tempo de reação e não três.
+
+   `--saida-suave` é a curva de desaceleração natural. Sem bounce e sem elástico:
+   os dois chamam atenção para a animação em vez de para a informação. */
+
+:root {
+  --saida-suave: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* A FAIXA QUE ATRAVESSA DE UMA ABA PARA A OUTRA.
+ *
+ * Ela é um `<span>` dentro do próprio link, e não um elemento solto posicionado
+ * por medida em JavaScript. Isso é possível por causa de um fato que só o
+ * navegador revelou: ao trocar de aba, o `<ul>` e os dois `<a>` são LITERALMENTE
+ * os mesmos nós do DOM -- marquei os nós, naveguei, e as marcas sobreviveram. O
+ * Next navega no cliente e o React reconcilia; só a classe `active` muda de
+ * lugar. Havendo DOM compartilhado, um `transform` em CSS basta, e não é preciso
+ * View Transitions (que, aliás, este React 19.2.8 não expõe) nem biblioteca.
+ *
+ * Só `transform` anima. Nada de `width`, `left` ou `margin`: são propriedades
+ * que forçam o navegador a recalcular o layout da fileira inteira a cada quadro. */
+.nav-tabs .nav-link {
+  position: relative;
+}
+
+.aba-faixa {
+  position: absolute;
+  /* -1px assenta a faixa exatamente sobre a linha do `<ul>`, e não abaixo dela. */
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--tblr-primary);
+  transform: scaleX(0);
+  transition: transform 150ms var(--saida-suave);
+}
+
+/* A ORIGEM APONTA PARA A BORDA QUE AS DUAS ABAS DIVIDEM.
+ *
+ * É o detalhe que faz a coisa toda funcionar. A faixa da aba que sai encolhe ATÉ
+ * a borda comum, e a da aba que entra cresce A PARTIR dela -- as duas se
+ * encontram no mesmo ponto, no mesmo instante, e o olho lê uma faixa só
+ * atravessando, não duas piscando. As mesmas origens servem nos dois sentidos,
+ * porque a borda compartilhada é a mesma indo e voltando.
+ *
+ * As duas telas que têm abas têm exatamente duas abas, adjacentes. Se um dia
+ * houver três, a do meio cresce do centro -- que é o comportamento correto para
+ * quem não tem um vizinho só. */
+.nav-tabs > .nav-item:first-child .aba-faixa {
+  transform-origin: right;
+}
+
+.nav-tabs > .nav-item:last-child .aba-faixa {
+  transform-origin: left;
+}
+
+.nav-link.active .aba-faixa {
+  transform: scaleX(1);
+}
+
+/* A ABA CLICADA ASSUME A FAIXA NO MESMO QUADRO DO CLIQUE.
+ *
+ * Sem isto a faixa só se moveria quando o servidor respondesse -- 325ms depois,
+ * no melhor caso medido, e 990ms no pior. Movimento que começa um terço de
+ * segundo depois do dedo não lê como resposta; lê como travamento. Com isto, a
+ * ordem é a certa: a pessoa clica, a faixa anda, e o conteúdo chega depois. */
+.aba-faixa[data-pendente] {
+  transform: scaleX(1);
+}
+
+.nav-tabs:has(.aba-faixa[data-pendente]) .nav-link.active .aba-faixa {
+  transform: scaleX(0);
+}
+
+/* O CONTORNO DA ABA EM VIGOR -- que NÃO é o anel de foco.
+ *
+ * São duas informações diferentes e não podem se confundir: o anel diz "o teclado
+ * está aqui agora" e some quando o foco sai; o contorno diz "é esta aba que você
+ * está vendo" e fica. Ficaram distintos em forma, não só em cor: o anel é
+ * destacado do controle (`outline-offset: 2px`), fecha em volta dos quatro lados
+ * e é da primária; o contorno é colado, tem o pé aberto para o painel de baixo e
+ * é neutro.
+ *
+ * Precisava existir porque, medido, a aba em vigor não se distinguia: o fundo
+ * dela dava 1,00:1 contra o corpo da página (é a mesma cor) e a borda de fábrica
+ * dava 1,18:1 no claro e 1,72:1 no escuro. Sobrava só o tom do texto. Quem
+ * carrega o estado agora é a faixa da primária -- 4,65:1 no claro e 8,76:1 no
+ * escuro, acima dos 3:1 que a WCAG pede para um indicador. O contorno acompanha,
+ * dando ao conjunto a forma de aba. */
+:root {
+  --aba-contorno: #B9C0CA;
+}
+
+[data-bs-theme='dark'] {
+  --aba-contorno: #4B5563;
+}
+
+.nav-tabs .nav-link.active {
+  border-color: var(--aba-contorno);
+  /* O pé fica aberto: a aba é a boca do painel que vem abaixo, não uma caixa. */
+  border-bottom-color: transparent;
+}
+
+/* O RÓTULO DA ABA QUE NÃO ESTÁ EM VIGOR.
+ *
+ * O cinza de fábrica dava 3,67:1 sobre o corpo do tema escuro -- reprova os
+ * 4,5:1 que texto pequeno exige, e é o nome de uma aba, não uma legenda. Não
+ * tinha sido notado antes porque, sem faixa e sem contorno, o contraste baixo
+ * passava por "aba desligada" em vez de por defeito.
+ *
+ * Agora que o estado é carregado pela faixa (4,65:1 no claro, 8,76:1 no escuro),
+ * a aba fria não precisa mais ser apagada para ceder o lugar: pode ser legível.
+ *
+ * Medido: claro #6B7280 sobre o corpo #F9FAFB dá 4,63:1 e sobre o cabeçalho
+ * branco do cartão dá 4,83:1; escuro #9CA3AF sobre o corpo #111827 dá 6,33:1. */
+:root {
+  --aba-rotulo-frio: #6B7280;
+}
+
+[data-bs-theme='dark'] {
+  --aba-rotulo-frio: #9CA3AF;
+}
+
+.nav-tabs .nav-link:not(.active) {
+  color: var(--aba-rotulo-frio);
+}
+
+/* A RESPOSTA AO CLIQUE, onde o esqueleto não alcança.
+ *
+ * `(app)/loading.tsx` é limite de SEGMENTO de rota. Trocar só o parâmetro do
+ * endereço -- virar página, trocar de aba -- não cria segmento novo, então o Next
+ * atualiza dentro de uma transition e segura a tela antiga de propósito. Medido:
+ * 444ms de tela IDÊNTICA ao virar página do histórico (990ms na primeira vez), e
+ * o esqueleto nunca aparecia. Pelo menu lateral, que troca de segmento, ele
+ * aparece em 208ms e está tudo certo -- por isso nada muda lá.
+ *
+ * O que se mostra aqui não é roda-roda: é a verdade sobre o que está na tela. As
+ * linhas que a pessoa está vendo são as da página ANTIGA, e dizer isso é o
+ * trabalho. Elas apagam o suficiente para se lerem como "não é mais isto", e
+ * continuam legíveis para quem estava no meio de uma. */
+.marca-pendente {
+  display: none;
+}
+
+.card:has(.marca-pendente[data-pendente]) .card-table tbody {
+  opacity: 0.6;
+  transition: opacity 150ms var(--saida-suave);
+}
+
+/* E o próprio controle segura o estado apertado até a página chegar, senão o
+ * realce do toque some no instante em que o dedo sai e a espera fica muda. */
+.btn:has(.marca-pendente[data-pendente]) {
+  background: var(--tblr-primary-lt);
+  color: var(--tblr-primary-text-emphasis);
+}
+
+.page-link:has(.marca-pendente[data-pendente]) {
+  background: var(--tblr-primary-lt);
+  color: var(--tblr-primary-text-emphasis);
+}
+
+/* MOVIMENTO REDUZIDO.
+ *
+ * Some o movimento, não a informação: a faixa continua marcando a aba em vigor e
+ * as linhas antigas continuam apagando -- só que sem percurso, trocando de
+ * estado de um quadro para o outro. */
+@media (prefers-reduced-motion: reduce) {
+  .aba-faixa,
+  .card:has(.marca-pendente[data-pendente]) .card-table tbody {
+    transition: none;
+  }
+}

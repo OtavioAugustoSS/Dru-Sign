@@ -12,6 +12,7 @@ import { CartaoIndicador } from '@/componentes/cartao-indicador'
 import { CartaoTabela } from '@/componentes/cartao-tabela'
 import { BlocoVazio } from '@/componentes/estado-vazio'
 import { AtalhosPeriodo } from '@/componentes/atalhos-periodo'
+import { Abas } from '@/componentes/abas'
 import { periodosUsuais } from '@/componentes/periodos'
 import { BarrasNoTempo, BarrasEmLista, BarrasPareadas, type Fatia } from '@/componentes/graficos'
 import { Dinheiro, valorEmReais } from '@/componentes/dinheiro'
@@ -183,19 +184,22 @@ export default async function PaginaPainel({
                 <h2 className="card-title">Faturamento mês a mês</h2>
                 {/* As duas eras em abas, e nao no mesmo eixo: o sistema novo tem
                     semanas de dados e o arquivo tem 14 anos; juntos, o novo
-                    viraria um risco no chao do grafico. */}
-                <ul className="nav nav-tabs card-header-tabs ms-auto flex-grow-0" aria-label="Origem dos dados">
-                  <li className="nav-item">
-                    <Link href={`/painel?${periodo}`} className={aba === 'novo' ? 'nav-link active' : 'nav-link'} aria-current={aba === 'novo' ? 'page' : undefined}>
-                      Sistema novo
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link href={`/painel?${periodo}&serie=arquivo`} className={aba === 'arquivo' ? 'nav-link active' : 'nav-link'} aria-current={aba === 'arquivo' ? 'page' : undefined}>
-                      Arquivo antigo
-                    </Link>
-                  </li>
-                </ul>
+                    viraria um risco no chao do grafico.
+                    Desenhadas a mao ate aqui, e por isso a faixa que marca a aba
+                    em vigor nao chegava nelas. Agora e o mesmo componente do
+                    historico: uma aba se comporta igual nas duas telas. */}
+                <Abas
+                  rotulo="Origem dos dados"
+                  base="/painel"
+                  parametro="serie"
+                  atual={aba}
+                  parametros={{ de: painel.de, ate: painel.ate }}
+                  className="card-header-tabs ms-auto flex-grow-0"
+                  abas={[
+                    { valor: 'novo', rotulo: 'Sistema novo' },
+                    { valor: 'arquivo', rotulo: 'Arquivo antigo' },
+                  ]}
+                />
               </div>
               <div className="card-body">
                 {aba === 'novo' ? (
