@@ -5,14 +5,14 @@ import { exigirUsuario } from '@/infra/auth/usuario-atual'
 import { lerFormularioCliente } from '@/infra/clientes/formulario'
 import { validarDadosCliente } from '@/infra/clientes/validacao'
 import {
-  criarCliente, atualizarCliente, arquivarCliente, reativarCliente, clientesComTelefone,
-  type ClienteResumo, type DadosCliente,
+  criarCliente, atualizarCliente, arquivarCliente, reativarCliente, clientesParecidos,
+  type ClienteParecido, type DadosCliente,
 } from '@/infra/clientes/repositorio'
 
 export interface EstadoCliente {
   erro?: string
-  /** Quem ja tem um dos telefones digitados. O form mostra e pede confirmacao. */
-  duplicados?: ClienteResumo[]
+  /** Quem ja pode ser esta pessoa, e por que. O form mostra e pede confirmacao. */
+  duplicados?: ClienteParecido[]
   /** O que foi digitado, para o form nao perder nada ao voltar com aviso. */
   campos?: DadosCliente
 }
@@ -29,7 +29,7 @@ export async function salvarCliente(_estado: EstadoCliente, formData: FormData):
   }
 
   if (!confirmou) {
-    const duplicados = await clientesComTelefone(usuario.empresaId, dados.telefones, id || undefined)
+    const duplicados = await clientesParecidos(usuario.empresaId, dados, id || undefined)
     if (duplicados.length > 0) {
       return { duplicados, campos: dados }
     }

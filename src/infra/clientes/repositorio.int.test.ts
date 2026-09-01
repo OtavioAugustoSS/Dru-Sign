@@ -2,7 +2,7 @@ import { describe, expect, it, beforeEach } from 'vitest'
 import { prisma } from '@/infra/db/prisma'
 import {
   criarCliente, atualizarCliente, arquivarCliente, reativarCliente,
-  obterCliente, buscarClientes, clientesComTelefone,
+  obterCliente, buscarClientes, clientesParecidos,
 } from './repositorio'
 
 let empresaId = ''
@@ -52,10 +52,44 @@ describe('clientes (banco real)', () => {
     const a = await criarCliente(empresaId, { nome: 'A', telefones: ['(38)9968-1168'] })
     await criarCliente(empresaId, { nome: 'B', telefones: ['(38)3676-6222'] })
 
-    const dup = await clientesComTelefone(empresaId, ['38999681168', '(38)3676-6222'])
-    expect(dup.map((c) => c.nome).sort()).toEqual(['A', 'B'])
-    expect((await clientesComTelefone(empresaId, ['38999681168'], a.id)).map((c) => c.nome)).toEqual([])
-    expect(await clientesComTelefone(empresaId, ['123', ''])).toEqual([])
+    const dup = await clientesParecidos(empresaId, { telefones: ['38999681168', '(38)3676-6222'] })
+    expect(dup.map((d) => d.cliente.nome).sort()).toEqual(['A', 'B'])
+    expect(dup.every((d) => d.motivos.includes('telefone'))).toBe(true)
+    expect((await clientesParecidos(empresaId, { telefones: ['38999681168'] }, a.id))).toEqual([])
+    expect(await clientesParecidos(empresaId, { telefones: ['123', ''] })).toEqual([])
+  })
+
+  /*
+   * O nome entrou como segundo sinal depois do telefone: 108 grupos de nome
+   * repetido na base real. Nome PARECIDO ficou de fora (disparava em 29,9% dos
+   * cadastros) e documento tambem -- ver o comentario de `clientesParecidos`.
+   */
+  it('aponta duplicidade por nome igual sem diferenciar caixa, mas nao por nome parecido', async () => {
+    await criarCliente(empresaId, { nome: 'MARCENARIA UNAI', telefones: [] })
+
+    const porNome = await clientesParecidos(empresaId, { nome: 'Marcenaria Unai', telefones: [] })
+    expect(porNome.map((d) => [d.cliente.nome, d.motivos])).toEqual([['MARCENARIA UNAI', ['nome']]])
+
+    expect(await clientesParecidos(empresaId, { nome: 'MARCENARIA UNAI LTDA', telefones: [] })).toEqual([])
+  })
+
+  /*
+   * A fazenda nova do mesmo CPF NAO e duplicidade: e como a loja trabalha. Um
+   * produtor tem varias fazendas, cada uma com endereco e servico proprios, e a
+   * Prefeitura tem uma secretaria por empenho. Se este teste comecar a acusar
+   * duplicidade, alguem religou o sinal de documento sem medir de novo.
+   */
+  it('mesmo documento, nome e telefone diferentes: nao e duplicidade', async () => {
+    await criarCliente(empresaId, { nome: 'CELSO MANICA FAZ SANTO ANTONIO', documento: '529.179.836-04', telefones: ['(38)99111-0001'] })
+    const r = await clientesParecidos(empresaId, { nome: 'CELSO MANICA FAZ VALE VERDE', telefones: ['(38)99111-0002'] })
+    expect(r).toEqual([])
+  })
+
+  it('quando nome e telefone batem no mesmo cadastro, os dois motivos aparecem', async () => {
+    await criarCliente(empresaId, { nome: 'Vidracaria do Vale', telefones: ['(38)3676-6222'] })
+    const r = await clientesParecidos(empresaId, { nome: 'VIDRACARIA DO VALE', telefones: ['3836766222'] })
+    expect(r).toHaveLength(1)
+    expect(r[0]!.motivos.sort()).toEqual(['nome', 'telefone'])
   })
 
   it('atualiza dados e troca a lista de telefones', async () => {

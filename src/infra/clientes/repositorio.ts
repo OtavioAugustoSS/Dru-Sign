@@ -1,3 +1,4 @@
+import type { Prisma } from '@/generated/prisma/client'
 import { prisma } from '@/infra/db/prisma'
 import { normalizarTelefone } from '@/domain/clientes/telefone'
 import { normalizarDocumento } from '@/domain/clientes/documento'
@@ -288,25 +289,71 @@ export async function buscarClientes(
   })
 }
 
-/** Quem ja tem algum destes telefones (normalizados). Para o aviso de duplicidade ao cadastrar. */
-export async function clientesComTelefone(
+export type MotivoDuplicidade = 'telefone' | 'nome'
+
+export interface ClienteParecido {
+  cliente: ClienteResumo
+  /** Por que este cadastro foi trazido. Mais de um pode valer ao mesmo tempo. */
+  motivos: MotivoDuplicidade[]
+}
+
+/**
+ * Quem ja pode ser esta pessoa. Para o aviso de duplicidade ao cadastrar.
+ *
+ * DOIS SINAIS, E SO DOIS. Escolhidos medindo contra a base real -- 3.220
+ * cadastros vindos do legado -- e nao por gosto:
+ *
+ * - telefone igual: era o unico que existia antes.
+ * - nome igual, sem diferenciar caixa: pega 105 dos 108 grupos de nome repetido
+ *   da base. Dobrar acento tambem levaria os outros 3, e custaria coluna
+ *   normalizada mais migracao para isso. Nao paga.
+ *
+ * DOCUMENTO IGUAL FICOU DE FORA, e este e o achado que menos se espera. Sao 82
+ * documentos repetidos em 215 cadastros, mas eles nao sao duplicidade: sao a
+ * operacao. A Prefeitura de Unai aparece em 18 cadastros com o mesmo CNPJ
+ * porque cada secretaria tem empenho separado, e os fazendeiros aparecem em
+ * varios porque um CPF tem varias fazendas -- CELSO MANICA em 7, GALBA VIEIRA
+ * em 7, DIRCEU GATTO em 6, cada fazenda com endereco e servico proprios.
+ *
+ * O que decide: o documento so acrescentaria cobertura quando nome E telefone
+ * ja diferem -- que e exatamente o caso da fazenda nova e da secretaria nova.
+ * Ele dispararia justamente onde esta errado.
+ *
+ * PELA MESMA RAZAO nao entra a comparacao por nome PARECIDO que o ERP-Cloud
+ * fazia (10+ caracteres, palavra inteira em comum, um nome contido no outro):
+ * rodada contra esta base ela dispararia em 964 dos 3.220 cadastros, 29,9%. Um
+ * aviso que aparece a cada tres cadastros e um aviso que se aprende a fechar
+ * sem ler -- e junto com ele se fecha o do telefone, que e preciso. Aviso que
+ * grita a toa e pior que nenhum.
+ */
+export async function clientesParecidos(
   empresaId: string,
-  telefones: string[],
+  dados: { nome?: string; telefones: string[] },
   excetoId?: string,
-): Promise<ClienteResumo[]> {
-  const normalizados = telefones
+): Promise<ClienteParecido[]> {
+  const telefones = dados.telefones
     .map((t) => normalizarTelefone(t).normalizado)
     .filter((n): n is string => n !== null)
-  if (normalizados.length === 0) return []
+  const nome = (dados.nome ?? '').trim()
 
-  return prisma.cliente.findMany({
-    where: {
-      empresaId,
-      ...(excetoId ? { id: { not: excetoId } } : {}),
-      telefones: { some: { normalizado: { in: normalizados } } },
-    },
+  const ou: Prisma.ClienteWhereInput[] = []
+  if (telefones.length > 0) ou.push({ telefones: { some: { normalizado: { in: telefones } } } })
+  if (nome !== '') ou.push({ nome: { equals: nome, mode: 'insensitive' } })
+  if (ou.length === 0) return []
+
+  const achados = await prisma.cliente.findMany({
+    where: { empresaId, ...(excetoId ? { id: { not: excetoId } } : {}), OR: ou },
     orderBy: { nome: 'asc' },
     select: SELECAO_RESUMO,
+  })
+
+  // Por que cada um veio: a consulta e um OR, entao sem isto a tela diria
+  // "mesmo telefone" para quem so tem o nome igual.
+  return achados.map((cliente) => {
+    const motivos: MotivoDuplicidade[] = []
+    if (cliente.telefones.some((t) => t.normalizado !== null && telefones.includes(t.normalizado))) motivos.push('telefone')
+    if (nome !== '' && cliente.nome.toLowerCase() === nome.toLowerCase()) motivos.push('nome')
+    return { cliente, motivos }
   })
 }
 

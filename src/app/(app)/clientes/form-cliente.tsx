@@ -3,10 +3,30 @@ import { SALVANDO } from '@/componentes/rotulos'
 
 import { useActionState } from 'react'
 import { salvarCliente, type EstadoCliente } from './actions'
-import type { DadosCliente } from '@/infra/clientes/repositorio'
+import type { ClienteParecido, DadosCliente, MotivoDuplicidade } from '@/infra/clientes/repositorio'
 import { formatarTelefone } from '@/domain/clientes/telefone'
 
 const ESTADO_INICIAL: EstadoCliente = {}
+
+const MOTIVO = { telefone: 'mesmo telefone', nome: 'mesmo nome' } as const
+
+/**
+ * O titulo diz o que bateu, quando so uma coisa bateu.
+ *
+ * "Ja existe cadastro parecido" e verdadeiro e inutil: a pessoa tem que ler a
+ * lista inteira para descobrir o que o sistema viu. Quando o motivo e um so --
+ * que e o caso comum -- o titulo ja resolve.
+ */
+function tituloDuplicidade(duplicados: ClienteParecido[]): string {
+  const motivos = new Set<MotivoDuplicidade>(duplicados.flatMap((d) => d.motivos))
+  if (motivos.size === 1) {
+    const [unico] = [...motivos]
+    return unico === 'telefone'
+      ? 'Já existe cadastro com este telefone'
+      : 'Já existe cadastro com este nome'
+  }
+  return 'Já existe cadastro parecido'
+}
 
 const VAZIO: DadosCliente = {
   nome: '', apelido: '', documento: '', email: '', contato: '',
@@ -31,16 +51,29 @@ export function FormCliente({ id, inicial }: Props) {
         <div className="alert alert-danger" role="alert">{estado.erro}</div>
       ) : null}
 
+      {/* O `div` extra dentro do alerta nao e enfeite: o `.alert` do Tabler e
+          `display: flex; flex-direction: row`, entao titulo, lista e caixa de
+          confirmacao viravam TRES COLUNAS lado a lado -- a confirmacao
+          "cadastrar mesmo assim" ficava colada no nome do cliente, como se
+          fosse dele. Os outros alertas do sistema tem um filho so e por isso
+          nunca mostraram isto. Com um filho unico, o conteudo empilha. */}
       {estado.duplicados && estado.duplicados.length > 0 ? (
         <div className="alert alert-warning" role="alert">
-          <h4 className="alert-title">Já existe cadastro com este telefone</h4>
+          <div>
+          <h4 className="alert-title">{tituloDuplicidade(estado.duplicados)}</h4>
           <ul className="mb-2">
-            {estado.duplicados.map((c) => (
+            {estado.duplicados.map(({ cliente: c, motivos }) => (
               <li key={c.id}>
                 <a href={`/clientes/${c.id}`}>{c.nome}</a>
                 {c.apelido ? ` (${c.apelido})` : ''}
                 {' — '}
-                {c.telefones.map((t) => (t.normalizado ? formatarTelefone(t.normalizado) : t.original)).join(', ')}
+                {motivos.map((m) => MOTIVO[m]).join(' e ')}
+                {/* O telefone so aparece quando foi ele que bateu: em cadastro
+                    trazido pelo nome, listar telefone que ninguem digitou faz a
+                    pessoa procurar semelhanca onde nao ha. */}
+                {motivos.includes('telefone')
+                  ? `: ${c.telefones.map((t) => (t.normalizado ? formatarTelefone(t.normalizado) : t.original)).join(', ')}`
+                  : ''}
               </li>
             ))}
           </ul>
@@ -48,6 +81,7 @@ export function FormCliente({ id, inicial }: Props) {
             <input className="form-check-input" type="checkbox" name="confirmarDuplicidade" value="1" />
             <span className="form-check-label">É outra pessoa. Cadastrar mesmo assim.</span>
           </label>
+          </div>
         </div>
       ) : null}
 

@@ -69,4 +69,38 @@ test.describe('Clientes', () => {
     await expect(page.getByText('no legado: (38)9968-1168')).toBeVisible()
     await expect(page.getByText('legado nº 26')).toBeVisible()
   })
+
+  /*
+   * O nome entrou como sinal de duplicidade depois do telefone: 108 grupos de
+   * nome repetido na base real. Ficaram DE FORA, por medicao: nome parecido
+   * (disparava em 29,9% dos cadastros) e documento igual (os 82 documentos
+   * repetidos sao a Prefeitura por secretaria e o produtor com varias fazendas
+   * -- operacao, nao duplicidade). Ver `clientesParecidos`.
+   */
+  test('cadastrar com o mesmo nome avisa dizendo que foi o nome; nome parecido e mesmo documento nao avisam', async ({ page }) => {
+    const nome = `Serralheria e2e ${Date.now()}`
+
+    await page.goto('/clientes/novo')
+    await campoDe(page, 'Nome').fill(nome)
+    await campoDe(page, 'CPF ou CNPJ').fill('529.179.836-04')
+    await page.getByRole('button', { name: 'Salvar' }).click()
+    await expect(page).toHaveURL(/\/clientes\/[0-9a-f-]{36}$/, { timeout: 30_000 })
+
+    // Mesmo nome em caixa diferente, sem telefone nenhum digitado.
+    await page.goto('/clientes/novo')
+    await campoDe(page, 'Nome').fill(nome.toUpperCase())
+    await page.getByRole('button', { name: 'Salvar' }).click()
+    const aviso = page.getByRole('alert').filter({ hasText: 'Já existe cadastro com este nome' })
+    await expect(aviso).toBeVisible({ timeout: 30_000 })
+    await expect(aviso).toContainText('mesmo nome')
+    // Nenhum telefone foi digitado: nao pode aparecer numero na justificativa.
+    await expect(aviso).not.toContainText('mesmo telefone')
+
+    // A fazenda nova do mesmo produtor: mesmo CPF, nome diferente. Passa direto.
+    await page.goto('/clientes/novo')
+    await campoDe(page, 'Nome').fill(`${nome} FAZ VALE VERDE`)
+    await campoDe(page, 'CPF ou CNPJ').fill('529.179.836-04')
+    await page.getByRole('button', { name: 'Salvar' }).click()
+    await expect(page).toHaveURL(/\/clientes\/[0-9a-f-]{36}$/, { timeout: 30_000 })
+  })
 })
