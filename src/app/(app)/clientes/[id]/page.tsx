@@ -153,7 +153,7 @@ export default async function PaginaFichaCliente({ params }: { params: Promise<{
               {novas.map((o) => (
                 <tr key={o.id}>
                   <td className="numero">
-                    <Link href={`/ordens/${o.id}`} className="text-reset"><NumeroOs numero={o.numero} /></Link>
+                    <Link href={`/ordens/${o.id}?de=cliente`} className="text-reset"><NumeroOs numero={o.numero} /></Link>
                   </td>
                   <td><SituacaoEstado estado={o.estadoProducao} /></td>
                   <td className="text-secondary">{formatarDataCalendario(new Date(o.abertaEm))}</td>

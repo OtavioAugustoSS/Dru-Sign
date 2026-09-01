@@ -16,6 +16,7 @@ import { permissoes, ROTULO_ESTADO } from '@/domain/ordem/estados'
 import { formatarDataHora, formatarDataLonga, hojeCalendario } from '@/domain/ordem/datas'
 import { descreverCobranca, formatarDimensao } from '@/domain/ordem/impresso'
 import type { MaterialCatalogo } from '@/domain/precificacao/resolucao'
+import { voltarDaOrdem } from './origem'
 import { EntradaLinha } from './entrada-linha'
 import { BotaoMutacao } from './botao-mutacao'
 import { FormAjuste } from './form-ajuste'
@@ -28,9 +29,15 @@ export const metadata: Metadata = { title: 'Ordem de serviço' }
 
 const ROTULO_ACRESCIMO = { instalacao: 'Instalação', deslocamento: 'Deslocamento', frete: 'Frete', imposto: 'Imposto' } as const
 
-export default async function PaginaOrdem({ params }: { params: Promise<{ id: string }> }) {
+export default async function PaginaOrdem({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>
+  searchParams: Promise<{ de?: string }>
+}) {
   const usuario = await exigirUsuario()
-  const { id } = await params
+  const [{ id }, { de }] = await Promise.all([params, searchParams])
   const [ordem, materiais, usuarios] = await Promise.all([
     obterOrdemParaTela(usuario.empresaId, id),
     prisma.material.findMany({ where: { empresaId: usuario.empresaId, ativo: true }, orderBy: { nome: 'asc' }, select: { id: true, nome: true, unidadeCobranca: true, preco: true, categoria: true } }),
@@ -47,7 +54,7 @@ export default async function PaginaOrdem({ params }: { params: Promise<{ id: st
   return (
     <>
       <CabecalhoPagina
-        voltar={{ href: '/ordens', rotulo: 'Ordens' }}
+        voltar={voltarDaOrdem(de, ordem.cliente)}
         titulo={`${ordem.estadoProducao === 'orcamento' ? 'Orçamento' : 'Ordem de serviço'} nº ${numero}`}
         descricao={
           <>

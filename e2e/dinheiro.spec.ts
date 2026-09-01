@@ -45,7 +45,9 @@ test.describe('Dinheiro', () => {
     // com ele, na ordem. A linha precisa dizer isso, senao a celula fica vazia
     // e quem quer desfazer nao tem para onde ir.
     await linha.getByRole('link', { name: 'Desfazer na ordem' }).click()
-    await expect(page).toHaveURL(/\/ordens\/[0-9a-f-]{36}$/)
+    // `?de=financeiro`: quem veio do livro-caixa conferindo dinheiro volta para
+    // o livro-caixa, e nao para a lista de ordens.
+    await expect(page).toHaveURL(/\/ordens\/[0-9a-f-]{36}\?de=financeiro$/)
     await expect(page.getByRole('table', { name: 'Recebimentos' }).getByRole('button', { name: 'Estornar' })).toBeVisible()
   })
 
@@ -68,7 +70,7 @@ test.describe('Dinheiro', () => {
     const aCobrar = page.getByRole('table', { name: 'Ordens a cobrar' })
     await expect(aCobrar.getByRole('row').filter({ hasText: numero })).toContainText('R$ 120,00')
     await aCobrar.getByRole('link', { name: numero }).click()
-    await expect(page).toHaveURL(/\/ordens\/[0-9a-f-]{36}$/)
+    await expect(page).toHaveURL(/\/ordens\/[0-9a-f-]{36}\?de=fila$/)
 
     await campoDe(page, 'Valor recebido').fill('120,01')
     await campoDe(page, 'Forma de pagamento').selectOption('pix')

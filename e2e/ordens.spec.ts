@@ -262,4 +262,32 @@ test.describe('Ordem de serviço', () => {
     // disto a linha gravava "… brilhoso — … fosco", dizendo as duas coisas.
     await expect(linha).not.toContainText('fosco')
   })
+
+  /*
+   * O voltar da ordem sabendo de onde a pessoa veio. O dominio tem dezesseis
+   * testes da tabela de origens, mas nenhum deles ve se o `?de=` esta MESMO nos
+   * links das cinco telas que levam para a ordem -- que e onde a ligacao pode
+   * quebrar sem ninguem notar.
+   */
+  test('quem abre a ordem pela ficha do cliente volta para a ficha, nao para a lista', async ({ page }) => {
+    await novaOrdem(page)
+    const nome = `Marcenaria e2e ${Date.now()}`
+    await campoDe(page, 'Cliente').fill(nome)
+    await page.getByRole('button', { name: `Cadastrar “${nome}”` }).click()
+    await campoDe(page, 'Telefone').fill('(38) 99133-4444')
+    await page.getByRole('button', { name: 'Cadastrar e usar' }).click()
+    await expect(page.getByText(new RegExp(nome))).toBeVisible({ timeout: 30_000 })
+
+    await page.goto(`/clientes?q=${encodeURIComponent(nome)}`)
+    await page.getByRole('link', { name: nome }).first().click()
+    await expect(page.getByRole('heading', { name: new RegExp(nome) })).toBeVisible({ timeout: 30_000 })
+
+    await page.getByRole('link', { name: /^\d{6}$/ }).first().click()
+    await expect(page).toHaveURL(/\?de=cliente$/)
+
+    const voltar = page.locator('.trilha-voltar')
+    await expect(voltar).toHaveText(new RegExp(nome))
+    await voltar.click()
+    await expect(page.getByRole('heading', { name: new RegExp(nome) })).toBeVisible({ timeout: 30_000 })
+  })
 })

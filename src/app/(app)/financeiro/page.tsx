@@ -200,7 +200,7 @@ export default async function PaginaFinanceiro({
                 <td>{formatarDataCalendario(new Date(l.data))}</td>
                 <td><SituacaoTipoLancamento tipo={l.tipo} /></td>
                 <td>
-                  {l.ordemId ? <Link href={`/ordens/${l.ordemId}`} className="text-reset">{l.historico}</Link> : l.historico}
+                  {l.ordemId ? <Link href={`/ordens/${l.ordemId}?de=financeiro`} className="text-reset">{l.historico}</Link> : l.historico}
                   {l.fornecedor ? <div className="small text-secondary">{l.fornecedor}</div> : null}
                   {l.parcela ? <div className="small text-secondary">parcela {l.parcela}/{l.totalParcelas}</div> : null}
                   {l.estornadoEm ? <div className="small">estornado · {l.motivoEstorno}</div> : null}
@@ -219,7 +219,7 @@ export default async function PaginaFinanceiro({
                 <td className="text-end">
                   {l.tipo === 'saida' && !l.estornadoEm ? <BotaoEstorno lancamentoId={l.id} /> : null}
                   {l.tipo === 'entrada' && !l.estornadoEm && l.ordemId ? (
-                    <Link href={`/ordens/${l.ordemId}`} className="btn btn-sm btn-ghost-secondary">Desfazer na ordem</Link>
+                    <Link href={`/ordens/${l.ordemId}?de=financeiro`} className="btn btn-sm btn-ghost-secondary">Desfazer na ordem</Link>
                   ) : null}
                 </td>
               </tr>

@@ -124,7 +124,7 @@ export function FilaDeTrabalho({ fila, ordens, clientes }: Props) {
           {fila.paradas.map((o) => (
             <tr key={o.id}>
               <td>
-                <Link href={`/ordens/${o.id}`} className="text-reset fw-medium">
+                <Link href={`/ordens/${o.id}?de=fila`} className="text-reset fw-medium">
                   <NumeroOs numero={o.numero} />
                 </Link>
               </td>
@@ -163,7 +163,7 @@ export function FilaDeTrabalho({ fila, ordens, clientes }: Props) {
           {fila.aCobrar.map((o) => (
             <tr key={o.id}>
               <td>
-                <Link href={`/ordens/${o.id}`} className="text-reset fw-medium">
+                <Link href={`/ordens/${o.id}?de=fila`} className="text-reset fw-medium">
                   <NumeroOs numero={o.numero} />
                 </Link>
               </td>

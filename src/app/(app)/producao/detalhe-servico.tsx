@@ -151,7 +151,7 @@ export function DetalheServico({ ordem, prazo, espera, classe = 'btn bancada-ver
           </dl>
 
           <footer className="detalhe-acoes">
-            <Link href={`/ordens/${ordem.id}`} className="btn botao-producao">
+            <Link href={`/ordens/${ordem.id}?de=producao`} className="btn botao-producao">
               <IconExternalLink className="icon" aria-hidden="true" />
               Abrir a ordem
             </Link>

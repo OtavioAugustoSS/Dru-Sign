@@ -167,7 +167,7 @@ export default async function PaginaHistorico({
               {novas.map((o) => (
                 <tr key={o.id}>
                   <td className="numero">
-                    <Link href={`/ordens/${o.id}`} className="text-reset"><NumeroOs numero={o.numero} /></Link>
+                    <Link href={`/ordens/${o.id}?de=historico`} className="text-reset"><NumeroOs numero={o.numero} /></Link>
                   </td>
                   <td>{o.clienteNome ?? <span className="text-secondary">Venda de balcão</span>}</td>
                   <td><SituacaoEstado estado={o.estadoProducao} /></td>
