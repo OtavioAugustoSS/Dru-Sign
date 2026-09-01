@@ -116,14 +116,17 @@ test.describe('Dinheiro', () => {
     // rodadas -- nas outras duas o `fill` chegou depois da hidratacao e nao
     // alcancou a janela. Com a correcao, 5 de 5 passam isolado.
     //
-    // Mas em 31/08 ele ficou vermelho uma vez na suite inteira, com o campo
-    // voltando a "200,00", e NAO era o defeito: 5 de 5 verdes logo em seguida,
-    // isolado, e a mudanca daquela rodada nem tocava nesta tela. Sob carga a
-    // pagina pode re-renderizar por outro motivo e desfazer o `fill`.
+    // Mas ele TAMBEM fica vermelho sozinho, sem defeito nenhum. Medido em
+    // 01/09 por experimento controlado: com as mudancas do dia guardadas no
+    // stash, rodando o commit anterior intocado, `--repeat-each=5` deu 1 falha
+    // em 5 -- mesmo sintoma, campo voltando a "200,00". Sob carga a pagina
+    // re-renderiza por outro motivo e desfaz o `fill`.
     //
     // Entao: verde nao prova que o defeito nao voltou, e vermelho tambem nao
-    // prova que voltou. Vermelho e MOTIVO PARA INVESTIGAR -- rode isolado com
-    // --repeat-each=5 antes de acusar regressao.
+    // prova que voltou. Vermelho aqui e MOTIVO PARA INVESTIGAR, e a
+    // investigacao que vale e a que separa as duas causas: guarde a sua
+    // mudanca (`git stash`) e rode `--repeat-each=5` no codigo anterior. Se
+    // falhar igual, e a flutuacao; se so falhar com a sua mudanca, e a sua.
     await page.waitForTimeout(1500)
     await expect(campoDe(page, 'Valor recebido')).toHaveValue('50')
 

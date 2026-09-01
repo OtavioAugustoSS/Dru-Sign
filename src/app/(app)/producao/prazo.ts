@@ -1,4 +1,4 @@
-import { hojeCalendario } from '@/domain/ordem/datas'
+import { diasEntre, hojeCalendario } from '@/domain/ordem/datas'
 import type { Tom } from '@/componentes/situacao'
 import type { OrdemDaProducao } from '@/domain/producao/urgencia'
 
@@ -9,13 +9,6 @@ import type { OrdemDaProducao } from '@/domain/producao/urgencia'
  * GRUPO a ordem cai, que é regra; isto decide como a frase é escrita, que é
  * tela. A cor sai dos mesmos tons de `--ponto-*` que o resto do sistema usa.
  */
-
-/** Dias inteiros entre duas datas de calendário 'AAAA-MM-DD'. */
-export function diasEntre(de: string, ate: string): number {
-  const [a1, m1, d1] = de.split('-').map(Number) as [number, number, number]
-  const [a2, m2, d2] = ate.split('-').map(Number) as [number, number, number]
-  return Math.round((Date.UTC(a2, m2 - 1, d2) - Date.UTC(a1, m1 - 1, d1)) / 86_400_000)
-}
 
 /** 'dia' e 'dias': a fila mostra "há 1 dia" e não "há 1 dias". */
 function dias(n: number): string {

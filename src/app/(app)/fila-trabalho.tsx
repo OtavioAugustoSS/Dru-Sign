@@ -9,7 +9,8 @@ import { Dinheiro } from '@/componentes/dinheiro'
 import { NumeroOs } from '@/componentes/numero-os'
 import { Apelido } from '@/componentes/situacao'
 import { contar } from '@/componentes/plural'
-import { formatarDataCalendario, formatarDataHora } from '@/domain/ordem/datas'
+import { haQuantosDias } from '@/componentes/tempo'
+import { formatarDataCalendario } from '@/domain/ordem/datas'
 import type { Fila, OrdemDaFila } from '@/domain/caixa/fila'
 
 function Cliente({ o }: { o: OrdemDaFila }) {
@@ -82,13 +83,17 @@ export function FilaDeTrabalho({ fila, ordens, clientes }: Props) {
           <div className="col-6 col-lg-3">
             <CartaoIndicador rotulo="Em produção" valor={ordens.aberta} href="/producao" nota="serviço em andamento" />
           </div>
+          {/* "Serviço finalizado", e nao "entregue": o sistema registra que o
+              trabalho ficou pronto, e nao que o cliente levou. Sao coisas
+              diferentes -- a peca pode estar na prateleira ha semanas --, e
+              dizer "entregue" e afirmar um fato que ninguem marcou. */}
           <div className="col-6 col-lg-3">
             <CartaoIndicador
               rotulo="A cobrar"
               valor={<Dinheiro valor={fila.totalACobrar} />}
               tom={Number(fila.totalACobrar) > 0 ? 'ruim' : 'bom'}
               href="/ordens?estado=concluida"
-              nota="entregue e ainda não pago"
+              nota="serviço finalizado e ainda não pago"
             />
           </div>
           <div className="col-6 col-lg-3">
@@ -116,7 +121,7 @@ export function FilaDeTrabalho({ fila, ordens, clientes }: Props) {
             <>
               <th>Nº</th>
               <th>Cliente</th>
-              <th>Aberta em</th>
+              <th>Aberta</th>
               <th>Entrega</th>
             </>
           }
@@ -129,7 +134,11 @@ export function FilaDeTrabalho({ fila, ordens, clientes }: Props) {
                 </Link>
               </td>
               <td><Cliente o={o} /></td>
-              <td className="text-secondary">{formatarDataHora(new Date(o.abertaEm))}</td>
+              {/* Dias, e nao data: esta lista existe para dizer que a ordem esta
+                  parada ha tempo demais, e "27/05/2026 00:38" obriga a fazer a
+                  conta de cabeca em cada linha. A fila de producao ja resolveu
+                  assim; a tela inicial e que tinha ficado para tras. */}
+              <td className="text-secondary">{haQuantosDias(o.abertaEm)}</td>
               <td className="text-secondary">{o.prometidaPara ? formatarDataCalendario(new Date(o.prometidaPara)) : '—'}</td>
             </tr>
           ))}
@@ -155,7 +164,7 @@ export function FilaDeTrabalho({ fila, ordens, clientes }: Props) {
             <>
               <th>Nº</th>
               <th>Cliente</th>
-              <th>Finalizada em</th>
+              <th>Finalizada</th>
               <th className="text-end">Falta</th>
             </>
           }
@@ -168,7 +177,7 @@ export function FilaDeTrabalho({ fila, ordens, clientes }: Props) {
                 </Link>
               </td>
               <td><Cliente o={o} /></td>
-              <td className="text-secondary">{o.concluidaEm ? formatarDataHora(new Date(o.concluidaEm)) : '—'}</td>
+              <td className="text-secondary">{o.concluidaEm ? haQuantosDias(o.concluidaEm) : '—'}</td>
               <td className="numero"><Dinheiro valor={o.saldo} /></td>
             </tr>
           ))}

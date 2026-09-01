@@ -42,6 +42,20 @@ export function hojeCalendario(agora: Date): string {
   return `${p('year')}-${p('month')}-${p('day')}`
 }
 
+/**
+ * Dias inteiros entre duas datas de calendario 'AAAA-MM-DD'.
+ *
+ * Estava dentro da tela da producao e subiu para ca quando a tela inicial passou
+ * a precisar do mesmo calculo: contar dias e conta de calendario, nao e regra de
+ * uma tela. Como o Brasil nao tem horario de verao desde 2019, `Date.UTC` sobre
+ * as tres partes nunca erra por hora.
+ */
+export function diasEntre(de: string, ate: string): number {
+  const [a1, m1, d1] = de.split('-').map(Number) as [number, number, number]
+  const [a2, m2, d2] = ate.split('-').map(Number) as [number, number, number]
+  return Math.round((Date.UTC(a2, m2 - 1, d2) - Date.UTC(a1, m1 - 1, d1)) / 86_400_000)
+}
+
 /** Primeiro e ultimo dia do mes de `agora`, em Sao Paulo. */
 export function mesCalendario(agora: Date): { de: string; ate: string } {
   const hoje = hojeCalendario(agora)
