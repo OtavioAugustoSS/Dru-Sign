@@ -324,6 +324,16 @@ model OrdemServico {
   clienteNome     String?  @map("cliente_nome") @db.VarChar(120)
   clienteApelido  String?  @map("cliente_apelido") @db.VarChar(60)
   clienteTelefone String?  @map("cliente_telefone") @db.VarChar(20)
+  /// So digitos, como no cadastro. Era lido da relacao viva: a ordem antiga saia
+  /// com o nome de antes e o documento de agora, na mesma folha.
+  clienteDocumento String? @map("cliente_documento") @db.VarChar(14)
+  /// Para onde o servico foi. Nesta loja o endereco do cadastro E o endereco do
+  /// servico: o produtor tem um cadastro por fazenda justamente por isso.
+  clienteEndereco String? @map("cliente_endereco") @db.VarChar(160)
+  clienteBairro   String? @map("cliente_bairro") @db.VarChar(60)
+  clienteCidade   String? @map("cliente_cidade") @db.VarChar(60)
+  clienteUf       String? @map("cliente_uf") @db.VarChar(2)
+  clienteCep      String? @map("cliente_cep") @db.VarChar(9)
 
   responsavelId String  @map("responsavel_id") @db.Uuid
   responsavel   Usuario @relation("ordem_responsavel", fields: [responsavelId], references: [id])

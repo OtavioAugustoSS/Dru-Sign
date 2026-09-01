@@ -2,7 +2,15 @@ import { defineConfig } from 'vitest/config'
 import { resolve } from 'node:path'
 
 export default defineConfig({
-  resolve: { alias: { '@': resolve(import.meta.dirname, './src') } },
+  resolve: {
+    alias: {
+      '@': resolve(import.meta.dirname, './src'),
+      // Ver src/infra/test/server-only.ts: sem isto, testar qualquer modulo
+      // marcado `server-only` morre dizendo que ele veio de um componente de
+      // cliente -- e o teste de integracao roda em Node, que e o servidor.
+      'server-only': resolve(import.meta.dirname, './src/infra/test/server-only.ts'),
+    },
+  },
   test: {
     environment: 'node',
     include: ['src/**/*.int.test.ts'],

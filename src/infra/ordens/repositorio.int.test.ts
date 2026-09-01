@@ -9,6 +9,7 @@ import {
   removerAjuste, atualizarCabecalho, aprovarOrcamento, cancelarOrdem, obterOrdemParaTela, listarOrdens,
   ConflitoVersao, OrdemNaoEditavel, type DadosItem,
 } from './repositorio'
+import { obterImpresso } from './impresso'
 
 let base: Contexto
 let clienteId = ''
@@ -251,5 +252,51 @@ describe('ids vindos do formulario sao reconferidos contra a empresa', () => {
     const v = (await adicionarItem(ctx(), ordem.id, ordem.versao, UNIDADE('PLACA', 1, '281.00'))).versao
     await expect(adicionarItem(ctx(), ordem.id, v, UNIDADE('DESCONTO', 1, '-100.00'))).rejects.toThrow(/negativo/)
     expect((await obterOrdemParaTela(base.empresaId, ordem.id))?.precoFinal).toBe('281.00')
+  })
+})
+
+/*
+ * O impresso e um documento que ja foi para a mao do cliente. Ele nao pode mudar
+ * porque o cadastro mudou depois -- e ate agora o documento MUDAVA: nome,
+ * apelido e telefone eram congelados na ordem, mas o CPF/CNPJ era lido da
+ * relacao viva na hora de imprimir. Bastava corrigir um CNPJ digitado errado
+ * para a ordem de tres meses atras passar a sair com outro numero.
+ */
+describe('impresso: o cadastro do cliente fica congelado na ordem', () => {
+  it('corrigir o cadastro depois nao muda a folha da ordem antiga', async () => {
+    const cliente = await prisma.cliente.create({
+      data: {
+        empresaId: base.empresaId, nome: 'Serralheria do Vale', documento: '00150991000199',
+        endereco: 'Rua Padre Fernandes, 120', bairro: 'Centro', cidade: 'Unaí', uf: 'MG', cep: '38610-000',
+      },
+    })
+    const ordem = await criarOrdem(ctx(), { estado: 'aberta', clienteId: cliente.id })
+
+    await prisma.cliente.update({
+      where: { id: cliente.id },
+      data: { nome: 'Serralheria do Vale LTDA', documento: '39346861028686', endereco: 'Av. Nova, 900', cidade: 'Paracatu' },
+    })
+
+    const folha = await obterImpresso(base.empresaId, ordem.id)
+    expect(folha?.ordem.cliente).toMatchObject({
+      nome: 'Serralheria do Vale',
+      documento: '00150991000199',
+      endereco: 'Rua Padre Fernandes, 120, Centro · Unaí/MG · 38610-000',
+    })
+  })
+
+  it('venda de balcao nao inventa endereco', async () => {
+    const ordem = await criarOrdem(ctx(), { estado: 'aberta' })
+    expect((await obterImpresso(base.empresaId, ordem.id))?.ordem.cliente).toBeNull()
+  })
+
+  it('cadastro pela metade imprime so o que existe', async () => {
+    const cliente = await prisma.cliente.create({
+      data: { empresaId: base.empresaId, nome: 'Cliente sem ficha completa', cidade: 'Unaí', uf: 'MG' },
+    })
+    const ordem = await criarOrdem(ctx(), { estado: 'aberta', clienteId: cliente.id })
+    const folha = await obterImpresso(base.empresaId, ordem.id)
+    expect(folha?.ordem.cliente?.endereco).toBe('Unaí/MG')
+    expect(folha?.ordem.cliente?.documento).toBeNull()
   })
 })

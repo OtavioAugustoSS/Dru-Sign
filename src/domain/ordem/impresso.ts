@@ -40,7 +40,14 @@ export interface OrdemImpressa {
   abertaEm: Date
   prometidaPara: Date | null
   responsavel: string
-  cliente: { nome: string; apelido: string | null; telefone: string | null; documento: string | null } | null
+  cliente: {
+    nome: string
+    apelido: string | null
+    telefone: string | null
+    documento: string | null
+    /** Ja montado em uma linha; null quando o cadastro nao tinha endereco nenhum. */
+    endereco: string | null
+  } | null
   itens: ItemImpresso[]
   acrescimos: AcrescimoImpresso[]
   subtotalItens: Decimal
@@ -67,4 +74,30 @@ export function descreverCobranca(item: ItemImpresso): string {
 
 export function tituloDocumento(estado: EstadoProducao): string {
   return estado === 'orcamento' ? 'Orçamento' : 'Ordem de Serviço'
+}
+
+/**
+ * O endereco do cliente em uma linha: "Rua X, 120, Centro · Unaí/MG · 38610-000".
+ *
+ * Uma linha, e nao um <dt>/<dd> por campo: a folha ja carrega cliente, telefone,
+ * documento, itens, valores e assinatura em A4, e endereco em cinco linhas
+ * empurraria o resto para a segunda pagina.
+ *
+ * Campo vazio some junto com o separador dele -- endereco pela metade nao pode
+ * sair da impressora com virgula solta ou barra sem UF. A base veio do legado
+ * com cadastro incompleto: ha cliente so com cidade, e ha cliente com nada.
+ */
+export function montarEndereco(c: {
+  endereco?: string | null
+  bairro?: string | null
+  cidade?: string | null
+  uf?: string | null
+  cep?: string | null
+}): string | null {
+  const rua = [c.endereco, c.bairro].map((p) => p?.trim()).filter(Boolean).join(', ')
+  const cidade = c.cidade?.trim()
+  const uf = c.uf?.trim()
+  const local = cidade && uf ? `${cidade}/${uf}` : (cidade ?? uf ?? '')
+  const partes = [rua, local, c.cep?.trim()].filter((p): p is string => !!p && p !== '')
+  return partes.length > 0 ? partes.join(' · ') : null
 }

@@ -4,6 +4,7 @@ import { paraDominio } from '@/infra/db/decimal'
 import { arredondarCentavos } from '@/domain/precificacao/dinheiro'
 import { formatarTelefone } from '@/domain/clientes/telefone'
 import { normalizarTelefone } from '@/domain/clientes/telefone'
+import { montarEndereco } from '@/domain/ordem/impresso'
 import type { DadosEmpresaImpresso, OrdemImpressa } from '@/domain/ordem/impresso'
 
 export interface ImpressoCompleto {
@@ -23,7 +24,9 @@ export async function obterImpresso(empresaId: string, ordemId: string): Promise
         },
       },
       responsavel: { select: { nome: true } },
-      cliente: { select: { documento: true } },
+      // A relacao `cliente` NAO entra: tudo o que a folha diz do cliente vem do
+      // snapshot da ordem. Era so o documento que ainda vinha daqui, e bastava
+      // corrigir um CNPJ para a ordem de meses atras passar a imprimir outro.
       itens: { where: { removidoEm: null }, orderBy: { ordemExibicao: 'asc' } },
       acrescimos: { where: { removidoEm: null }, orderBy: { criadoEm: 'asc' } },
     },
@@ -55,7 +58,13 @@ export async function obterImpresso(empresaId: string, ordemId: string): Promise
         nome: o.clienteNome,
         apelido: o.clienteApelido,
         telefone: telefone ? formatarTelefone(telefone) : o.clienteTelefone,
-        documento: o.cliente?.documento ?? null,
+        documento: o.clienteDocumento,
+        // Uma linha so: "Rua X, Centro · Unai/MG · 38610-000". Tres linhas de
+        // <dt>/<dd> gastariam a folha inteira em endereco.
+        endereco: montarEndereco({
+          endereco: o.clienteEndereco, bairro: o.clienteBairro,
+          cidade: o.clienteCidade, uf: o.clienteUf, cep: o.clienteCep,
+        }),
       },
       itens: o.itens.map((i) => ({
         quantidade: i.quantidade, descricao: i.descricao, unidade: i.unidadeCobranca,

@@ -129,14 +129,39 @@ async function exigirMaterial(tx: Tx, empresaId: string, materialId: string): Pr
   if (!m) throw new ErroDeValidacao('Material não encontrado.')
 }
 
+/**
+ * O cadastro do cliente como estava na hora de escolher.
+ *
+ * O documento entrou aqui depois: ele era o unico campo que o impresso ainda
+ * lia da relacao viva, entao uma ordem antiga saia com o nome congelado de
+ * antes e o documento de agora, contradizendo a si mesma na mesma folha.
+ *
+ * O endereco entrou junto porque nesta loja ele E o endereco do servico -- o
+ * produtor tem um cadastro por fazenda exatamente para isso.
+ */
+const VAZIO = {
+  clienteId: null, clienteNome: null, clienteApelido: null, clienteTelefone: null,
+  clienteDocumento: null, clienteEndereco: null, clienteBairro: null,
+  clienteCidade: null, clienteUf: null, clienteCep: null,
+}
+
 async function snapshotCliente(tx: Tx, empresaId: string, clienteId: string | null | undefined) {
-  if (!clienteId) return { clienteId: null, clienteNome: null, clienteApelido: null, clienteTelefone: null }
+  if (!clienteId) return VAZIO
   const c = await tx.cliente.findFirst({
     where: { id: clienteId, empresaId, arquivadoEm: null },
-    select: { id: true, nome: true, apelido: true, telefones: { orderBy: { ordem: 'asc' }, take: 1, select: { original: true } } },
+    select: {
+      id: true, nome: true, apelido: true, documento: true,
+      endereco: true, bairro: true, cidade: true, uf: true, cep: true,
+      telefones: { orderBy: { ordem: 'asc' }, take: 1, select: { original: true } },
+    },
   })
   if (!c) throw new ErroDeValidacao('Cliente não encontrado.')
-  return { clienteId: c.id, clienteNome: c.nome, clienteApelido: c.apelido, clienteTelefone: c.telefones[0]?.original ?? null }
+  return {
+    clienteId: c.id, clienteNome: c.nome, clienteApelido: c.apelido,
+    clienteTelefone: c.telefones[0]?.original ?? null,
+    clienteDocumento: c.documento, clienteEndereco: c.endereco, clienteBairro: c.bairro,
+    clienteCidade: c.cidade, clienteUf: c.uf, clienteCep: c.cep,
+  }
 }
 
 export async function criarOrdem(

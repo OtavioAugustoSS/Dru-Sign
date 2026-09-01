@@ -73,6 +73,10 @@ function Via({ rotulo, empresa, ordem }: { rotulo: string; empresa: DadosEmpresa
           <dt>Cliente</dt><dd>{ordem.cliente ? ordem.cliente.nome : 'Venda de balcão'}{ordem.cliente?.apelido ? ` (${ordem.cliente.apelido})` : ''}</dd>
           {ordem.cliente?.telefone ? <><dt>Telefone</dt><dd>{ordem.cliente.telefone}</dd></> : null}
           {ordem.cliente?.documento ? <><dt>CPF/CNPJ</dt><dd>{formatarDocumento(ordem.cliente.documento)}</dd></> : null}
+          {/* Onde o servico vai. Some quando o cadastro nao tem endereco: a base
+              veio do legado com muita ficha pela metade, e rotulo sem valor na
+              folha impressa parece dado que faltou preencher agora. */}
+          {ordem.cliente?.endereco ? <><dt>Endereço</dt><dd>{ordem.cliente.endereco}</dd></> : null}
         </dl>
       </section>
       <section className="bloco">
