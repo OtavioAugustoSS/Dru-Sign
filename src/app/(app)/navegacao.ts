@@ -13,7 +13,7 @@ export const GRUPOS: { chave: GrupoNavegacao; rotulo: string }[] = [
 
 export type IconeNavegacao =
   | 'painel' | 'fila' | 'producao' | 'ordens' | 'historico' | 'clientes' | 'carteira'
-  | 'materiais' | 'indicadores' | 'financeiro' | 'contador' | 'plano'
+  | 'materiais' | 'precificacao' | 'indicadores' | 'financeiro' | 'contador' | 'plano'
   | 'usuarios' | 'empresa'
 
 export interface ItemNavegacao {
@@ -56,6 +56,7 @@ export const NAVEGACAO: ItemNavegacao[] = [
   { href: '/historico', titulo: 'Histórico', icone: 'historico', grupo: 'arquivo' },
 
   { href: '/materiais', titulo: 'Materiais e preços', icone: 'materiais', grupo: 'configuracao', papel: 'administracao' },
+  { href: '/precificacao', titulo: 'Precificação', icone: 'precificacao', grupo: 'configuracao', papel: 'administracao' },
   { href: '/operacao', titulo: 'Indicadores', icone: 'indicadores', grupo: 'configuracao', papel: 'administracao' },
   { href: '/usuarios', titulo: 'Usuários', icone: 'usuarios', grupo: 'configuracao', papel: 'administracao' },
   { href: '/empresa', titulo: 'Dados da empresa', icone: 'empresa', grupo: 'configuracao', papel: 'administracao' },
