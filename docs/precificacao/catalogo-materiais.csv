@@ -1,0 +1,83 @@
+﻿familia;categoria;nome;variacao;espessura_mm;gramatura_g;trama;largura_mm;comprimento_mm;area_m2;unidade_cobranca;custo_rs;venda_rs;status;origem;observacao
+Chapa rígida;ACM;ACM 1,22 x 5,00 (opção A);;;;;1220;5000;6,10;m2;;250,00;confirmado;01 acm 1.22 x 5   250'00 metro quadrado;Venda ou custo a confirmar (duvida 2). Nada na lista distingue da opcao B (duvida 4)
+Chapa rígida;ACM;ACM 1,22 x 5,00 (opção B);;;;;1220;5000;6,10;m2;;265,00;confirmado;01 acm 1.22 x 5  265'00 metro quadrado;Venda ou custo a confirmar (duvida 2). Nada na lista distingue da opcao A (duvida 4)
+Chapa rígida;PVC expandido;PVC expandido 5mm;;5;;;1220;2440;2,98;m2;;;confirmado;Pvc expandindo  5mm 1.22 x 2.44;Cor nao informada (duvida 7)
+Chapa rígida;PVC expandido;PVC expandido 10mm;;10;;;1220;2440;2,98;m2;;;confirmado;Pvc expandindo  10mm;Dimensao herdada da linha do 5mm (duvida 6)
+Chapa rígida;PVC expandido;PVC expandido 15mm;;15;;;1220;2440;2,98;m2;;;confirmado;15mm;Material e dimensao herdados da linha do 5mm (duvida 6)
+Chapa rígida;PVC expandido;PVC expandido 20mm;;20;;;1220;2440;2,98;m2;;;confirmado;20mm;Material e dimensao herdados da linha do 5mm (duvida 6)
+Chapa rígida;PVC expandido;PVC expandido 30mm;;30;;;1220;2440;2,98;m2;;;confirmado;30mm;Material e dimensao herdados da linha do 5mm (duvida 6)
+Chapa rígida;Acrílico cristal;Acrílico cristal 2mm;cristal;2;;;1000;2000;2,00;m2;;;confirmado;Acrílico cristal  1  x 2  2mm;Cast ou extrudado a confirmar (duvida 9)
+Chapa rígida;Acrílico cristal;Acrílico cristal 3mm;cristal;3;;;1000;2000;2,00;m2;;;confirmado;3mm;Espessura solta herdando o cristal da linha anterior
+Chapa rígida;Acrílico cristal;Acrílico cristal 4mm;cristal;4;;;1000;2000;2,00;m2;;;confirmado;4mm;Espessura solta herdando o cristal da linha anterior
+Chapa rígida;Acrílico cristal;Acrílico cristal 5mm;cristal;5;;;1000;2000;2,00;m2;;;confirmado;5mm;Espessura solta herdando o cristal da linha anterior
+Chapa rígida;Acrílico cristal;Acrílico cristal 6mm;cristal;6;;;1000;2000;2,00;m2;;;confirmado;6mm;Espessura solta herdando o cristal da linha anterior
+Chapa rígida;Acrílico cristal;Acrílico cristal 8mm;cristal;8;;;1000;2000;2,00;m2;;;confirmado;8mm;Espessura solta herdando o cristal da linha anterior
+Chapa rígida;Acrílico cristal;Acrílico cristal 10mm;cristal;10;;;1000;2000;2,00;m2;;;confirmado;10mm;Espessura solta herdando o cristal da linha anterior
+Chapa rígida;Acrílico cast branco;Acrílico cast branco 2mm;cast branco;2;;;1000;2000;2,00;m2;;;confirmado;2mm;Unico acrilico que ela chamou de cast
+Chapa rígida;Acrílico cast branco;Acrílico cast branco 3mm;cast branco;3;;;1000;2000;2,00;m2;;;confirmado;Acrílico  cast branco 1 x 2  3mm;Unico acrilico que ela chamou de cast
+Chapa rígida;Acrílico preto;Acrílico preto 2mm;preto;2;;;1000;2000;2,00;m2;;;confirmado;Acrílico preto  1 x 2 2mm;
+Chapa rígida;Acrílico preto;Acrílico preto 3mm;preto;3;;;1000;2000;2,00;m2;;;confirmado;3mm;
+Chapa rígida;Acrílico preto;Acrílico preto 4mm;preto;4;;;1000;2000;2,00;m2;;;confirmado;4mm;
+Chapa rígida;Acrílico preto;Acrílico preto 5mm;preto;5;;;1000;2000;2,00;m2;;;confirmado;5mm;
+Chapa rígida;Acrílico preto;Acrílico preto 6mm;preto;6;;;1000;2000;2,00;m2;;;a confirmar;(deduzido);A lista pulou o 6mm no preto e tem 6mm no cristal (duvida 8)
+Chapa rígida;Acrílico preto;Acrílico preto 8mm;preto;8;;;1000;2000;2,00;m2;;;confirmado;8mm;
+Chapa rígida;Acrílico preto;Acrílico preto 10mm;preto;10;;;1000;2000;2,00;m2;;;confirmado;10mm;
+Chapa rígida;Acrílico colorido;Acrílico vermelho 3mm;vermelho;3;;;1000;2000;2,00;m2;;;confirmado;Acrilico  vermelho  1 x2 3mm;So aparece em 3mm (duvida 10)
+Chapa rígida;Acrílico colorido;Acrílico verde 3mm;verde;3;;;1000;2000;2,00;m2;;;confirmado;Acrílico  verde 1 x 2 3mm;So aparece em 3mm (duvida 10)
+Chapa rígida;Acrílico espelhado;Acrílico espelhado dourado 2mm;espelhado dourado;2;;;1000;2000;2,00;m2;;;confirmado;Acrílico  espelhado  dourado  1 X 2 2mm;So aparece em 2mm (duvida 10)
+Chapa rígida;Acrílico espelhado;Acrílico espelhado prata 2mm;espelhado prata;2;;;1000;2000;2,00;m2;;;confirmado;Acrílico  espelhado  prata 1 x 2 2mm;So aparece em 2mm (duvida 10)
+Bobina;Lona 440g brilho;Lona 440g brilho 3,20m;brilho;;440;500x500;3200;50000;160,00;m2;;;confirmado;Lona 440gr  brilho   500 x 500  3.20mts x 50mts;Trama 500x500 a confirmar (duvida 12). Se o preco/m2 nao variar com a largura estas 8 linhas viram uma (duvida 15)
+Bobina;Lona 440g brilho;Lona 440g brilho 2,20m;brilho;;440;500x500;2200;50000;110,00;m2;;;confirmado;Lona 440gr  brilho  2.20 x 50;Trama herdada da linha de 3,20
+Bobina;Lona 440g brilho;Lona 440g brilho 1,80m;brilho;;440;500x500;1800;50000;90,00;m2;;;confirmado;Lona 440gr  brilho  1.80 x 50;Trama herdada da linha de 3,20
+Bobina;Lona 440g brilho;Lona 440g brilho 1,60m;brilho;;440;500x500;1600;50000;80,00;m2;;;confirmado;Lona 440gr brilho  1.60 x 50;Trama herdada da linha de 3,20
+Bobina;Lona 440g brilho;Lona 440g brilho 1,50m;brilho;;440;500x500;1500;50000;75,00;m2;;;confirmado;Lona 440gr brilho  1.50 x 50;Trama herdada da linha de 3,20
+Bobina;Lona 440g brilho;Lona 440g brilho 1,20m;brilho;;440;500x500;1200;50000;60,00;m2;;;confirmado;Lona 440gr brilho 1.20 x 50;Trama herdada da linha de 3,20
+Bobina;Lona 440g brilho;Lona 440g brilho 1,00m;brilho;;440;500x500;1000;50000;50,00;m2;;;confirmado;Lona 440gr brilho 1 x 50;Trama herdada da linha de 3,20
+Bobina;Lona 440g brilho;Lona 440g brilho 0,70m;brilho;;440;500x500;700;50000;35,00;m2;;;confirmado;Lona 440gr brilho 0'70 x 50;Trama herdada da linha de 3,20
+Bobina;Lona 440g fosca;Lona 440g fosca 3,20m;fosca;;440;500x500;3200;50000;160,00;m2;;;a confirmar;(deduzido) Ai vem lona  fosca / Nas mesmas  largura;Deducao forte: ela mandou replicar as larguras da brilho (duvida 14)
+Bobina;Lona 440g fosca;Lona 440g fosca 2,20m;fosca;;440;500x500;2200;50000;110,00;m2;;;a confirmar;(deduzido) Nas mesmas  largura;Deducao forte: ela mandou replicar as larguras da brilho (duvida 14)
+Bobina;Lona 440g fosca;Lona 440g fosca 1,80m;fosca;;440;500x500;1800;50000;90,00;m2;;;a confirmar;(deduzido) Nas mesmas  largura;Deducao forte: ela mandou replicar as larguras da brilho (duvida 14)
+Bobina;Lona 440g fosca;Lona 440g fosca 1,60m;fosca;;440;500x500;1600;50000;80,00;m2;;;a confirmar;(deduzido) Nas mesmas  largura;Deducao forte: ela mandou replicar as larguras da brilho (duvida 14)
+Bobina;Lona 440g fosca;Lona 440g fosca 1,50m;fosca;;440;500x500;1500;50000;75,00;m2;;;a confirmar;(deduzido) Nas mesmas  largura;Deducao forte: ela mandou replicar as larguras da brilho (duvida 14)
+Bobina;Lona 440g fosca;Lona 440g fosca 1,20m;fosca;;440;500x500;1200;50000;60,00;m2;;;a confirmar;(deduzido) Nas mesmas  largura;Deducao forte: ela mandou replicar as larguras da brilho (duvida 14)
+Bobina;Lona 440g fosca;Lona 440g fosca 1,00m;fosca;;440;500x500;1000;50000;50,00;m2;;;a confirmar;(deduzido) Nas mesmas  largura;Deducao forte: ela mandou replicar as larguras da brilho (duvida 14)
+Bobina;Lona 440g fosca;Lona 440g fosca 0,70m;fosca;;440;500x500;700;50000;35,00;m2;;;a confirmar;(deduzido) Nas mesmas  largura;Deducao forte: ela mandou replicar as larguras da brilho (duvida 14)
+Bobina;Lona 280g brilho;Lona 280g brilho 3,20m;brilho;;280;500x500;3200;50000;160,00;m2;;;confirmado;Lona 280gr  brilho  500 x 500   3.20 x 50;Unica largura que a lista traz para a 280g (duvida 13)
+Bobina;Lona 280g brilho;Lona 280g brilho 2,20m;brilho;;280;500x500;2200;50000;110,00;m2;;;a confirmar;(deduzido);Deducao fraca: a lista so traz a 280g em 3,20 (duvida 13)
+Bobina;Lona 280g brilho;Lona 280g brilho 1,80m;brilho;;280;500x500;1800;50000;90,00;m2;;;a confirmar;(deduzido);Deducao fraca: a lista so traz a 280g em 3,20 (duvida 13)
+Bobina;Lona 280g brilho;Lona 280g brilho 1,60m;brilho;;280;500x500;1600;50000;80,00;m2;;;a confirmar;(deduzido);Deducao fraca: a lista so traz a 280g em 3,20 (duvida 13)
+Bobina;Lona 280g brilho;Lona 280g brilho 1,50m;brilho;;280;500x500;1500;50000;75,00;m2;;;a confirmar;(deduzido);Deducao fraca: a lista so traz a 280g em 3,20 (duvida 13)
+Bobina;Lona 280g brilho;Lona 280g brilho 1,20m;brilho;;280;500x500;1200;50000;60,00;m2;;;a confirmar;(deduzido);Deducao fraca: a lista so traz a 280g em 3,20 (duvida 13)
+Bobina;Lona 280g brilho;Lona 280g brilho 1,00m;brilho;;280;500x500;1000;50000;50,00;m2;;;a confirmar;(deduzido);Deducao fraca: a lista so traz a 280g em 3,20 (duvida 13)
+Bobina;Lona 280g brilho;Lona 280g brilho 0,70m;brilho;;280;500x500;700;50000;35,00;m2;;;a confirmar;(deduzido);Deducao fraca: a lista so traz a 280g em 3,20 (duvida 13)
+Bobina;Lona 280g fosca;Lona 280g fosca 3,20m;fosca;;280;1000x1000;3200;50000;160,00;m2;;;confirmado;Lona 280gr  fosca 1000 x 1000  3.20 x 50;Trama 1000x1000 contraria a logica da 440g com 500x500 (duvida 12)
+Bobina;Lona 280g fosca;Lona 280g fosca 2,20m;fosca;;280;1000x1000;2200;50000;110,00;m2;;;a confirmar;(deduzido);Deducao fraca: a lista so traz a 280g em 3,20 (duvida 13)
+Bobina;Lona 280g fosca;Lona 280g fosca 1,80m;fosca;;280;1000x1000;1800;50000;90,00;m2;;;a confirmar;(deduzido);Deducao fraca: a lista so traz a 280g em 3,20 (duvida 13)
+Bobina;Lona 280g fosca;Lona 280g fosca 1,60m;fosca;;280;1000x1000;1600;50000;80,00;m2;;;a confirmar;(deduzido);Deducao fraca: a lista so traz a 280g em 3,20 (duvida 13)
+Bobina;Lona 280g fosca;Lona 280g fosca 1,50m;fosca;;280;1000x1000;1500;50000;75,00;m2;;;a confirmar;(deduzido);Deducao fraca: a lista so traz a 280g em 3,20 (duvida 13)
+Bobina;Lona 280g fosca;Lona 280g fosca 1,20m;fosca;;280;1000x1000;1200;50000;60,00;m2;;;a confirmar;(deduzido);Deducao fraca: a lista so traz a 280g em 3,20 (duvida 13)
+Bobina;Lona 280g fosca;Lona 280g fosca 1,00m;fosca;;280;1000x1000;1000;50000;50,00;m2;;;a confirmar;(deduzido);Deducao fraca: a lista so traz a 280g em 3,20 (duvida 13)
+Bobina;Lona 280g fosca;Lona 280g fosca 0,70m;fosca;;280;1000x1000;700;50000;35,00;m2;;;a confirmar;(deduzido);Deducao fraca: a lista so traz a 280g em 3,20 (duvida 13)
+Bobina;Adesivo vinil;Adesivo vinil transparente 1,27m;transparente;;;;1270;50000;63,50;m2;;;confirmado;Adesivo vinil  transparente  1.27 x 50;So aparece em 1,27 (duvida 18)
+Bobina;Adesivo vinil;Adesivo vinil brilho 1,06m;brilho;0,10;;;1060;50000;53,00;m2;;;confirmado;Adesivo  vinil para impressão  0.10 1.06 / X 50 mts / Esses  são brilho;O 0,10 foi lido como espessura (duvida 16)
+Bobina;Adesivo vinil;Adesivo vinil brilho 1,26m;brilho;0,10;;;1260;50000;63,00;m2;;;confirmado;1.26 x 50;Aqui ela escreveu 1,26 e no fosco 1,27 (duvida 17)
+Bobina;Adesivo vinil;Adesivo vinil brilho 1,52m;brilho;0,10;;;1520;50000;76,00;m2;;;confirmado;1.52 x 50;
+Bobina;Adesivo vinil;Adesivo vinil fosco 1,06m;fosco;;;;1060;50000;53,00;m2;;;confirmado;Adesivo  vinil para impressão  fosco 1.06 x 50;Espessura nao informada para o fosco (duvida 16)
+Bobina;Adesivo vinil;Adesivo vinil fosco 1,27m;fosco;;;;1270;50000;63,50;m2;;;confirmado;1.27 x 50;Aqui ela escreveu 1,27 e no brilho 1,26 (duvida 17)
+Bobina;Adesivo vinil;Adesivo vinil fosco 1,52m;fosco;;;;1520;50000;76,00;m2;;;confirmado;1.52 x 50;
+Bobina;Adesivo perfurado;Adesivo perfurado 1,06m;perfurado;;;;1060;50000;53,00;m2;;;confirmado;Adesivo  perfurado  1.06 x 50;Espessura nao informada (duvida 16)
+Bobina;Adesivo perfurado;Adesivo perfurado 1,37m;perfurado;;;;1370;50000;68,50;m2;;;confirmado;1.37  x 50;Largura 1,37 so aparece no perfurado
+Bobina;Adesivo perfurado;Adesivo perfurado 1,52m;perfurado;;;;1520;50000;76,00;m2;;;confirmado;1.52 x 50;
+Acabamento;Acabamento de lona;Lona com ilhós;ilhos;;;;;;;metro_linear;;;confirmado;Lona com ilhos;Unidade de cobranca e um palpite. Ilhos correm no perimetro e calcularMetroLinear usa perimetro (duvida 19)
+Acabamento;Acabamento de lona;Solda eletrônica com corda e ilhós;solda;;;;;;;metro_linear;;;confirmado;Solda eletrônica  corda e ilhos;Unidade de cobranca e um palpite (duvida 19)
+Acabamento;Acabamento de lona;Banner com bastão, corda e ponteira;bastão;;;;;;;unidade;;;confirmado;Banner  bastão  corda e ponteira;Unidade de cobranca e um palpite. Pode ser por metro de largura (duvida 19)
+Produto pronto;Brinde;Caneca personalizada;;;;;;;;unidade;;;confirmado;Caneca personalizada;Sem medida e sem faixa por quantidade (duvida 29)
+Produto pronto;Estojo com placa;Estojo aveludado 25x18 com placa 20x15;;;;;250;180;;unidade;;;confirmado;Estojo aveludado  25  x 18 com placa  20 x 15;Medidas em cm. Placa 20x15 cm. Preco do conjunto ou separado a confirmar (duvida 20)
+Produto pronto;Estojo com placa;Estojo aveludado 37x27 com placa 33x23;;;;;370;270;;unidade;;;confirmado;Estojo aveludado  37 x 27 com placa 33 x 23;Medidas em cm. Placa 33x23 cm. Preco do conjunto ou separado a confirmar (duvida 20)
+Produto pronto;Estojo com placa;Estojo aveludado 40x30 com placa 35x26;;;;;400;300;;unidade;;;confirmado;Estojo aveludado  40 x 30 com placa 35 x 26;Medidas em cm. Placa 35x26 cm. Preco do conjunto ou separado a confirmar (duvida 20)
+Produto pronto;Troféu e medalha;Troféu em acrilico;;;;;;;;unidade;;;confirmado;Troféus  em acrílico;Tamanhos nao informados. Provavelmente e uma familia e nao um item (duvida 21)
+Produto pronto;Troféu e medalha;Medalha em acrilico;;;;;;;;unidade;;;confirmado;Medalhas  em acrílico;Tamanhos nao informados. Provavelmente e uma familia e nao um item (duvida 21)
+Produto pronto;Placa metálica;Placa aço inox escovado 40x60;aço inox escovado;;;;400;600;0,24;unidade;;;confirmado;Placa aço inox escovado  40 x 60;Medidas em cm. Gravacao inclusa ou a parte (duvida 23)
+Produto pronto;Placa metálica;Placa aço inox escovado 60x80;aço inox escovado;;;;600;800;0,48;unidade;;;confirmado;Placa aço inox escovado  60 x 80;Medidas em cm. Gravacao inclusa ou a parte (duvida 23)
+Produto pronto;Placa metálica;Placa alumínio 40x60;alumínio;;;;400;600;0,24;unidade;;;confirmado;Placa alumínio  6.32 40 x 60;O 6.32 da lista nao tem unidade e nao se repete em nenhum outro item (duvida 22)
+Produto pronto;Estrutura;Estrutura de metalon;;;;;;;;metro_linear;;;confirmado;Estrutura de metalon  tamanhos  variados;Unidade de cobranca e um palpite. Bitola nao informada (duvida 24)

@@ -30,7 +30,9 @@
     "importar:plano": "tsx scripts/importar-plano.ts",
     "importar:ordens": "tsx scripts/importar-ordens.ts",
     "exemplo:criar": "tsx scripts/dados-exemplo.ts",
-    "exemplo:remover": "tsx scripts/dados-exemplo-remover.ts"
+    "exemplo:remover": "tsx scripts/dados-exemplo-remover.ts",
+    "catalogo:pdf": "tsx scripts/catalogo-pdf.ts",
+    "catalogo:importar": "tsx scripts/catalogo-importar.ts"
   },
   "repository": {
     "type": "git",
