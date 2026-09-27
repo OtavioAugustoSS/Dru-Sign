@@ -59,7 +59,12 @@ async function limpar(marca: Marca, rotulo: string): Promise<void> {
     prisma.itemOrdem.deleteMany({ where: { empresaId, ordemId: { in: ordemIds } } }),
     prisma.mutacao.deleteMany({ where: { empresaId, criadaEm: nascidoAgora } }),
     prisma.ordemServico.deleteMany({ where: { empresaId, id: { in: ordemIds } } }),
+    // Historico e familia de preco entraram depois desta faxina e ficavam para tras: em
+    // duas semanas eram 44 familias "Bobina e2e …" na tela de precificacao da loja.
+    // Historico antes do material; familia depois, porque o material aponta para ela.
+    prisma.historicoPreco.deleteMany({ where: { empresaId, criadoEm: nascidoAgora } }),
     prisma.material.deleteMany({ where: { empresaId, criadoEm: nascidoAgora } }),
+    prisma.familiaPreco.deleteMany({ where: { empresaId, criadoEm: nascidoAgora } }),
     prisma.contaPlano.deleteMany({ where: { empresaId, criadoEm: nascidoAgora } }),
     prisma.telefoneCliente.deleteMany({ where: { clienteId: { in: clienteIds } } }),
     prisma.cliente.deleteMany({ where: { empresaId, id: { in: clienteIds } } }),
