@@ -9,6 +9,11 @@ export interface DadosMaterial {
   nome: string
   categoria?: string | null
   preco: Decimal
+  /** Null: nao informado. Sem custo a familia nao consegue calcular a venda. */
+  custo?: Decimal | null
+  familiaPrecoId?: string | null
+  /** True: a formula da familia nao mexe neste preco. */
+  precoTravado?: boolean
   unidadeCobranca: UnidadeCobranca
 }
 
@@ -17,23 +22,49 @@ export interface MaterialResumo {
   nome: string
   categoria: string | null
   preco: Decimal
+  custo: Decimal | null
+  precoTravado: boolean
+  familiaPrecoId: string | null
+  /** Denormalizado para a tabela nao precisar de uma consulta por linha. */
+  familiaNome: string | null
   unidadeCobranca: UnidadeCobranca
   ativo: boolean
 }
 
-const SELECAO = { id: true, nome: true, categoria: true, preco: true, unidadeCobranca: true, ativo: true } as const
+const SELECAO = {
+  id: true,
+  nome: true,
+  categoria: true,
+  preco: true,
+  custo: true,
+  precoTravado: true,
+  familiaPrecoId: true,
+  familiaPreco: { select: { nome: true } },
+  unidadeCobranca: true,
+  ativo: true,
+} as const
 
 type Linha = {
   id: string
   nome: string
   categoria: string | null
   preco: Parameters<typeof paraDominio>[0]
+  custo: Parameters<typeof paraDominio>[0] | null
+  precoTravado: boolean
+  familiaPrecoId: string | null
+  familiaPreco: { nome: string } | null
   unidadeCobranca: UnidadeCobranca
   ativo: boolean
 }
 
 function paraResumo(l: Linha): MaterialResumo {
-  return { ...l, preco: paraDominio(l.preco) }
+  const { familiaPreco, ...resto } = l
+  return {
+    ...resto,
+    preco: paraDominio(l.preco),
+    custo: l.custo === null ? null : paraDominio(l.custo),
+    familiaNome: familiaPreco?.nome ?? null,
+  }
 }
 
 function colunas(dados: DadosMaterial) {
@@ -42,6 +73,9 @@ function colunas(dados: DadosMaterial) {
     nome: dados.nome.trim(),
     categoria: categoria === '' ? null : categoria,
     preco: paraBanco(dados.preco),
+    custo: dados.custo === null || dados.custo === undefined ? null : paraBanco(dados.custo),
+    familiaPrecoId: dados.familiaPrecoId === '' ? null : (dados.familiaPrecoId ?? null),
+    precoTravado: dados.precoTravado ?? false,
     unidadeCobranca: dados.unidadeCobranca,
   }
 }
@@ -52,11 +86,13 @@ export interface FiltrosMateriais {
   q?: string
   /** Uma categoria exata, vinda do proprio catalogo. */
   categoria?: string
+  /** Uma familia de preco exata. */
+  familiaPrecoId?: string
   limite?: number
   /** 1 e a primeira. */
   pagina?: number
   /** So estas colunas: o valor vem do endereco e vai direto para o `orderBy`. */
-  ordenar?: 'nome' | 'categoria' | 'preco'
+  ordenar?: 'nome' | 'categoria' | 'preco' | 'custo'
   direcao?: 'asc' | 'desc'
 }
 
@@ -67,6 +103,7 @@ function condicaoDeMateriais(empresaId: string, f: FiltrosMateriais) {
     empresaId,
     ...(f.incluirInativos ? {} : { ativo: true }),
     ...(f.categoria ? { categoria: f.categoria } : {}),
+    ...(f.familiaPrecoId ? { familiaPrecoId: f.familiaPrecoId } : {}),
     ...(q === '' ? {} : {
       OR: [
         { nome: { contains: q, mode: 'insensitive' as const } },

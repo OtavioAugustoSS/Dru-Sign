@@ -10,15 +10,27 @@ test.describe('Materiais e preços', () => {
     const nome = `ACM 3mm e2e ${Date.now()}`
     await campoDe(page, 'Material').fill(nome)
     await campoDe(page, 'Categoria').fill('Placas')
-    await campoDe(page, 'Preço').fill('281,00')
+    await campoDe(page, 'Preço de venda').fill('281,00')
     await campoDe(page, 'Cobrado').selectOption('m2')
     await page.getByRole('button', { name: 'Salvar' }).click()
 
+    // Filtra antes de procurar: o catalogo tem dezenas de materiais e a linha nova
+    // nao cai necessariamente na primeira pagina. Pelo formulario, e nao por `goto`,
+    // porque uma navegacao no mesmo instante do POST estoura o teto de conexoes do PGlite.
+    await page.waitForURL(/\/materiais$/, { timeout: 30_000 })
+    await campoDe(page, 'Buscar').fill(nome)
+    await page.getByRole('button', { name: 'Filtrar' }).click()
+    await page.waitForURL(/[?&]q=/, { timeout: 30_000 })
     const linha = page.getByRole('row', { name: new RegExp(nome) })
     await expect(linha).toContainText('R$ 281,00', { timeout: 30_000 })
     await expect(linha).toContainText('por m²')
 
+    // Desativar volta para /materiais sem o filtro, entao a linha sai da vista: filtra de novo.
     await linha.getByRole('button', { name: 'Desativar' }).click()
+    await page.waitForURL(/\/materiais$/, { timeout: 30_000 })
+    await campoDe(page, 'Buscar').fill(nome)
+    await page.getByRole('button', { name: 'Filtrar' }).click()
+    await page.waitForURL(/[?&]q=/, { timeout: 30_000 })
     await expect(page.getByRole('row', { name: new RegExp(nome) })).toContainText('inativo')
   })
 
@@ -26,7 +38,7 @@ test.describe('Materiais e preços', () => {
     await entrar(page)
     await page.goto('/materiais')
     await campoDe(page, 'Material').fill(`Preco invalido e2e ${Date.now()}`)
-    await campoDe(page, 'Preço').fill('abc')
+    await campoDe(page, 'Preço de venda').fill('abc')
     await campoDe(page, 'Cobrado').selectOption('metro_linear')
     await page.getByRole('button', { name: 'Salvar' }).click()
 

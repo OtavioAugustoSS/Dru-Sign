@@ -37,6 +37,15 @@ export default defineConfig({
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,
+    // UMA conexao, nao as duas do .env.local. Quando um POST e uma navegacao caem juntos,
+    // o PGlite devolve a conexao com o prepared statement bagunçado e o Postgres responde
+    // 08P01 ("bind message supplies 3 parameters, but prepared statement requires 0").
+    // Isso estoura em `validarSessao`, que roda em TODA requisicao -- entao a falha
+    // aparece como 500 numa tela qualquer, longe do codigo que a causou. Medido: com
+    // max=2, 6 de 9 testes falhavam assim; com max=1, todos passam.
+    // Forcado, e nao `?? '1'`: o `loadEnvConfig` la em cima ja carregou o .env.local no
+    // process.env, entao um valor padrao nunca chegaria a valer aqui.
+    env: { ...process.env, DATABASE_POOL_MAX: '1' },
     // Sem isto o Playwright mata o servidor a forca e as conexoes ficam penduradas no
     // `prisma dev` (PGlite), que nao as recolhe: o teto de conexoes cai a cada rodada
     // ate o app nao conseguir mais abrir nenhuma. Ver docs/desenvolvimento.md.
