@@ -13,6 +13,11 @@ export interface ItemCobranca {
   altura?: ValorNumerico
   /** Em metros. Obrigatorio para m2 e metro_linear. */
   largura?: ValorNumerico
+  /**
+   * Minimo cobravel da familia, em m2 ou metros lineares. Peca menor que isso e cobrada
+   * como se tivesse o minimo. Ausente: sem minimo, que e como o sistema sempre calculou.
+   */
+  minimoMedida?: ValorNumerico
 }
 
 export interface ResultadoItem {

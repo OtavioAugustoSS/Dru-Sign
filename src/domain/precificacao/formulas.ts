@@ -1,4 +1,4 @@
-import { dinheiro, arredondarCentavos } from './dinheiro'
+import { dinheiro, arredondarCentavos, type Decimal } from './dinheiro'
 import { ErroDeValidacao } from './erros'
 import type { ItemCobranca, ResultadoItem } from './tipos'
 
@@ -16,6 +16,17 @@ function validarComum(item: ItemCobranca): void {
   }
 }
 
+/**
+ * O minimo cobravel da familia. Uma peca de 0,4 m2 numa familia com minimo de 1 m2 sai
+ * cobrada como 1 m2 -- a loja nao monta trabalho abaixo de um piso. Sem minimo definido,
+ * devolve a medida real, que e como o sistema sempre calculou.
+ */
+function aplicarMinimo(medida: Decimal, minimo: ItemCobranca['minimoMedida']): Decimal {
+  if (minimo === undefined) return medida
+  const piso = dinheiro(minimo)
+  return medida.lt(piso) ? piso : medida
+}
+
 export function calcularArea(item: ItemCobranca): ResultadoItem {
   validarComum(item)
   if (item.altura === undefined || item.largura === undefined) {
@@ -24,7 +35,7 @@ export function calcularArea(item: ItemCobranca): ResultadoItem {
   if (dinheiro(item.altura).lte(0) || dinheiro(item.largura).lte(0)) {
     throw new ErroDeValidacao('Altura e largura precisam ser maiores que zero.')
   }
-  const medida = dinheiro(item.altura).times(dinheiro(item.largura))
+  const medida = aplicarMinimo(dinheiro(item.altura).times(dinheiro(item.largura)), item.minimoMedida)
   const total = arredondarCentavos(
     medida.times(dinheiro(item.valorUnitario)).times(dinheiro(item.quantidade)),
   )
@@ -47,7 +58,7 @@ export function calcularMetroLinear(item: ItemCobranca): ResultadoItem {
   if (dinheiro(item.altura).lte(0) || dinheiro(item.largura).lte(0)) {
     throw new ErroDeValidacao('Altura e largura precisam ser maiores que zero.')
   }
-  const medida = dinheiro(item.altura).plus(dinheiro(item.largura)).times(2)
+  const medida = aplicarMinimo(dinheiro(item.altura).plus(dinheiro(item.largura)).times(2), item.minimoMedida)
   const total = arredondarCentavos(
     medida.times(dinheiro(item.valorUnitario)).times(dinheiro(item.quantidade)),
   )
