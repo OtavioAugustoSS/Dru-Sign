@@ -136,6 +136,14 @@ export function EntradaLinha({ ordemId, versao, catalogo }: Props) {
             <span className="text-secondary">Entendi: {preview.texto}</span>
             {preview.total ? <strong>→ {preview.total}</strong> : null}
             {preview.conferencia === 'diverge' ? <span className="badge bg-warning-lt">o total digitado não bate com qtd × unitário</span> : null}
+            {/* A peca ficou abaixo do piso da familia: o total mostrado ja e o do
+                minimo, e quem lanca precisa saber por que ele subiu. */}
+            {preview.minimoAplicado ? <span className="badge bg-azure-lt" title="A peça é menor que o mínimo da família e foi cobrada pelo mínimo">mínimo da família</span> : null}
+            {/* So quando o valor veio do catalogo: se a pessoa digitou o valor na
+                propria linha, dizer de onde vem o preco do material seria mentira. */}
+            {resolvido.tipo === 'item' && resolvido.valorDoCatalogo && resolvido.material?.origemPreco ? (
+              <span className="badge bg-blue-lt" title="De onde saiu o preço unitário">{resolvido.material.origemPreco}</span>
+            ) : null}
             {resolvido.tipo === 'item' ? (
               <select className="form-select form-select-sm w-auto" aria-label="Cobrar por" value={resolvido.unidade}
                 title={ROTULO_ORIGEM[resolvido.origemUnidade]}

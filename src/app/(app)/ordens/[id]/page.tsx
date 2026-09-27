@@ -40,13 +40,27 @@ export default async function PaginaOrdem({
   const [{ id }, { de }] = await Promise.all([params, searchParams])
   const [ordem, materiais, usuarios] = await Promise.all([
     obterOrdemParaTela(usuario.empresaId, id),
-    prisma.material.findMany({ where: { empresaId: usuario.empresaId, ativo: true }, orderBy: { nome: 'asc' }, select: { id: true, nome: true, unidadeCobranca: true, preco: true, categoria: true } }),
+    prisma.material.findMany({ where: { empresaId: usuario.empresaId, ativo: true }, orderBy: { nome: 'asc' }, select: { id: true, nome: true, unidadeCobranca: true, preco: true, categoria: true, custo: true, precoTravado: true, familiaPreco: { select: { nome: true, minimoCobranca: true } } } }),
     prisma.usuario.findMany({ where: { empresaId: usuario.empresaId, ativo: true }, orderBy: { nome: 'asc' }, select: { id: true, nome: true } }),
   ])
   if (!ordem) notFound()
 
   const pode = permissoes(ordem.estadoProducao)
-  const catalogo: MaterialCatalogo[] = materiais.map((m) => ({ id: m.id, nome: m.nome, unidadeCobranca: m.unidadeCobranca, preco: m.preco.toFixed(), categoria: m.categoria }))
+  // A origem segue a mesma precedencia de `precoEfetivo`: travado ganha da familia, e
+  // sem custo a familia nao calcula -- o preco daquele material continua sendo digitado.
+  const catalogo: MaterialCatalogo[] = materiais.map((m) => ({
+    id: m.id,
+    nome: m.nome,
+    unidadeCobranca: m.unidadeCobranca,
+    preco: m.preco.toFixed(),
+    categoria: m.categoria,
+    origemPreco: m.precoTravado
+      ? 'preço travado'
+      : m.familiaPreco !== null && m.custo !== null
+        ? `família ${m.familiaPreco.nome}`
+        : 'preço digitado',
+    minimoMedida: m.familiaPreco?.minimoCobranca?.toFixed() ?? null,
+  }))
   const numero = formatarNumeroOs(ordem.numero)
   const acao = <A extends unknown[]>(fn: (ordemId: string, versao: number, ...rest: [...A, string]) => ReturnType<typeof removerItemAction>, ...args: A) =>
     fn.bind(null, ordem.id, ordem.versao, ...args) as (chave: string) => ReturnType<typeof removerItemAction>

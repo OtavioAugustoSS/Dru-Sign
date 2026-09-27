@@ -7,6 +7,7 @@ import type { ItemCobranca, UnidadeCobranca } from '@/domain/precificacao/tipos'
 import type { TipoAcrescimo } from '@/domain/precificacao/resolucao'
 import { transicionar, type EstadoProducao } from '@/domain/ordem/estados'
 import { lerDataCalendario } from '@/domain/ordem/datas'
+import { prisma } from '@/infra/db/prisma'
 import { executarUmaVez, type Contexto, type Tx } from '@/infra/mutacoes/idempotencia'
 
 import { ConflitoVersao, OrdemNaoEditavel } from './erros'
@@ -87,6 +88,9 @@ async function recalcular(tx: Tx, ctx: Contexto, ordemId: string, versao: number
     valorUnitario: paraDominio(i.valorUnitario).toFixed(),
     altura: i.altura ? paraDominio(i.altura).toFixed() : undefined,
     largura: i.largura ? paraDominio(i.largura).toFixed() : undefined,
+    // Sem isto a recomposicao cobraria a medida real de uma peca que foi lancada pelo
+    // minimo da familia: o item guardava 1 m2 e a ordem somava 0,40 m2.
+    minimoMedida: i.minimoMedida ? paraDominio(i.minimoMedida).toFixed() : undefined,
   }))
   const temAjuste = ordem.ajustadoPorId !== null
   const c = comporOrdem(
@@ -192,13 +196,31 @@ export async function criarOrdem(
   })
 }
 
-function colunasItem(ctx: Contexto, dados: DadosItem) {
+/**
+ * O minimo cobravel que vale para este item, vindo da familia de preco do material.
+ *
+ * Sem material, sem familia ou sem minimo definido devolve `undefined`, e o calculo fica
+ * exatamente como sempre foi. Lido do banco e nao do que a tela mandou: minimo e regra da
+ * empresa, e regra nao chega pelo formulario.
+ */
+async function minimoCobravel(empresaId: string, materialId: string | null): Promise<string | undefined> {
+  if (materialId === null) return undefined
+  const m = await prisma.material.findFirst({
+    where: { id: materialId, empresaId },
+    select: { familiaPreco: { select: { minimoCobranca: true } } },
+  })
+  const minimo = m?.familiaPreco?.minimoCobranca
+  return minimo === null || minimo === undefined ? undefined : minimo.toFixed()
+}
+
+function colunasItem(ctx: Contexto, dados: DadosItem, minimoMedida?: string) {
   const cobranca: ItemCobranca = {
     unidade: dados.unidadeCobranca,
     quantidade: dados.quantidade,
     valorUnitario: dados.valorUnitario,
     altura: dados.altura ?? undefined,
     largura: dados.largura ?? undefined,
+    minimoMedida,
   }
   const r = calcularItem(cobranca) // valida (quantidade, medida) e da o total congelado
   const dim = (v: string | null) => (v === null ? null : paraBanco(dinheiro(v).toDecimalPlaces(4)))
@@ -210,6 +232,9 @@ function colunasItem(ctx: Contexto, dados: DadosItem) {
     altura: dim(dados.altura),
     largura: dim(dados.largura),
     unidadeCobranca: dados.unidadeCobranca,
+    // Congelado junto com o preco: `recalcular` remonta os totais a partir dos itens, e
+    // sem esta coluna a recomposicao perderia o piso e cobraria a medida real.
+    minimoMedida: minimoMedida === undefined ? null : paraBanco(dinheiro(minimoMedida)),
     valorUnitario: paraBanco(dinheiro(dados.valorUnitario)),
     total: paraBanco(r.total),
   }
@@ -217,7 +242,8 @@ function colunasItem(ctx: Contexto, dados: DadosItem) {
 
 export async function adicionarItem(ctx: Contexto, ordemId: string, versao: number, dados: DadosItem): Promise<Totais> {
   if (dados.descricao.trim() === '') throw new ErroDeValidacao('Descreva o item.')
-  const colunas = colunasItem(ctx, dados) // lanca ErroDeValidacao antes de abrir a transacao
+  const minimo = await minimoCobravel(ctx.empresaId, dados.materialId)
+  const colunas = colunasItem(ctx, dados, minimo) // lanca ErroDeValidacao antes de abrir a transacao
   return executarUmaVez(ctx, 'item.adicionar', async (tx) => {
     await carregarEditavel(tx, ctx, ordemId, versao)
     if (dados.materialId) await exigirMaterial(tx, ctx.empresaId, dados.materialId)

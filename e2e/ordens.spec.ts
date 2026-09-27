@@ -238,10 +238,17 @@ test.describe('Ordem de serviço', () => {
     for (const [variacao, preco] of [['fosco', '40,00'], ['brilhoso', '30,00']] as const) {
       await campoDe(page, 'Material').fill(`${familia} ${variacao}`)
       await campoDe(page, 'Categoria').fill(familia)
-      await campoDe(page, 'Preço').fill(preco)
+      await campoDe(page, 'Preço de venda').fill(preco)
       await campoDe(page, 'Cobrado').selectOption('m2')
       await page.getByRole('button', { name: 'Salvar' }).click()
+      // Filtra pelo formulario: o catalogo tem dezenas de linhas e a tabela e paginada,
+      // e uma navegacao no mesmo instante do POST estoura o teto de conexoes do PGlite.
+      await page.waitForURL(/\/materiais$/, { timeout: 30_000 })
+      await campoDe(page, 'Buscar').fill(`${familia} ${variacao}`)
+      await page.getByRole('button', { name: 'Filtrar' }).click()
+      await page.waitForURL(/[?&]q=/, { timeout: 30_000 })
       await expect(page.getByRole('row', { name: new RegExp(`${familia} ${variacao}`) })).toBeVisible({ timeout: 30_000 })
+      await page.goto('/materiais')
     }
 
     await novaOrdem(page)

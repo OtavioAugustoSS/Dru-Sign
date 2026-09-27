@@ -300,3 +300,45 @@ describe('impresso: o cadastro do cliente fica congelado na ordem', () => {
     expect(folha?.ordem.cliente?.documento).toBeNull()
   })
 })
+
+describe('minimo de cobranca da familia', () => {
+  async function comMinimo(minimo: string | null) {
+    const familia = await prisma.familiaPreco.create({
+      data: { empresaId: base.empresaId, nome: `Chapa ${randomUUID().slice(0, 8)}`, unidadePadrao: 'm2', margem: '120', arredondamento: '0.01', minimoCobranca: minimo },
+    })
+    return prisma.material.create({
+      data: { empresaId: base.empresaId, nome: `ACM ${randomUUID().slice(0, 8)}`, preco: '100', custo: '45', familiaPrecoId: familia.id, unidadeCobranca: 'm2' },
+    })
+  }
+
+  it('peca menor que o minimo e cobrada pelo minimo', async () => {
+    const material = await comMinimo('1')
+    const ordem = await criarOrdem(ctx(), { estado: 'aberta' })
+    // 0,5 x 0,8 = 0,40 m2, abaixo do piso de 1 m2 da familia.
+    const r = await adicionarItem(ctx(), ordem.id, ordem.versao, {
+      descricao: 'Placa pequena', materialId: material.id, quantidade: 1,
+      altura: '0.5', largura: '0.8', unidadeCobranca: 'm2', valorUnitario: '100.00',
+    })
+    expect(r.subtotalItens).toBe('100.00')
+  })
+
+  it('peca maior que o minimo paga a medida real', async () => {
+    const material = await comMinimo('1')
+    const ordem = await criarOrdem(ctx(), { estado: 'aberta' })
+    const r = await adicionarItem(ctx(), ordem.id, ordem.versao, {
+      descricao: 'Placa grande', materialId: material.id, quantidade: 1,
+      altura: '2', largura: '1.5', unidadeCobranca: 'm2', valorUnitario: '100.00',
+    })
+    expect(r.subtotalItens).toBe('300.00')
+  })
+
+  it('familia sem minimo nao muda nada', async () => {
+    const material = await comMinimo(null)
+    const ordem = await criarOrdem(ctx(), { estado: 'aberta' })
+    const r = await adicionarItem(ctx(), ordem.id, ordem.versao, {
+      descricao: 'Placa pequena', materialId: material.id, quantidade: 1,
+      altura: '0.5', largura: '0.8', unidadeCobranca: 'm2', valorUnitario: '100.00',
+    })
+    expect(r.subtotalItens).toBe('40.00')
+  })
+})

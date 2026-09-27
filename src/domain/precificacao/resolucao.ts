@@ -17,6 +17,14 @@ export interface MaterialCatalogo {
    * pontuacao por palavra nunca as ofereceria.
    */
   categoria?: string | null
+  /**
+   * De onde veio o preco deste material: o nome da familia que o calcula, "travado" ou
+   * "digitado". A linha mostra isso para o numero ser confiavel -- quem lanca precisa
+   * saber se aquele valor sai de uma regra ou de alguem que digitou uma vez.
+   */
+  origemPreco?: string | null
+  /** Minimo cobravel da familia, em m2 ou metros lineares. String decimal, ou null. */
+  minimoMedida?: string | null
 }
 
 export type TipoAcrescimo = 'instalacao' | 'deslocamento' | 'frete' | 'imposto'
@@ -312,6 +320,8 @@ export interface DescricaoLinha {
   total: string | null
   /** Quando a linha trouxe "CD <total>": bate ou nao com qtd x unitario. */
   conferencia: 'ok' | 'diverge' | null
+  /** A peca era menor que o minimo da familia e foi cobrada pelo minimo. */
+  minimoAplicado: boolean
 }
 
 /** "qtd 12 · ACM 3 mm · 0,61 × 0,40 m · R$ 61,00/un" e o total, como no artboard. */
@@ -320,7 +330,7 @@ export function descreverLinha(r: LinhaResolvida): DescricaoLinha {
     const partes = ['Acréscimo', r.tipoAcrescimo ?? 'tipo?']
     if (r.descricao) partes.push(r.descricao)
     const total = r.valor !== undefined ? formatarMoeda(dinheiro(r.valor)) : null
-    return { texto: partes.join(' · '), total, conferencia: null }
+    return { texto: partes.join(' · '), total, conferencia: null, minimoAplicado: false }
   }
 
   const partes = [`qtd ${r.quantidade}`, r.material?.nome ?? r.descricao]
@@ -329,18 +339,29 @@ export function descreverLinha(r: LinhaResolvida): DescricaoLinha {
 
   let total: string | null = null
   let conferencia: DescricaoLinha['conferencia'] = null
+  let minimoAplicado = false
   if (r.pendencias.length === 0 && r.valorUnitario !== undefined) {
     try {
+      // O minimo da familia entra aqui tambem, e nao so na gravacao: se a previa
+      // calculasse sem ele, a tela mostraria um total menor que o que seria cobrado.
+      const minimoMedida = r.material?.minimoMedida ?? undefined
       const calc = calcularItem({
         unidade: r.unidade, quantidade: r.quantidade, valorUnitario: r.valorUnitario, altura: r.altura, largura: r.largura,
+        minimoMedida,
       })
       total = formatarMoeda(calc.total)
+      if (minimoMedida !== undefined && r.altura !== undefined && r.largura !== undefined) {
+        const semMinimo = calcularItem({
+          unidade: r.unidade, quantidade: r.quantidade, valorUnitario: r.valorUnitario, altura: r.altura, largura: r.largura,
+        })
+        minimoAplicado = !calc.medida.equals(semMinimo.medida)
+      }
       if (r.totalDigitado !== undefined) conferencia = calc.total.equals(dinheiro(r.totalDigitado)) ? 'ok' : 'diverge'
     } catch {
       total = null
     }
   }
-  return { texto: partes.join(' · '), total, conferencia }
+  return { texto: partes.join(' · '), total, conferencia, minimoAplicado }
 }
 
 /** "61x40" ou "0,61 x 0,40" digitado no campo de medida. */
