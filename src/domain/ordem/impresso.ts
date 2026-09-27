@@ -27,6 +27,8 @@ export interface ItemImpresso {
   largura: number | null
   valorUnitario: Decimal
   total: Decimal
+  /** Minimo da familia congelado no item, por peca (m2 ou metros). Null: sem piso. */
+  minimoMedida?: number | null
 }
 
 export interface AcrescimoImpresso {
@@ -68,8 +70,18 @@ export function formatarDimensao(altura: number | null, largura: number | null):
 /** 'área · 2,88 m²' | 'por unidade' | 'metro linear · perímetro 2,42 m' — igual ao artboard. */
 export function descreverCobranca(item: ItemImpresso): string {
   if (item.unidade === 'unidade' || item.altura === null || item.largura === null) return 'por unidade'
-  if (item.unidade === 'm2') return `área · ${fmt(item.altura * item.largura * item.quantidade)} m²`
-  return `metro linear · perímetro ${fmt(2 * (item.altura + item.largura))} m`
+  // O piso vale por peca, como em `calcularArea`: a peca de 0,40 m2 com minimo de 1 m2 e
+  // cobrada como 1 m2. Sem dizer isso, a folha mostra "0,40 m2" ao lado de um total que
+  // so fecha com 1 m2 -- e quem confere a conta e o cliente.
+  const minimo = item.minimoMedida ?? null
+  if (item.unidade === 'm2') {
+    const peca = item.altura * item.largura
+    const real = `área · ${fmt(peca * item.quantidade)} m²`
+    return minimo !== null && peca < minimo ? `${real} · cobrado o mínimo de ${fmt(minimo * item.quantidade)} m²` : real
+  }
+  const perimetro = 2 * (item.altura + item.largura)
+  const real = `metro linear · perímetro ${fmt(perimetro)} m`
+  return minimo !== null && perimetro < minimo ? `${real} · cobrado o mínimo de ${fmt(minimo)} m` : real
 }
 
 export function tituloDocumento(estado: EstadoProducao): string {

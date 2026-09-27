@@ -16,6 +16,24 @@ describe('descreverCobranca', () => {
   it('unidade com medida registrada (OS 18449) continua por unidade', () => {
     expect(descreverCobranca(item({ unidade: 'unidade', quantidade: 12, altura: 0.61, largura: 0.4 }))).toBe('por unidade')
   })
+
+  // A folha vai para o cliente: "0,40 m2" ao lado de R$ 91,20 com unitario de R$ 91,20
+  // e uma conta que nao fecha. Quando o piso da familia entrou, a linha tem de dizer.
+  it('peca abaixo do minimo diz a area real e o que foi cobrado', () => {
+    expect(descreverCobranca(item({ unidade: 'm2', altura: 0.5, largura: 0.8, minimoMedida: 1 })))
+      .toBe('área · 0,40 m² · cobrado o mínimo de 1,00 m²')
+  })
+  it('o minimo vale por peca e a quantidade multiplica os dois lados', () => {
+    expect(descreverCobranca(item({ unidade: 'm2', quantidade: 3, altura: 0.5, largura: 0.8, minimoMedida: 1 })))
+      .toBe('área · 1,20 m² · cobrado o mínimo de 3,00 m²')
+  })
+  it('peca acima do minimo nao menciona o minimo', () => {
+    expect(descreverCobranca(item({ unidade: 'm2', altura: 2, largura: 1.5, minimoMedida: 1 }))).toBe('área · 3,00 m²')
+  })
+  it('metro linear abaixo do minimo', () => {
+    expect(descreverCobranca(item({ unidade: 'metro_linear', altura: 0.2, largura: 0.3, minimoMedida: 5 })))
+      .toBe('metro linear · perímetro 1,00 m · cobrado o mínimo de 5,00 m')
+  })
 })
 
 describe('formatarDimensao e tituloDocumento', () => {

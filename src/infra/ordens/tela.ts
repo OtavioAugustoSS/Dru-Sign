@@ -19,6 +19,8 @@ export interface ItemTela {
   unidadeCobranca: UnidadeCobranca
   valorUnitario: string
   total: string
+  /** Minimo da familia congelado no item. Null quando nao houve piso. */
+  minimoMedida: string | null
 }
 
 export interface AcrescimoTela {
@@ -113,6 +115,7 @@ export async function obterOrdemParaTela(empresaId: string, id: string): Promise
     itens: o.itens.map((i) => ({
       id: i.id, descricao: i.descricao, quantidade: i.quantidade, altura: d4(i.altura), largura: d4(i.largura),
       unidadeCobranca: i.unidadeCobranca, valorUnitario: d2(i.valorUnitario), total: d2(i.total),
+      minimoMedida: d4(i.minimoMedida),
     })),
     acrescimos: o.acrescimos.map((a) => ({ id: a.id, tipo: a.tipo, descricao: a.descricao, valor: d2(a.valor) })),
     concluidaEm: o.concluidaEm?.toISOString() ?? null,

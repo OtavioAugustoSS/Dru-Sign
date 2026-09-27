@@ -70,6 +70,8 @@ export async function obterImpresso(empresaId: string, ordemId: string): Promise
         quantidade: i.quantidade, descricao: i.descricao, unidade: i.unidadeCobranca,
         altura: i.altura === null ? null : Number(i.altura.toFixed()), largura: i.largura === null ? null : Number(i.largura.toFixed()),
         valorUnitario: paraDominio(i.valorUnitario), total: paraDominio(i.total),
+        // Sem isto a folha diria "0,40 m2" de uma peca cobrada pelo minimo de 1 m2.
+        minimoMedida: i.minimoMedida === null ? null : Number(i.minimoMedida.toFixed()),
       })),
       acrescimos: o.acrescimos.map((a) => ({ descricao: `${ROTULO[a.tipo]}${a.descricao ? ` · ${a.descricao}` : ''}`, valor: paraDominio(a.valor) })),
       subtotalItens: paraDominio(o.subtotalItens),

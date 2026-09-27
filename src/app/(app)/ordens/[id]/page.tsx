@@ -126,7 +126,7 @@ export default async function PaginaOrdem({
                         return (
                           <tr key={i.id}>
                             <td className="numero">{i.quantidade}</td>
-                            <td>{i.descricao}<div className="small text-secondary">{descreverCobranca({ quantidade: i.quantidade, descricao: i.descricao, unidade: i.unidadeCobranca, altura, largura, valorUnitario: dinheiro(i.valorUnitario), total: dinheiro(i.total) })}</div></td>
+                            <td>{i.descricao}<div className="small text-secondary">{descreverCobranca({ quantidade: i.quantidade, descricao: i.descricao, unidade: i.unidadeCobranca, altura, largura, valorUnitario: dinheiro(i.valorUnitario), total: dinheiro(i.total), minimoMedida: i.minimoMedida === null ? null : Number(i.minimoMedida) })}</div></td>
                             <td className="text-secondary">{formatarDimensao(altura, largura)}</td>
                             <td className="numero">{valorEmReais(i.valorUnitario)}</td>
                             <td className="numero">{valorEmReais(i.total)}</td>
